@@ -8,55 +8,121 @@
 </head>
 <body>
 <div class="shell">
-  <header>
-    <h1>Local Speedtest</h1>
-    <p class="subtitle">speedtest.mriazh.my.id &bull; LAN speedtest against Debian host</p>
+  <header class="shell-header">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="brand-name">Local Speedtest</div>
+        <div class="brand-desc">LAN speedtest against Debian host &bull; speedtest.mriazh.my.id</div>
+      </div>
+    </div>
+    <div class="brand-tip">LibreSpeed multi-stream engine &bull; no CDNs &bull; offline LAN compatible</div>
   </header>
 
   <main>
-    <div class="card gauges">
-      <div class="gauge">
-        <span class="label">Download</span>
-        <span class="value" id="dl">--</span> <span class="unit">Mbps</span>
+    <!-- Stage progress indicator -->
+    <div class="stages">
+      <div class="stage" id="stage-ping">
+        <div class="stage-dot"></div><div class="stage-label">Pinging&hellip;</div>
       </div>
-      <div class="gauge">
-        <span class="label">Upload</span>
-        <span class="value" id="ul">--</span> <span class="unit">Mbps</span>
+      <div class="stage" id="stage-download">
+        <div class="stage-dot"></div><div class="stage-label">Testing Download (Multi-stream)&hellip;</div>
       </div>
-      <div class="gauge">
-        <span class="label">Ping</span>
-        <span class="value" id="ping">--</span> <span class="unit">ms</span>
+      <div class="stage" id="stage-upload">
+        <div class="stage-dot"></div><div class="stage-label">Testing Upload (Multi-stream)&hellip;</div>
       </div>
-      <div class="gauge">
-        <span class="label">Jitter</span>
-        <span class="value" id="jitter">--</span> <span class="unit">ms</span>
+      <div class="stage" id="stage-complete">
+        <div class="stage-dot"></div><div class="stage-label">Completed</div>
       </div>
     </div>
 
-    <div class="card controls">
+    <!-- Animated speedometer gauges -->
+    <div class="gauges">
+      <div class="gauge-card">
+        <div class="gauge-head">
+          <div class="gauge-name">Download</div>
+          <div class="gauge-kind">Multi-stream</div>
+        </div>
+        <div class="gauge-body"><canvas id="gaugeDl"></canvas></div>
+        <div class="gauge-read"><span id="dlVal" class="gauge-num">--</span><span class="gauge-unit">Mbps</span></div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-head">
+          <div class="gauge-name">Upload</div>
+          <div class="gauge-kind">Multi-stream</div>
+        </div>
+        <div class="gauge-body"><canvas id="gaugeUl"></canvas></div>
+        <div class="gauge-read"><span id="ulVal" class="gauge-num">--</span><span class="gauge-unit">Mbps</span></div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-head">
+          <div class="gauge-name">Ping</div>
+          <div class="gauge-kind">Latency</div>
+        </div>
+        <div class="gauge-body"><canvas id="gaugePing"></canvas></div>
+        <div class="gauge-read"><span id="pingVal" class="gauge-num">--</span><span class="gauge-unit">ms</span></div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-head">
+          <div class="gauge-name">Jitter</div>
+          <div class="gauge-kind">Stability</div>
+        </div>
+        <div class="gauge-body"><canvas id="gaugeJitter"></canvas></div>
+        <div class="gauge-read"><span id="jitterVal" class="gauge-num">--</span><span class="gauge-unit">ms</span></div>
+      </div>
+    </div>
+
+    <!-- Start test -->
+    <div class="controls">
       <button id="startBtn" type="button">Start Test</button>
       <div id="status" class="status">Idle</div>
-      <div class="progress"><div id="progressBar"></div></div>
     </div>
 
-    <div class="card result" id="resultCard" hidden>
-      <h2>Result</h2>
-      <p id="resultSummary"></p>
-      <div class="share">
-        <label>Shareable link</label>
-        <div class="linkbox">
-          <input id="shareLink" readonly>
-          <button id="copyBtn" type="button">Copy</button>
+    <!-- Results (shown on completion) -->
+    <div class="result-box" id="resultBox" hidden>
+      <div class="result-head">
+        <h2>Test Complete</h2>
+        <div class="result-badge">Results saved</div>
+      </div>
+      <div class="result-numbers">
+        <div class="result-num">
+          <span class="result-big" id="rDl">--</span>
+          <span class="result-unit">Mbps</span>
+          <span class="result-lbl">Download</span>
         </div>
-        <a id="openResult" class="open" target="_blank" rel="noopener">Open result card &rarr;</a>
+        <div class="result-num">
+          <span class="result-big" id="rUl">--</span>
+          <span class="result-unit">Mbps</span>
+          <span class="result-lbl">Upload</span>
+        </div>
+        <div class="result-num">
+          <span class="result-big" id="rPing">--</span>
+          <span class="result-unit">ms</span>
+          <span class="result-lbl">Ping</span>
+        </div>
+        <div class="result-num">
+          <span class="result-big" id="rJitter">--</span>
+          <span class="result-unit">ms</span>
+          <span class="result-lbl">Jitter</span>
+        </div>
+      </div>
+      <div class="share">
+        <label class="share-label">Shareable link</label>
+        <div class="linkbox">
+          <input id="shareLink" readonly placeholder="Link appears after test">
+          <button id="copyBtn" type="button">Copy Link</button>
+        </div>
+        <a id="openResult" class="card-link" target="_blank" rel="noopener" hidden>View Generated Card &rarr;</a>
       </div>
     </div>
   </main>
 
-  <footer>
+  <footer class="shell-footer">
     <small>LibreSpeed Go backend &bull; SQLite telemetry &bull; Results kept on local Debian host</small>
   </footer>
 </div>
+
+<script src="speedtest.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

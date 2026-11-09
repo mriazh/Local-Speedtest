@@ -9,7 +9,7 @@ listen_port = 8989
 # Assets directory served by the backend.
 # Leave empty ("") to use LibreSpeed's official built-in HTML5 frontend
 # (with full speedometer gauges, multi-threaded Web Workers, and gigabit link saturation).
-assets_path = ""
+assets_path = "web"
 
 # Persistent telemetry in SQLite.
 database_type = "sqlite"

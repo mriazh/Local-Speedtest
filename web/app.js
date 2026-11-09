@@ -1,211 +1,415 @@
-// Local Speedtest — frontend logic (vanilla JS, no dependencies).
-// Works with the LibreSpeed Go backend endpoints served from the same origin.
+/* Local Speedtest — frontend logic powered by LibreSpeed (speedtest.js + speedtest_worker.js).
+   No CDNs. All logic local. Drives the animated gauges and stage indicator on index.html,
+   and preserves the /results/?id= viewing page (results.html). */
 
-const ENDPOINTS = {
-  ping: '/empty',
-  download: '/garbage',
-  upload: '/empty',
-  ip: '/getIP',
-  telemetry: '/results/telemetry',
-  json: '/results/json',
-  card: '/results',
-};
+(function() {
+  'use strict';
 
-const isResultsPage = location.pathname.endsWith('results.html') || location.pathname.includes('/results.html');
+  // ---------------------------------------------------------------------------
+  // Animated canvas speedometer gauge
+  // ---------------------------------------------------------------------------
+  class Gauge {
+    constructor(canvas, color, max, unit) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.color = color;      // CSS color string
+      this.max = max;          // full-scale value
+      this.unit = unit;        // label
+      this.value = 0;          // current (animated) value
+      this.target = 0;         // target value
+      this.dpr = window.devicePixelRatio || 1;
 
-const dlEl = document.getElementById('dl');
-const ulEl = document.getElementById('ul');
-const pingEl = document.getElementById('ping');
-const jitterEl = document.getElementById('jitter');
-const startBtn = document.getElementById('startBtn');
-const statusEl = document.getElementById('status');
-const progressBar = document.getElementById('progressBar');
-const resultCard = document.getElementById('resultCard');
-const resultSummary = document.getElementById('resultSummary');
-const shareLink = document.getElementById('shareLink');
-const copyBtn = document.getElementById('copyBtn');
-const openResult = document.getElementById('openResult');
+      this.canvas.width = 260 * this.dpr;
+      this.canvas.height = 120 * this.dpr;
+      this.ctx.scale(this.dpr, this.dpr);
 
-function fmtMbps(bps){ return isNaN(bps) ? '--' : (bps / 1e6).toFixed(2); }
-function fmtMs(ms){ return isNaN(ms) ? '--' : ms.toFixed(1); }
+      this.draw = this.draw.bind(this);
+      this.loop = this.loop.bind(this);
+      this.draw();
+      this.loop();
+    }
 
-// Time a fetch and read the full body so the measured time includes transfer.
-async function timedFetch(url, opts = {}){
-  const t0 = performance.now();
-  const res = await fetch(url, opts);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  await res.arrayBuffer();
-  return { ms: performance.now() - t0 };
-}
+    // Animate the needle toward `v` (clamped to [0, max]).
+    animateTo(v) {
+      this.target = Math.max(0, Math.min(this.max, v));
+    }
 
-async function pingTest(count = 6){
-  const rtts = [];
-  for (let i = 0; i < count; i++){
-    try{
-      const r = await timedFetch(ENDPOINTS.ping + '?n=' + Date.now() + '-' + i);
-      rtts.push(r.ms);
-    } catch (e){ /* ignore individual probe failures */ }
-  }
-  if (rtts.length === 0) return { ping: 0, jitter: 0 };
-  rtts.sort((a, b) => a - b);
-  const ping = rtts[0]; // best RTT
-  const avg = rtts.reduce((a, b) => a + b, 0) / rtts.length;
-  const jitter = rtts.reduce((a, b) => a + Math.abs(b - avg), 0) / rtts.length;
-  return { ping, jitter };
-}
+    reset() {
+      this.value = 0;
+      this.target = 0;
+      this.draw();
+    }
 
-async function downloadTest(){
-  const t0 = performance.now();
-  const res = await fetch(ENDPOINTS.download + '?n=' + Date.now(), { cache: 'no-store' });
-  if (!res.ok) throw new Error('download failed');
-  const buf = await res.arrayBuffer();
-  const sec = (performance.now() - t0) / 1000;
-  return buf.byteLength / sec; // bytes/sec
-}
+    loop() {
+      this.value += (this.target - this.value) * 0.14;
+      if (Math.abs(this.target - this.value) < 0.05) this.value = this.target;
+      this.draw();
+      requestAnimationFrame(this.loop);
+    }
 
-async function uploadTest(sizeMB = 4){
-  const bytes = sizeMB * 1024 * 1024;
-  // Zero-filled blob is fine: /empty is a discard sink.
-  const blob = new Blob([new Uint8Array(bytes)]);
-  const t0 = performance.now();
-  const res = await fetch(ENDPOINTS.upload + '?n=' + Date.now(), {
-    method: 'POST',
-    body: blob,
-    headers: { 'Content-Type': 'application/octet-stream' },
-  });
-  if (!res.ok) throw new Error('upload failed');
-  const sec = (performance.now() - t0) / 1000;
-  return bytes / sec;
-}
+    draw() {
+      const c = this.ctx;
+      const w = this.canvas.width / this.dpr;
+      const h = this.canvas.height / this.dpr;
+      c.clearRect(0, 0, w, h);
 
-async function saveResult(dl, ul, ping, jitter){
-  let ispInfo = '{}';
-  try{
-    const r = await fetch(ENDPOINTS.ip + '?n=' + Date.now());
-    ispInfo = await r.text();
-  } catch (e){ /* ispinfo optional */ }
+      const cx = w * 0.5;
+      const cy = h * 0.80;
+      const r = Math.min(w, h) * 0.42;
 
-  const form = new FormData();
-  form.append('dl', dl.toFixed(2));
-  form.append('ul', ul.toFixed(2));
-  form.append('ping', ping.toFixed(2));
-  form.append('jitter', jitter.toFixed(2));
-  form.append('log', 'local-speedtest web frontend');
-  form.append('ispinfo', ispInfo);
+      // Speedometer arc: lower-left (150deg) -> bottom (90deg) -> lower-right (30deg).
+      const start = 5 * Math.PI / 6;
+      const end = Math.PI / 6;
+      const p = this.max > 0 ? Math.min(1, this.value / this.max) : 0;
+      const cur = start - p * (start - end);
 
-  const res = await fetch(ENDPOINTS.telemetry, { method: 'POST', body: form });
-  const text = await res.text();
-  // Backend replies: "id <uuid>"
-  const m = text.match(/id\s+(\S+)/);
-  return m ? m[1] : null;
-}
+      // Background track.
+      c.beginPath();
+      c.arc(cx, cy, r, start, end, true);
+      c.strokeStyle = '#1f2a44';
+      c.lineWidth = 10;
+      c.lineCap = 'round';
+      c.stroke();
 
-function baseOrigin(){
-  return location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
-}
+      // Filled progress arc (+ glow).
+      if (p > 0.005) {
+        c.beginPath();
+        c.arc(cx, cy, r, start, cur, true);
+        c.strokeStyle = this.color;
+        c.lineWidth = 10;
+        c.lineCap = 'round';
+        c.shadowColor = this.color;
+        c.shadowBlur = 14;
+        c.stroke();
+        c.shadowBlur = 0;
+      }
 
-async function runTest(){
-  setRunning(true);
-  statusEl.textContent = 'Measuring ping&hellip;';
-  progressBar.style.width = '20%';
+      // Tick marks.
+      c.save();
+      c.translate(cx, cy);
+      c.strokeStyle = '#334155';
+      c.lineWidth = 2;
+      c.lineCap = 'round';
+      for (let i = 0; i <= 5; i++) {
+        const a = start - (i / 5) * (start - end);
+        c.beginPath();
+        c.moveTo(Math.cos(a) * r * 0.85, Math.sin(a) * r * 0.85);
+        c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        c.stroke();
+      }
+      c.restore();
 
-  const { ping, jitter } = await pingTest();
+      // Needle.
+      const nr = r * 0.78;
+      c.beginPath();
+      c.moveTo(cx, cy);
+      c.lineTo(cx + Math.cos(cur) * nr, cy + Math.sin(cur) * nr);
+      c.strokeStyle = this.color;
+      c.lineWidth = 3;
+      c.lineCap = 'round';
+      c.shadowColor = this.color;
+      c.shadowBlur = 10;
+      c.stroke();
+      c.shadowBlur = 0;
 
-  statusEl.textContent = 'Testing download&hellip;';
-  progressBar.style.width = '50%';
-  const dl = await downloadTest();
-
-  statusEl.textContent = 'Testing upload&hellip;';
-  progressBar.style.width = '75%';
-  const ul = await uploadTest();
-
-  statusEl.textContent = 'Saving result&hellip;';
-  progressBar.style.width = '90%';
-  const id = await saveResult(dl, ul, ping, jitter);
-
-  dlEl.textContent = fmtMbps(dl);
-  ulEl.textContent = fmtMbps(ul);
-  pingEl.textContent = fmtMs(ping);
-  jitterEl.textContent = fmtMs(jitter);
-
-  if (id){
-    const resultUrl = baseOrigin() + '/results/?id=' + id;
-    resultSummary.textContent =
-      'Download ' + fmtMbps(dl) + ' Mbps  Upload ' + fmtMbps(ul) + ' Mbps  ' +
-      'Ping ' + fmtMs(ping) + ' ms  Jitter ' + fmtMs(jitter) + ' ms';
-    shareLink.value = resultUrl;
-    openResult.href = resultUrl;
-    openResult.textContent = 'Open result card (' + id + ') &rarr;';
-    resultCard.hidden = false;
+      // Center dot.
+      c.beginPath();
+      c.arc(cx, cy, 6, 0, 2 * Math.PI);
+      c.fillStyle = '#090d16';
+      c.fill();
+      c.strokeStyle = this.color;
+      c.lineWidth = 2;
+      c.stroke();
+    }
   }
 
-  setRunning(false);
-  statusEl.textContent = id ? 'Test complete.' : 'Test finished (result not saved).';
-  progressBar.style.width = '100%';
-}
+  // ---------------------------------------------------------------------------
+  // Shared endpoint config (same-origin, no CDNs)
+  // ---------------------------------------------------------------------------
+  const ENDPOINTS = {
+    ping: '/empty',
+    download: '/garbage',
+    upload: '/empty',
+    ip: '/getIP',
+    telemetry: '/results/telemetry',
+    json: '/results/json',
+    card: '/results',
+  };
 
-function setRunning(running){
-  if (startBtn){
-    startBtn.disabled = running;
-    startBtn.textContent = running ? 'Testing&hellip;' : 'Start Test';
+  const isResultsPage =
+    location.pathname.endsWith('results.html') || location.pathname.includes('/results.html');
+
+  // ---------------------------------------------------------------------------
+  // index.html: speedtest page
+  // ---------------------------------------------------------------------------
+  const COLORS = {
+    dl: '#00f2fe',
+    ul: '#818cf8',
+    ping: '#f59e0b',
+    jitter: '#f59e0b',
+  };
+
+  const MAX_DL_UL = 3000; // Mbps (covers 1 Gbps / 2.5 Gbps LAN)
+  const MAX_PING = 300;   // ms
+
+  // Speedtest parameters per spec.
+  const PARAMS = {
+    telemetry_level: 'basic',
+    url_telemetry: 'results/telemetry',
+    url_dl: 'garbage',
+    url_ul: 'empty',
+    url_ping: 'empty',
+    url_getIp: 'getIP',
+  };
+  // test_order includes a ping phase so the stage indicator can show "Pinging…".
+  const TEST_ORDER = 'IPDU';
+
+  const startBtn = document.getElementById('startBtn');
+  const statusEl = document.getElementById('status');
+  const resultBox = document.getElementById('resultBox');
+  const shareLink = document.getElementById('shareLink');
+  const copyBtn = document.getElementById('copyBtn');
+  const openResult = document.getElementById('openResult');
+
+  const stageEls = {
+    ping: document.getElementById('stage-ping'),
+    download: document.getElementById('stage-download'),
+    upload: document.getElementById('stage-upload'),
+    complete: document.getElementById('stage-complete'),
+  };
+
+  const readoutEls = {
+    dl: document.getElementById('dlVal'),
+    ul: document.getElementById('ulVal'),
+    ping: document.getElementById('pingVal'),
+    jitter: document.getElementById('jitterVal'),
+  };
+
+  const resultEls = {
+    dl: document.getElementById('rDl'),
+    ul: document.getElementById('rUl'),
+    ping: document.getElementById('rPing'),
+    jitter: document.getElementById('rJitter'),
+  };
+
+  const gauges = (function buildGauges() {
+    if (isResultsPage || !document.getElementById('gaugeDl')) return {};
+    return {
+      dl: new Gauge(document.getElementById('gaugeDl'), COLORS.dl, MAX_DL_UL, 'Mbps'),
+      ul: new Gauge(document.getElementById('gaugeUl'), COLORS.ul, MAX_DL_UL, 'Mbps'),
+      ping: new Gauge(document.getElementById('gaugePing'), COLORS.ping, MAX_PING, 'ms'),
+      jitter: new Gauge(document.getElementById('gaugeJitter'), COLORS.jitter, MAX_PING, 'ms'),
+    };
+  })();
+
+  let latest = null;
+  let activeStage = null;
+  let running = false;
+  let current = null;
+
+  function baseOrigin() {
+    return location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
   }
-}
 
-function initSpeedtestPage(){
-  if (!startBtn) return;
-  startBtn.addEventListener('click', () => {
-    resultCard.hidden = true;
-    progressBar.style.width = '0%';
-    runTest().catch(err => {
-      statusEl.textContent = 'Error: ' + err.message;
-      setRunning(false);
+  function setStage(key) {
+    if (activeStage === key) return;
+    activeStage = key;
+    Object.values(stageEls).forEach((el) => el && el.classList.remove('active', 'done'));
+    const order = ['ping', 'download', 'upload', 'complete'];
+    const idx = order.indexOf(key);
+    order.forEach((k, i) => {
+      if (i < idx && stageEls[k]) stageEls[k].classList.add('done');
     });
-  });
-  if (copyBtn){
-    copyBtn.addEventListener('click', async ()=>{
-      try{
+    if (stageEls[key]) stageEls[key].classList.add('active');
+    const label = {
+      ping: 'Pinging&hellip;',
+      download: 'Testing Download (Multi-stream)&hellip;',
+      upload: 'Testing Upload (Multi-stream)&hellip;',
+      complete: 'Completed',
+    }[key] || 'Idle';
+    if (statusEl) statusEl.textContent = label;
+  }
+
+  function setRunning(r) {
+    running = r;
+    if (startBtn) {
+      startBtn.disabled = r;
+      startBtn.textContent = r ? 'Stop Test' : 'Start Test';
+      startBtn.classList.toggle('running', r);
+    }
+  }
+
+  function createSpeedtest() {
+    const s = new Speedtest();
+    Object.entries(PARAMS).forEach(([k, v]) => s.setParameter(k, v));
+    s.setParameter('test_order', TEST_ORDER);
+    return s;
+  }
+
+  function startTest() {
+    if (resultBox) resultBox.hidden = true;
+    setRunning(true);
+    setStage('ping');
+    Object.values(gauges).forEach((g) => g.reset());
+    Object.values(readoutEls).forEach((el) => (el.textContent = '--'));
+    latest = null;
+    if (statusEl) statusEl.textContent = 'Preparing&hellip;';
+
+    current = createSpeedtest();
+
+    current.onupdate = function(data) {
+      latest = data;
+      const st = data.testState;
+      if (st === 1) {
+        setStage('download');
+        gauges.dl.animateTo(parseFloat(data.dlStatus) || 0);
+        if (data.dlStatus && data.dlStatus !== 'Fail') readoutEls.dl.textContent = data.dlStatus;
+      } else if (st === 3) {
+        setStage('upload');
+        gauges.ul.animateTo(parseFloat(data.ulStatus) || 0);
+        if (data.ulStatus && data.ulStatus !== 'Fail') readoutEls.ul.textContent = data.ulStatus;
+      } else if (st === 2) {
+        setStage('ping');
+        gauges.ping.animateTo(parseFloat(data.pingStatus) || 0);
+        gauges.jitter.animateTo(parseFloat(data.jitterStatus) || 0);
+        if (data.pingStatus && data.pingStatus !== 'Fail') readoutEls.ping.textContent = data.pingStatus;
+        if (data.jitterStatus && data.jitterStatus !== 'Fail') readoutEls.jitter.textContent = data.jitterStatus;
+      } else if (st >= 4) {
+        setStage('complete');
+      }
+    };
+
+    current.onend = function(aborted) {
+      setRunning(false);
+      if (aborted) {
+        setStage('ping');
+        if (statusEl) statusEl.textContent = 'Test aborted.';
+        current = null;
+        return;
+      }
+      setStage('complete');
+      if (latest) {
+        const id = latest.testId || null;
+        const dl = parseFloat(latest.dlStatus) || 0;
+        const ul = parseFloat(latest.ulStatus) || 0;
+        const ping = parseFloat(latest.pingStatus) || 0;
+        const jitter = parseFloat(latest.jitterStatus) || 0;
+
+        if (resultEls.dl) resultEls.dl.textContent = dl.toFixed(2);
+        if (resultEls.ul) resultEls.ul.textContent = ul.toFixed(2);
+        if (resultEls.ping) resultEls.ping.textContent = ping.toFixed(2);
+        if (resultEls.jitter) resultEls.jitter.textContent = jitter.toFixed(2);
+
+        gauges.dl.animateTo(dl);
+        gauges.ul.animateTo(ul);
+        gauges.ping.animateTo(ping);
+        gauges.jitter.animateTo(jitter);
+
+        if (id && shareLink && openResult) {
+          const url = baseOrigin() + '/results/?id=' + id;
+          shareLink.value = url;
+          openResult.href = url;
+          openResult.textContent = 'View Generated Card &rarr;';
+          openResult.hidden = false;
+        } else if (openResult) {
+          openResult.hidden = true;
+        }
+      }
+      if (resultBox) resultBox.hidden = false;
+      if (statusEl) statusEl.textContent = 'Test completed.';
+      current = null;
+    };
+
+    try {
+      current.start();
+    } catch (e) {
+      if (statusEl) statusEl.textContent = 'Error: ' + e.message;
+      setRunning(false);
+      current = null;
+    }
+  }
+
+  if (startBtn) {
+    startBtn.addEventListener('click', function() {
+      if (running && current) {
+        try {
+          current.abort();
+        } catch (e) {
+          // abort best-effort
+        }
+        setRunning(false);
+        setStage('ping');
+        if (statusEl) statusEl.textContent = 'Test aborted.';
+        current = null;
+        return;
+      }
+      startTest();
+    });
+  }
+
+  if (copyBtn && shareLink) {
+    copyBtn.addEventListener('click', async function() {
+      try {
         await navigator.clipboard.writeText(shareLink.value);
         const before = copyBtn.textContent;
         copyBtn.textContent = 'Copied!';
-        setTimeout(()=> copyBtn.textContent = before, 1200);
-      } catch(e){ shareLink.select(); document.execCommand('copy'); }
+        setTimeout(function() {
+          copyBtn.textContent = before;
+        }, 1200);
+      } catch (e) {
+        shareLink.select();
+        try {
+          document.execCommand('copy');
+        } catch (_) {
+          // clipboard unavailable
+        }
+      }
     });
   }
-}
 
-async function initResultsPageView(){
-  const statusEl2 = document.getElementById('resultStatus');
-  const gauges = document.getElementById('gauges');
-  const rDl = document.getElementById('rDl');
-  const rUl = document.getElementById('rUl');
-  const rPing = document.getElementById('rPing');
-  const rJitter = document.getElementById('rJitter');
-  const rMeta = document.getElementById('rMeta');
-  const rCard = document.getElementById('rCard');
-  const params = new URLSearchParams(location.search);
-  const id = params.get('id');
-  if (!id){
-    statusEl2.textContent = 'No result id provided. Use /results/?id=<id>';
-    return;
+  // ---------------------------------------------------------------------------
+  // results.html: view a saved result card
+  // ---------------------------------------------------------------------------
+  async function initResultsPageView() {
+    const statusEl2 = document.getElementById('resultStatus');
+    const gaugesEl = document.getElementById('gauges');
+    const rDl = document.getElementById('rDl');
+    const rUl = document.getElementById('rUl');
+    const rPing = document.getElementById('rPing');
+    const rJitter = document.getElementById('rJitter');
+    const rMeta = document.getElementById('rMeta');
+    const rCard = document.getElementById('rCard');
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if (!id) {
+      if (statusEl2) statusEl2.textContent = 'No result id provided. Use /results/?id=<id>';
+      return;
+    }
+    try {
+      const res = await fetch(ENDPOINTS.json + '?id=' + id + '&n=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('result not found');
+      const data = await res.json();
+      if (rDl) rDl.textContent = data.download || '--';
+      if (rUl) rUl.textContent = data.upload || '--';
+      if (rPing) rPing.textContent = data.ping || '--';
+      if (rJitter) rJitter.textContent = data.jitter || '--';
+      if (rMeta) rMeta.textContent = (data.ispinfo ? data.ispinfo + '  •  ' : '') + (data.timestamp || '');
+      if (rCard) {
+        rCard.src = ENDPOINTS.card + '?id=' + id;
+        rCard.hidden = false;
+      }
+      if (gaugesEl) gaugesEl.hidden = false;
+      if (statusEl2) statusEl2.hidden = true;
+    } catch (e) {
+      if (statusEl2) statusEl2.textContent = 'Could not load result: ' + e.message;
+    }
   }
-  try{
-    const res = await fetch(ENDPOINTS.json + '?id=' + id + '&n=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('result not found');
-    const data = await res.json();
-    rDl.textContent = data.download || '--';
-    rUl.textContent = data.upload || '--';
-    rPing.textContent = data.ping || '--';
-    rJitter.textContent = data.jitter || '--';
-    rMeta.textContent = (data.ispinfo ? data.ispinfo + '  •  ' : '') + (data.timestamp || '');
-    rCard.src = ENDPOINTS.card + '?id=' + id;
-    gauges.hidden = false;
-    rCard.hidden = false;
-    statusEl2.hidden = true;
-  } catch (e){
-    statusEl2.textContent = 'Could not load result: ' + e.message;
-  }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (isResultsPage) initResultsPageView(); else initSpeedtestPage();
-});
+  document.addEventListener('DOMContentLoaded', function() {
+    if (isResultsPage) {
+      initResultsPageView();
+    } else if (startBtn) {
+      // speedtest page already wired above
+    }
+  });
+})();
