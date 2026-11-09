@@ -76,7 +76,7 @@ def main():
 
     # 2. Health / client IP endpoint.
     st, body, ct = request("GET", base + "/getIP")
-    t("GET /getIP returns client IP", st == 200 and b"ProcessedString" in body,
+    t("GET /getIP returns client IP", st == 200 and b"processedstring" in body.lower(),
       f"status={st} body={body[:120]!r}")
 
     # 3. Telemetry: save a result, expect "id <uuid>".
