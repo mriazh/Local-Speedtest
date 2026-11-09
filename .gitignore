@@ -1,0 +1,18 @@
+# Binaries
+speedtest-backend
+*.tar.gz
+
+# Runtime Data
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+__pycache__/
+*.pyc
