@@ -1,16 +1,5 @@
-Copy the official OpenSpeedTest frontend into web/ and connect it to LibreSpeed Go backend.
-
-Steps:
-1. Run command to copy assets from C:/Users/adima/AppData/Local/Temp/opencode/ost-clone:
-   Copy-Item -Recurse -Force "C:/Users/adima/AppData/Local/Temp/opencode/ost-clone/assets" "web/assets"
-   Copy-Item -Force "C:/Users/adima/AppData/Local/Temp/opencode/ost-clone/index.html" "web/index.html"
-2. In web/index.html:
-   - Change openSpeedTestServerList to:
-     var openSpeedTestServerList = [
-       {"ServerName":"Local Debian Host", "Download":"garbage", "Upload":"empty", "ServerIcon":"DefaultIcon"}
-     ];
-   - Ensure pingMethod = "GET" and pingFile = "Upload"
-   - At the bottom of web/index.html, add a script that listens for test completion (when #resultsData gets href attribute or window.ostOnload fires), sends POST to /results/telemetry with download, upload, ping, jitter, and displays a floating dark card with the shareable link (http://speedtest.mriazh.my.id:8989/results/?id=<id>) and a Copy button.
-3. Keep web/results.html intact.
-4. Ensure config/settings.toml has assets_path = "web".
-5. Run orca orchestration send --type worker_done --subject "OpenSpeedTest integration complete"
+Integrate OpenSpeedTest UI into web/:
+1. Run: python docs/integrate_ost.py
+2. Verify web/index.html and web/assets/ exist.
+3. Commit changes to git.
+4. Report completion with orca orchestration send --type worker_done --subject "OpenSpeedTest integration complete"
