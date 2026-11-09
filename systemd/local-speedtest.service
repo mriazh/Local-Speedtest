@@ -1,0 +1,44 @@
+# Systemd unit for Local Speedtest (LibreSpeed Go backend).
+# Parameterised with @APP_DIR@ and @APP_USER@ — the deploy script
+# (deploy.sh) substitutes these with sed (MRTG-CMP pattern).
+#
+# Install:
+#   sudo sed -i "s#@APP_DIR@#$APP_DIR#g; s#@APP_USER@#$APP_USER#g" \
+#       systemd/local-speedtest.service
+#   sudo cp systemd/local-speedtest.service /etc/systemd/system/local-speedtest.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now local-speedtest.service
+
+[Unit]
+Description=Local Speedtest Server (LibreSpeed Go)
+After=syslog.target network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/speedtest-backend -c @APP_DIR@/config/settings.toml
+# Restart on failure, run as a background daemon.
+Restart=on-failure
+RestartSec=5
+User=@APP_USER@
+Group=@APP_USER@
+
+# Environment (override port or other settings here if needed).
+Environment=SPEEDTEST_PORT=8989
+
+# Files the service needs to read/write.
+ReadWritePaths=@APP_DIR@/data @APP_DIR@/config @APP_DIR@/web
+UMask=027
+
+# Hardening (safe for a local LAN service).
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+CapabilityBoundingSet=
+SystemCallFilter=@system-service
+
+[Install]
+WantedBy=multi-user.target

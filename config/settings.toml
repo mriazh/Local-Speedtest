@@ -1,0 +1,23 @@
+# LibreSpeed Go (speedtest-go) configuration for Local Speedtest.
+# Working directory is the app install dir; relative paths resolve from there.
+
+# Bind to all interfaces so LAN clients can reach the server.
+bind_address = "0.0.0.0"
+# Backend listen port (configurable via environment or edit this file).
+listen_port = 8989
+
+# Assets directory served by the backend (HTML5 frontend lives here).
+assets_path = "web"
+
+# Persistent telemetry in SQLite.
+database_type = "sqlite"
+database_file = "data/telemetry.db"
+
+# Statistics page access password.
+statistics_password = "admin"
+# Do not redact client IP addresses (results are local LAN only).
+redact_ip_addresses = false
+
+# Result sharing: enabled implicitly when database_type != "none".
+# Each completed test receives a unique ULID-based ID, viewable at
+# /results/?id=<id> (PNG card) and /results/json?id=<id> (JSON metrics).

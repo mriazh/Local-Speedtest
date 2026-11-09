@@ -1,0 +1,47 @@
+/* Local Speedtest — frontend styles (clean, lightweight, mobile-friendly) */
+:root{
+  --bg:#f5f7fa;
+  --card:#ffffff;
+  --accent:#2563eb;
+  --accent-hover:#1d4ed8;
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --ok:#15803d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.5;}
+.shell{max-width:560px;margin:0 auto;padding:16px;}
+header{margin-bottom:24px;}
+h1{font-size:1.5rem;margin:0 0 4px 0;letter-spacing:-0.01em;}
+.subtitle{color:var(--muted);font-size:0.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:16px;}
+.gauges{display:flex;flex-wrap:wrap;gap:10px;}
+.gauge{flex:1 1 120px;min-width:110px;background:#f8fafc;border:1px solid var(--border);
+  border-radius:10px;padding:12px 8px;text-align:center;}
+.gauge .label{display:block;font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+.gauge .value{display:block;font-size:1.9rem;font-weight:700;margin:4px 0 2px 0;}
+.gauge .unit{display:block;font-size:0.78rem;color:var(--muted);}
+.controls button{width:100%;padding:14px;font-size:1rem;font-weight:600;
+  background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;}
+.controls button:disabled{opacity:0.6;cursor:not-allowed;}
+.controls button:hover:not(:disabled){background:var(--accent-hover);}
+.status{color:var(--muted);font-size:0.9rem;margin-top:8px;min-height:1.2em;}
+.progress{height:6px;background:#e5e7eb;border-radius:3px;margin-top:10px;overflow:hidden;}
+#progressBar{height:100%;width:0%;background:var(--accent);transition:width 0.3s ease;}
+.result{background:#f0f7ff;}
+.result h2{margin-top:0;font-size:1.15rem;}
+.share{margin-top:12px;}
+.share label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:6px;}
+.linkbox{display:flex;gap:6px;margin-bottom:8px;}
+.linkbox input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;}
+.linkbox button{padding:8px 14px;font-size:0.85rem;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;}
+.linkbox button:hover{background:var(--accent-hover);}
+a.open{color:var(--accent);text-decoration:none;font-weight:600;}
+a.open:hover{text-decoration:underline;}
+footer{color:var(--muted);font-size:0.78rem;padding-bottom:24px;}
+[hidden]{display:none!important;}
+@media (max-width:480px){.shell{padding:12px;}}

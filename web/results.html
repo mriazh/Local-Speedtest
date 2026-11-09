@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speedtest Result</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Test Result</h1>
+    <a href="index.html" class="open">&larr; New test</a>
+  </header>
+
+  <main>
+    <div class="card" id="resultView">
+      <p class="status" id="resultStatus">Loading result&hellip;</p>
+      <div class="gauges" id="gauges" hidden>
+        <div class="gauge">
+          <span class="label">Download</span>
+          <span class="value" id="rDl">--</span> <span class="unit">Mbps</span>
+        </div>
+        <div class="gauge">
+          <span class="label">Upload</span>
+          <span class="value" id="rUl">--</span> <span class="unit">Mbps</span>
+        </div>
+        <div class="gauge">
+          <span class="label">Ping</span>
+          <span class="value" id="rPing">--</span> <span class="unit">ms</span>
+        </div>
+        <div class="gauge">
+          <span class="label">Jitter</span>
+          <span class="value" id="rJitter">--</span> <span class="unit">ms</span>
+        </div>
+      </div>
+      <p id="rMeta"></p>
+      <img id="rCard" alt="Result card" style="max-width:100%;height:auto;border:1px solid var(--border);border-radius:8px;margin-top:1rem;" hidden>
+    </div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

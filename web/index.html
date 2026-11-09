@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local Speedtest</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Local Speedtest</h1>
+    <p class="subtitle">speedtest.mriazh.my.id &bull; LAN speedtest against Debian host</p>
+  </header>
+
+  <main>
+    <div class="card gauges">
+      <div class="gauge">
+        <span class="label">Download</span>
+        <span class="value" id="dl">--</span> <span class="unit">Mbps</span>
+      </div>
+      <div class="gauge">
+        <span class="label">Upload</span>
+        <span class="value" id="ul">--</span> <span class="unit">Mbps</span>
+      </div>
+      <div class="gauge">
+        <span class="label">Ping</span>
+        <span class="value" id="ping">--</span> <span class="unit">ms</span>
+      </div>
+      <div class="gauge">
+        <span class="label">Jitter</span>
+        <span class="value" id="jitter">--</span> <span class="unit">ms</span>
+      </div>
+    </div>
+
+    <div class="card controls">
+      <button id="startBtn" type="button">Start Test</button>
+      <div id="status" class="status">Idle</div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+
+    <div class="card result" id="resultCard" hidden>
+      <h2>Result</h2>
+      <p id="resultSummary"></p>
+      <div class="share">
+        <label>Shareable link</label>
+        <div class="linkbox">
+          <input id="shareLink" readonly>
+          <button id="copyBtn" type="button">Copy</button>
+        </div>
+        <a id="openResult" class="open" target="_blank" rel="noopener">Open result card &rarr;</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <small>LibreSpeed Go backend &bull; SQLite telemetry &bull; Results kept on local Debian host</small>
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
