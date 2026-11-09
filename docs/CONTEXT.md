@@ -1,13 +1,10 @@
 # Active Context: Local Speedtest
 
 ## Session Status
-- **Current State:** Opsi 1 (Ookla / Speedtest.net-inspired Single Gauge Dark UI) delivered and deployed.
+- **Current State:** OpenSpeedTest genuine vector UI integration complete and live.
 - **Backend & Network:** Running on Debian (`172.16.171.23:8989`), DNS `speedtest.mriazh.my.id` (Cloudflare DNS-Only).
 - **Frontend Architecture:**
-  - Centerpiece: 1 Single large 240-degree tachometer speedometer gauge with glowing neon needle and gradient sweep.
-  - Heart of Gauge: Circular "GO" button with pulse hover animation.
-  - Active Transition: "GO" button smoothly morphs into digital live speed readout during test.
-  - Telemetry Bar: Top horizontal panel with Ping (amber), Jitter (amber), Download (cyan), and Upload (purple) metrics.
-  - Engine: Multi-threaded LibreSpeed Web Workers (`web/speedtest.js` + `web/speedtest_worker.js`) with SQLite persistence.
-  - Result Card: Full metric summary with 1-click shareable link copy and direct link to PNG card (`/results/?id=<id>`).
-  - LAN Friendly: 100% offline, zero external CDNs, responsive for mobile & desktop.
+  - Official OpenSpeedTest UI: High-res SVG tachometer dial, vector needle, neon glow animations, dark mode.
+  - Endpoints wired to Debian LibreSpeed Go: `Download: "garbage"`, `Upload: "empty"`, `ping: "empty"`.
+  - SQLite Telemetry Bridge: Mutation observer detects test completion, posts metrics to `/results/telemetry`, and displays floating dark share card with copyable link (`/results/?id=<id>`).
+  - 100% offline LAN compatible.
