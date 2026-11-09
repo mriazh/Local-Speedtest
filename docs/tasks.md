@@ -18,3 +18,10 @@ Target Executor: Orca Claude Code Worker (`--agent claude --model sonnet`)
 ## Wave 4: Automated Verification
 - [x] Task 4.1: Create local verification test script (`tests/test_local_speedtest.py`) to assert HTTP endpoints (ping, download chunk, upload sink, telemetry record, and results page).
 - [x] Task 4.2: Add README documentation with Cloudflare Grey Cloud DNS setup guide for `speedtest.mriazh.my.id`.
+
+## Wave 5: Modern Dark-Mode UI Redesign (Speedometer Gauge)
+- [ ] Task 5.1: Design premium dark UI (`web/index.html`, `web/style.css`) with deep obsidian palette (#0b0f19), glowing neon accents, and responsive layout.
+- [ ] Task 5.2: Implement animated Canvas/SVG speedometer gauge that tracks real-time throughput smoothly.
+- [ ] Task 5.3: Wire `web/app.js` with official multi-threaded engine (`speedtest.js` & `speedtest_worker.js`) to achieve full Gigabit link saturation.
+- [ ] Task 5.4: Implement phase status indicator (Ping, Download, Upload, Complete) and polished result box with 1-click shareable link copy.
+- [ ] Task 5.5: Switch `config/settings.toml` back to `assets_path = "web"` and verify endpoints.
