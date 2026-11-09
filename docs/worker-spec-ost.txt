@@ -1,0 +1,21 @@
+Integrate the official, genuine OpenSpeedTest UI (from https://github.com/openspeedtest/Speed-Test or cloned in C:/Users/adima/AppData/Local/Temp/opencode/ost-clone) into the web/ directory, wired to the local LibreSpeed Go backend.
+
+Requirements:
+1. Copy OpenSpeedTest frontend assets into web/:
+   - web/assets/ (css/, fonts/, images/, js/)
+   - web/index.html (based on OpenSpeedTest's index.html)
+2. Configure OpenSpeedTest in web/index.html:
+   - var openSpeedTestServerList = [
+       {"ServerName":"Local Debian Host", "Download":"garbage", "Upload":"empty", "ServerIcon":"DefaultIcon"}
+     ];
+   - var pingMethod = "GET";
+   - var pingFile = "Upload";
+3. Add telemetry bridge on test completion:
+   - When the test completes, extract the final download, upload, ping, and jitter metrics.
+   - Send POST to /results/telemetry with FormData (dl, ul, ping, jitter, log, ispinfo).
+   - Display a sleek modern share card below or overlaying the UI:
+     * Display shareable link: http://<origin>/results/?id=<ulid>
+     * "Copy Link" button
+     * Link to view generated card: /results/?id=<ulid>
+4. Keep results.html in web/ for viewing saved results.
+5. Verify config/settings.toml has assets_path = "web".
