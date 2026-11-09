@@ -1,111 +1,329 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Local Speedtest</title>
-<link rel="stylesheet" href="style.css">
+  <title>SpeedTest by OpenSpeedTest™</title>
+  <meta name="description"
+    content="Test your network speed now. HTML5 Network Performance Estimation Tool. Self-Hosted SpeedTest by OpenSpeedTest™"/>
+  <link href="assets/css/app.css" rel="stylesheet" type="text/css" />
+  <script> window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches&&(document.head.innerHTML+='<link id="darkmode" rel="stylesheet" href="assets/css/darkmode.css" type="text/css"/>');function getCookieValue(b,a){return(a=document.cookie.match("(^|;)\\s*"+b+"\\s*=\\s*([^;]+)"))?a.pop():""}if("light"===getCookieValue("mode")){var darkStyle=document.getElementById("darkmode");darkStyle&&darkStyle.parentNode.removeChild(darkStyle)}; </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta property="og:image" content="assets/images/img.png" />
+  <link rel='canonical' href='https://openspeedtest.com'/>
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
+  <link rel="manifest" href="assets/images/icons/site.webmanifest">
+  <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="assets/images/icons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
-<div class="shell">
-  <header class="shell-header">
-    <div class="brand">
-      <div class="brand-mark"></div>
-      <div class="brand-text">
-        <div class="brand-name">Local Speedtest</div>
-        <div class="brand-desc">LAN speedtest &bull; Debian host</div>
-      </div>
-    </div>
-  </header>
+  <script type="text/javascript">
+/*
+     Official Website : https://OpenSpeedTest.COM | Email: support@openspeedtest.com
+     Developed by : Vishnu | https://Vishnu.Pro | Email : me@vishnu.pro 
+            
+     HTML5 Network Performance Estimation Tool -> [JS,XHR,SVG,HTML,CSS]
+     Started in 2011 and Moved to OpenSpeedTest.COM, Dedicated Project/Domain Name in 2013.
+     SpeedTest Script -> 2013 -> Beta | 2015 -> V1 | 2019 ->V2 | 2020 V2.1 | 2021 V2.12 | 2022 V2.5 & 2.5.3
+     Self-Hosted OpenSpeedTest-Server (iFrame/Nginx) -> 2014. (Managed SelfHosted SpeedTesT Widget)
+     OpenSpeedTest-Server (On-premises) (Fully SelfHosted Apps)
+     [OpenSpeedTest-Server Docker Image] -> V1 2019 | V2 2020 | V2.1 2021 | V2.2 & 2.2.2 2022
+     [Node.js/Electron JS  OpenSpeedTest-Server Desktop Apps] -> 2020 V1 | 2021 V2 & V2.1 | 2.1.1 to 2.1.8 2022
+     [Ionic Android and iOS OpenSpeedTest-Server Mobile Apps] V1.2 to 1.5 2022 
 
-  <!-- Telemetry bar: Ping, Jitter, Download, Upload -->
-  <div class="telemetry" id="telemetry" aria-label="Connection telemetry">
-    <div class="tele-item" data-metric="ping">
-      <div class="tele-dot ping"></div>
-      <div class="tele-label">Ping</div>
-      <div class="tele-value" id="tPing">--</div>
-      <div class="tele-unit">ms</div>
-    </div>
-    <div class="tele-item" data-metric="jitter">
-      <div class="tele-dot jitter"></div>
-      <div class="tele-label">Jitter</div>
-      <div class="tele-value" id="tJitter">--</div>
-      <div class="tele-unit">ms</div>
-    </div>
-    <div class="tele-item" data-metric="download">
-      <div class="tele-dot dl"></div>
-      <div class="tele-label">Download</div>
-      <div class="tele-value" id="tDl">--</div>
-      <div class="tele-unit">Mbps</div>
-    </div>
-    <div class="tele-item" data-metric="upload">
-      <div class="tele-dot ul"></div>
-      <div class="tele-label">Upload</div>
-      <div class="tele-value" id="tUl">--</div>
-      <div class="tele-unit">Mbps</div>
-    </div>
+     Download Now -> https://go.openspeedtest.com/Server
+
+     Like this Project? Please Donate NOW & Keep us Alive -> https://go.openspeedtest.com/Donate
+
+     Speed Test by OpenSpeedTest™️ is Free and Open-Source Software (FOSS) with MIT License.
+     Read full license terms @ http://go.openspeedtest.com/License
+
+     If you have any Questions, ideas or Comments Please Send it via -> https://go.openspeedtest.com/SendMessage
+*/
+
+     // Add or Remove Server --> Automatically choose the one with the least latency
+    var openSpeedTestServerList = [
+    {"ServerName":"Local Debian Host", "Download":"garbage", "Upload":"empty", "ServerIcon":"DefaultIcon"}
+  ];
+          
+    // Send pings 'pingSamples' times to each Server URL.
+        var pingSamples = 10;
+
+    // 50% samples(Least)/length 1=100% 0.1 = 10%
+        var jitterFinalSample = 0.5; 
+
+    // Set a pingSample dynamically by passing "Ping" or "p" as a URL Parameter.
+        var setPingSamples = true;
+
+    // If Server has not responded within 5 Seconds for any requests we send ('pingSamples' times)
+    // We will show Network Error. You can change the limit here.
+    // In milliseconds, if you need to set 6 seconds. Change the value to 6000.
+        var pingTimeOut = 5000; 
+
+    // Set a PingTimeout dynamically by passing "Out" or "O" as a URL Parameter    
+        var setPingTimeout = true;
+
+    // GET or HEAD  // Other Methods may work. but why?
+        var pingMethod = "GET";
+
+    //Choose Download or Upload from the Server list. If you Prefer Download, change pingMethod to HEAD.
+        var pingFile = "Upload";
+
+    // The amount of garbage data sent to the server in Mb, 30 = 30Mb
+        var ulDataSize = 30;
+
+    // Don't touch it
+        var ulDelay = 300;
+        var dlDelay = 300;
+
+    // Overhead Compensation factor, This is a browser-dependent test, Many Unknowns. Currently, 4%. That is within the margin of error.
+        var upAdjust = 1.04;
+        var dlAdjust = 1.04;
+
+   // You can pass "Clean" or "C" as a URL Parameter and reset the Overhead Compensation factor to Zero or set any value between 0 and 4. 1 = 1% to 4 = 4% 
+   // "clean" will not accept values above 4, so Compensation is limited to a maximum of 4%.
+        var enableClean = true;
+
+    // Minimum 12 Seconds is Expected. 
+        var dlDuration = 10;
+        var ulDuration = 10;
+
+    // 6 is the common limit found on most browsers.
+    // Choose  Number for parallel HTTP connections to Server | Default is 6 
+        var dlThreads = 6;
+        var ulThreads = 6;
+
+    // Allow user to Change default limit of 6 parallel HTTP connections to Server  | Accept values above 1 and max 32
+    // pass "XHR" or "X" as a URL Parameter
+        var setHTTPReq = true;
+
+    // Save Data to a Database
+        var saveData = false;
+        var saveDataURL = "//yourDatabase.Server.com:4500/save?data=";
+
+    // Allow user to change the default 12 seconds test duration
+    // Pass "Stress" or "S" as a URL Parameter.
+        var stressTest = true;
+
+    // Allow user to select and run one test at a time, download, upload, or ping
+    // Pass "Test" or "T" as a URL Parameter.
+        var selectTest = true;
+
+    // Allow user to select a different server to run a test  
+    // Pass "Host" or "H" ad a  URL Parameter.
+    // Accept only valid HTTP URLs like "http://192.168.1.10:3000" or "https://yourHost.com"
+        var selectServer = true;
+
+    // Start a test Automatically without pressing the start button
+    // You can Delay the test for 'n' seconds by passing any number as a value for Run Keyword. e.g.: "Run=10" or "R=10" to delay the test by 10 Seconds.
+    // Pass "Run" or "R" as a URL Parameter to start a test instantly.
+        var enableRun = true;
+
+    // "Run" will not work if you are already using 'selectTest' "Test" or "T" Keyword.
+
+ 
+function ostOnload() {
+      console.log("OpenSpeedTest.com V2.5.4 Loaded!")
+      console.log("Now Press the Start Button or HIT Enter.")
+      console.log("The secret to living happy is giving happiness. Have a wonderful day.")
+      
+    }
+  
+  var openChannel = "dev";
+
+  </script>
+
+<!--
+Speed Test by OpenSpeedTest™️ is Free and Open-Source Software with MIT License.
+
+You can play with the CSS, HTML & SVG files to change the colors or add your support desk info to this page.
+Also, you can add your company logo anywhere on this page. It's FOSS. You can do whatever you see fit.
+
+If you like to make any other modification to this application or need a custom deployment for your organization, 
+please get in touch with support@openspeedtest.com.
+-->
+
+  <div id="loading_app" class="spinner">
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
   </div>
+  <object style="visibility:hidden" id="OpenSpeedTest-UI" data="assets/images/app.svg" type="image/svg+xml"></object>
+ 
+  <div class="Credits">
+    <a href="https://openspeedtest.com?ref=Self-Hosted&Run">SpeedTest by OpenSpeedTest™</a> is a Free and <a href="https://github.com/openspeedtest/Speed-Test">Open-Source HTML5 Network Speed Test</a> Software.
+    <p style="font-size: 12px;">&copy; Copyright 2013-2024 OpenSpeedTest™ All Rights Reserved.</p>
+</div>
+  
+  <script src="assets/js/app-2.5.4.min.js"></script>
+  <script src="assets/js/darkmode.js"></script>
 
-  <!-- Centerpiece: single large speedometer gauge with GO button at its heart -->
-  <div class="gauge-wrap" id="gaugeWrap" aria-label="Speedometer">
-    <canvas id="gauge" width="720" height="400" role="img" aria-label="Speedometer gauge"></canvas>
-    <div id="goBtn" class="go-btn" role="button" tabindex="0" aria-label="Start test" aria-pressed="false">GO</div>
-    <div id="readout" class="readout hidden">
-      <div class="readout-val" id="readoutVal">--</div>
-      <div class="readout-unit" id="readoutUnit">Mbps</div>
-      <div class="readout-sub" id="readoutSub">--</div>
-    </div>
+
+<!-- Local Speedtest Result & Share Overlay -->
+<style>
+.share-modal {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid #334155;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  border-radius: 16px;
+  padding: 18px 24px;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, sans-serif;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 90%;
+  width: 520px;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.share-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.share-modal-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+}
+.share-input-row {
+  display: flex;
+  gap: 8px;
+}
+.share-input {
+  flex: 1;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  color: #cbd5e1;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+.share-btn {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.share-btn:hover {
+  background: #0369a1;
+}
+.share-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.share-links a {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 600;
+}
+.share-links a:hover {
+  text-decoration: underline;
+}
+</style>
+
+<div id="localShareCard" class="share-modal" style="display:none;">
+  <div class="share-modal-head">
+    <div class="share-modal-title">Speedtest Result Saved</div>
+    <div style="font-size:0.75rem; color:#94a3b8;">SQLite Telemetry Active</div>
   </div>
-
-  <div id="status" class="status">Idle</div>
-
-  <!-- Local IP / Provider badge -->
-  <div class="ip-badge" id="ipBadge" aria-label="Local IP">
-    <span class="ip-dot"></span>
-    <span id="ipVal">--</span>
-    <span>• Local LAN</span>
+  <div class="share-input-row">
+    <input id="shareUrlInput" class="share-input" readonly>
+    <button id="copyShareBtn" class="share-btn" type="button">Copy Link</button>
   </div>
-
-  <!-- Result card (shown on completion) -->
-  <div class="result-card" id="resultCard" hidden>
-    <div class="result-head">
-      <h2>Test Complete</h2>
-      <div class="result-badge">Results saved</div>
-    </div>
-    <div class="result-grid">
-      <div class="result-item dl">
-        <div class="result-val" id="rDl">--</div>
-        <div class="result-unit">Mbps</div>
-        <div class="result-lbl">Download</div>
-      </div>
-      <div class="result-item ul">
-        <div class="result-val" id="rUl">--</div>
-        <div class="result-unit">Mbps</div>
-        <div class="result-lbl">Upload</div>
-      </div>
-      <div class="result-item ping">
-        <div class="result-val" id="rPing">--</div>
-        <div class="result-unit">ms</div>
-        <div class="result-lbl">Ping</div>
-      </div>
-      <div class="result-item jitter">
-        <div class="result-val" id="rJitter">--</div>
-        <div class="result-unit">ms</div>
-        <div class="result-lbl">Jitter</div>
-      </div>
-    </div>
-    <div class="share">
-      <label class="share-label">Shareable link</label>
-      <div class="linkbox">
-        <input id="shareLink" readonly placeholder="Link appears after test">
-        <button id="copyBtn" type="button">Copy</button>
-      </div>
-      <a id="openResult" class="card-link" target="_blank" rel="noopener" hidden>View full card &rarr;</a>
-    </div>
+  <div class="share-links">
+    <a id="viewPngLink" target="_blank" rel="noopener">Open PNG Card &rarr;</a>
+    <span style="color:#64748b;">speedtest.mriazh.my.id</span>
   </div>
 </div>
 
-<script src="speedtest.js"></script>
-<script src="app.js"></script>
+<script>
+(function() {
+  function sendLocalTelemetry(d, u, p, j) {
+    var fd = new FormData();
+    fd.append("dl", d);
+    fd.append("ul", u);
+    fd.append("ping", p);
+    fd.append("jitter", j);
+    fd.append("log", "OpenSpeedTest LAN");
+    fd.append("ispinfo", "{}");
+
+    fetch("/results/telemetry", { method: "POST", body: fd })
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/id\s+(\S+)/);
+        if (m && m[1]) {
+          var id = m[1];
+          var url = window.location.protocol + "//" + window.location.host + "/results/?id=" + id;
+          document.getElementById("shareUrlInput").value = url;
+          document.getElementById("viewPngLink").href = url;
+          document.getElementById("localShareCard").style.display = "flex";
+        }
+      })
+      .catch(function(err) { console.error("Telemetry failed:", err); });
+  }
+
+  // Monitor the SVG results link for test completion
+  var observer = new MutationObserver(function() {
+    var appObj = document.getElementById("OpenSpeedTest-UI");
+    if (!appObj || !appObj.contentDocument) return;
+    var resElem = appObj.contentDocument.getElementById("resultsData");
+    if (resElem) {
+      var href = resElem.getAttributeNS("http://www.w3.org/1999/xlink", "href") || resElem.getAttribute("href");
+      if (href && href.indexOf("d=") !== -1 && !resElem.dataset.captured) {
+        resElem.dataset.captured = "true";
+        var params = new URLSearchParams(href.split("?")[1]);
+        var d = params.get("d") || "0";
+        var u = params.get("u") || "0";
+        var p = params.get("p") || "0";
+        var j = params.get("j") || "0";
+        sendLocalTelemetry(d, u, p, j);
+      }
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+  setInterval(function() {
+    var appObj = document.getElementById("OpenSpeedTest-UI");
+    if (appObj && appObj.contentDocument) {
+      observer.observe(appObj.contentDocument, { attributes: true, subtree: true });
+    }
+  }, 1000);
+
+  document.getElementById("copyShareBtn").addEventListener("click", function() {
+    var inp = document.getElementById("shareUrlInput");
+    inp.select();
+    navigator.clipboard.writeText(inp.value).then(function() {
+      var b = document.getElementById("copyShareBtn");
+      b.textContent = "Copied!";
+      setTimeout(function() { b.textContent = "Copy Link"; }, 1500);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
