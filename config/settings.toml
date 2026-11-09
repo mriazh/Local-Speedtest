@@ -6,8 +6,10 @@ bind_address = "0.0.0.0"
 # Backend listen port (configurable via environment or edit this file).
 listen_port = 8989
 
-# Assets directory served by the backend (HTML5 frontend lives here).
-assets_path = "web"
+# Assets directory served by the backend.
+# Leave empty ("") to use LibreSpeed's official built-in HTML5 frontend
+# (with full speedometer gauges, multi-threaded Web Workers, and gigabit link saturation).
+assets_path = ""
 
 # Persistent telemetry in SQLite.
 database_type = "sqlite"
