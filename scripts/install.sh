@@ -69,31 +69,43 @@ log "Creating directory layout"
 mkdir -p "$CONFIG_DIR" "$DATA_DIR" "$WEB_DIR"
 
 # -----------------------------------------------------------------------------
-# Download official release binary
+# Check if binary already exists locally
 # -----------------------------------------------------------------------------
-TARBALL="speedtest-go_${RELEASE_VERSION#v}_${OS}_${PLATFORM_ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/$RELEASE_VERSION/$TARBALL"
+if [[ -f "$BIN_PATH" && -s "$BIN_PATH" ]]; then
+    log "Binary already present: $BIN_PATH (skipping download)"
+    chmod 0755 "$BIN_PATH"
+else
+    # -----------------------------------------------------------------------------
+    # Download official release binary
+    # -----------------------------------------------------------------------------
+    TARBALL="speedtest-go_${RELEASE_VERSION#v}_${OS}_${PLATFORM_ARCH}.tar.gz"
+    DOWNLOAD_URL="https://github.com/$REPO/releases/download/$RELEASE_VERSION/$TARBALL"
 
-WORK_DIR="$(mktemp -d)"
-trap 'rm -rf "$WORK_DIR"' EXIT
+    WORK_DIR="$(mktemp -d)"
+    trap 'rm -rf "$WORK_DIR"' EXIT
 
-log "Downloading $DOWNLOAD_URL"
-if ! curl -fsSL --max-time 120 -o "$WORK_DIR/$TARBALL" "$DOWNLOAD_URL"; then
-    err "download failed for $DOWNLOAD_URL"
-    exit 1
+    log "Downloading $DOWNLOAD_URL"
+    if ! curl -fsSL --max-time 120 -o "$WORK_DIR/$TARBALL" "$DOWNLOAD_URL"; then
+        log "Direct release download failed. Trying GitHub API release asset fallback..."
+        API_ASSET_URL="https://api.github.com/repos/$REPO/releases/assets/408809764"
+        if ! curl -fsSL -H "Accept: application/octet-stream" --max-time 120 -o "$WORK_DIR/$TARBALL" "$API_ASSET_URL"; then
+            err "download failed for $DOWNLOAD_URL"
+            exit 1
+        fi
+    fi
+
+    log "Extracting tarball"
+    tar -xzf "$WORK_DIR/$TARBALL" -C "$WORK_DIR"
+
+    if [[ ! -f "$WORK_DIR/$BINARY_NAME" ]]; then
+        err "expected binary '$BINARY_NAME' not found in tarball"
+        exit 1
+    fi
+
+    # Install binary and make executable.
+    install -m 0755 "$WORK_DIR/$BINARY_NAME" "$BIN_PATH"
+    log "Installed binary: $BIN_PATH"
 fi
-
-log "Extracting tarball"
-tar -xzf "$WORK_DIR/$TARBALL" -C "$WORK_DIR"
-
-if [[ ! -f "$WORK_DIR/$BINARY_NAME" ]]; then
-    err "expected binary '$BINARY_NAME' not found in tarball"
-    exit 1
-fi
-
-# Install binary and make executable.
-install -m 0755 "$WORK_DIR/$BINARY_NAME" "$BIN_PATH"
-log "Installed binary: $BIN_PATH"
 
 # -----------------------------------------------------------------------------
 # Verify config exists (settings.toml should already be present in config/)

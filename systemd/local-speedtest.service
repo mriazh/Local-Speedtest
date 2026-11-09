@@ -28,17 +28,13 @@ Group=@APP_USER@
 Environment=SPEEDTEST_PORT=8989
 
 # Files the service needs to read/write.
-ReadWritePaths=@APP_DIR@/data @APP_DIR@/config @APP_DIR@/web
+ReadWritePaths=@APP_DIR@/data @APP_DIR@/config @APP_DIR@/web @APP_DIR@
 UMask=027
 
-# Hardening (safe for a local LAN service).
-NoNewPrivileges=yes
-PrivateTmp=yes
-ProtectSystem=strict
-ProtectHome=yes
-RestrictAddressFamilies=AF_INET AF_INET6
-CapabilityBoundingSet=
-SystemCallFilter=@system-service
+# Hardening (safe for a local LAN service, allows execution from /home).
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
 
 [Install]
 WantedBy=multi-user.target
