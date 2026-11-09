@@ -1,21 +1,16 @@
-Integrate the official, genuine OpenSpeedTest UI (from https://github.com/openspeedtest/Speed-Test or cloned in C:/Users/adima/AppData/Local/Temp/opencode/ost-clone) into the web/ directory, wired to the local LibreSpeed Go backend.
+Copy the official OpenSpeedTest frontend into web/ and connect it to LibreSpeed Go backend.
 
-Requirements:
-1. Copy OpenSpeedTest frontend assets into web/:
-   - web/assets/ (css/, fonts/, images/, js/)
-   - web/index.html (based on OpenSpeedTest's index.html)
-2. Configure OpenSpeedTest in web/index.html:
-   - var openSpeedTestServerList = [
+Steps:
+1. Run command to copy assets from C:/Users/adima/AppData/Local/Temp/opencode/ost-clone:
+   Copy-Item -Recurse -Force "C:/Users/adima/AppData/Local/Temp/opencode/ost-clone/assets" "web/assets"
+   Copy-Item -Force "C:/Users/adima/AppData/Local/Temp/opencode/ost-clone/index.html" "web/index.html"
+2. In web/index.html:
+   - Change openSpeedTestServerList to:
+     var openSpeedTestServerList = [
        {"ServerName":"Local Debian Host", "Download":"garbage", "Upload":"empty", "ServerIcon":"DefaultIcon"}
      ];
-   - var pingMethod = "GET";
-   - var pingFile = "Upload";
-3. Add telemetry bridge on test completion:
-   - When the test completes, extract the final download, upload, ping, and jitter metrics.
-   - Send POST to /results/telemetry with FormData (dl, ul, ping, jitter, log, ispinfo).
-   - Display a sleek modern share card below or overlaying the UI:
-     * Display shareable link: http://<origin>/results/?id=<ulid>
-     * "Copy Link" button
-     * Link to view generated card: /results/?id=<ulid>
-4. Keep results.html in web/ for viewing saved results.
-5. Verify config/settings.toml has assets_path = "web".
+   - Ensure pingMethod = "GET" and pingFile = "Upload"
+   - At the bottom of web/index.html, add a script that listens for test completion (when #resultsData gets href attribute or window.ostOnload fires), sends POST to /results/telemetry with download, upload, ping, jitter, and displays a floating dark card with the shareable link (http://speedtest.mriazh.my.id:8989/results/?id=<id>) and a Copy button.
+3. Keep web/results.html intact.
+4. Ensure config/settings.toml has assets_path = "web".
+5. Run orca orchestration send --type worker_done --subject "OpenSpeedTest integration complete"
