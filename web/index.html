@@ -5,7 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Local Speedtest • Cloudflare Speed Style</title>
   <meta name="description" content="Local network performance benchmark inspired by speed.cloudflare.com. 100% offline LAN speedtest.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('cf_theme');
+        if (t === 'light' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 <body>
   <div class="cf-app">
@@ -24,18 +35,43 @@
         </svg>
         <div class="brand-text">
           <div class="brand-title">Local Speedtest</div>
-          <div class="brand-domain">speedtest.mriazh.my.id</div>
+          <div class="brand-domain" id="brandDomain" data-i18n="brand_desc">LAN speedtest &bull; speedtest.mriazh.my.id</div>
         </div>
       </div>
 
       <div class="server-pill" title="Local LAN Target Server">
         <span class="pulse-dot"></span>
-        <span class="pill-text">Debian PC • 172.16.171.23 • 100% Local LAN</span>
+        <span class="pill-text" data-i18n="server_pill">Debian PC • 172.16.171.23 • 100% Local LAN</span>
       </div>
 
-      <div class="client-badge" id="clientIpBadge">
-        <span class="badge-tag">CLIENT IP</span>
-        <span class="badge-ip" id="clientIpVal">Loading...</span>
+      <div class="header-controls">
+        <div class="client-badge" id="clientIpBadge">
+          <span class="badge-tag" data-i18n="badge_client_ip">CLIENT IP</span>
+          <span class="badge-ip" id="clientIpVal">Loading...</span>
+        </div>
+
+        <button type="button" class="ctrl-btn lang-btn" id="langToggleBtn" aria-label="Toggle language" title="Ganti Bahasa / Switch Language">
+          <span class="lang-opt" id="langOptId">ID</span>
+          <span class="lang-divider">|</span>
+          <span class="lang-opt active" id="langOptEn">EN</span>
+        </button>
+
+        <button type="button" class="ctrl-btn theme-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -45,14 +81,14 @@
       <div class="cf-card hero-speed-card">
         <div class="card-hero-header">
           <div class="card-hero-title-group">
-            <h1 class="hero-card-title">Your Network Speed</h1>
+            <h1 class="hero-card-title" data-i18n="your_network_speed">Your Network Speed</h1>
             <span class="status-indicator-badge" id="testStateBadge">READY</span>
           </div>
           <button type="button" class="btn-primary-hero" id="primaryHeroBtn">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
-            <span id="primaryHeroBtnLabel">Start Test</span>
+            <span id="primaryHeroBtnLabel" data-i18n="btn_start_test">Start Test</span>
           </button>
         </div>
 
@@ -62,64 +98,64 @@
           <div class="hero-metric-item" id="heroMetricDl">
             <div class="metric-label">
               <span class="legend-dot dot-dl"></span>
-              <span>DOWNLOAD</span>
+              <span data-i18n="label_download">DOWNLOAD</span>
             </div>
             <div class="metric-num-wrap">
               <span class="metric-num num-dl" id="heroValDl">--</span>
               <span class="metric-unit">Mbps</span>
             </div>
-            <div class="metric-sub-stat" id="heroDlSubStat">Peak: <span id="heroValDlPeak">--</span> Mbps</div>
+            <div class="metric-sub-stat" id="heroDlSubStat"><span data-i18n="peak_colon">Peak:</span> <span id="heroValDlPeak">--</span> Mbps</div>
           </div>
 
           <!-- Upload Metric -->
           <div class="hero-metric-item" id="heroMetricUl">
             <div class="metric-label">
               <span class="legend-dot dot-ul"></span>
-              <span>UPLOAD</span>
+              <span data-i18n="label_upload">UPLOAD</span>
             </div>
             <div class="metric-num-wrap">
               <span class="metric-num num-ul" id="heroValUl">--</span>
               <span class="metric-unit">Mbps</span>
             </div>
-            <div class="metric-sub-stat" id="heroUlSubStat">Peak: <span id="heroValUlPeak">--</span> Mbps</div>
+            <div class="metric-sub-stat" id="heroUlSubStat"><span data-i18n="peak_colon">Peak:</span> <span id="heroValUlPeak">--</span> Mbps</div>
           </div>
 
           <!-- Latency Metric -->
           <div class="hero-metric-item" id="heroMetricPing">
             <div class="metric-label">
               <span class="legend-dot dot-ping"></span>
-              <span>LATENCY</span>
+              <span data-i18n="label_latency">LATENCY</span>
             </div>
             <div class="metric-num-wrap">
               <span class="metric-num num-ping" id="heroValPing">--</span>
               <span class="metric-unit">ms</span>
             </div>
-            <div class="metric-sub-stat" id="heroPingSubStat">Min: <span id="heroValPingMin">--</span> ms</div>
+            <div class="metric-sub-stat" id="heroPingSubStat"><span data-i18n="min_colon">Min:</span> <span id="heroValPingMin">--</span> ms</div>
           </div>
 
           <!-- Jitter Metric -->
           <div class="hero-metric-item" id="heroMetricJitter">
             <div class="metric-label">
               <span class="legend-dot dot-jitter"></span>
-              <span>JITTER</span>
+              <span data-i18n="label_jitter">JITTER</span>
             </div>
             <div class="metric-num-wrap">
               <span class="metric-num num-jitter" id="heroValJitter">--</span>
               <span class="metric-unit">ms</span>
             </div>
-            <div class="metric-sub-stat" id="heroJitterSubStat">LAN Buffer: <span id="heroValBuffer">Optimal</span></div>
+            <div class="metric-sub-stat" id="heroJitterSubStat"><span data-i18n="lan_buffer_colon">LAN Buffer:</span> <span id="heroValBuffer" data-i18n="optimal">Optimal</span></div>
           </div>
 
           <!-- Packet Loss Metric -->
           <div class="hero-metric-item">
             <div class="metric-label">
               <span class="legend-dot dot-loss"></span>
-              <span>PACKET LOSS</span>
+              <span data-i18n="label_packet_loss">PACKET LOSS</span>
             </div>
             <div class="metric-num-wrap">
               <span class="metric-num num-loss" id="heroValLoss">0%</span>
             </div>
-            <div class="metric-sub-stat">0 dropped</div>
+            <div class="metric-sub-stat" data-i18n="zero_dropped">0 dropped</div>
           </div>
         </div>
 
@@ -127,9 +163,9 @@
         <div class="hero-graph-container">
           <canvas id="dualAreaChart" width="800" height="240"></canvas>
           <div class="graph-legend-overlay">
-            <span class="legend-item"><span class="legend-line line-dl"></span> Download</span>
-            <span class="legend-item"><span class="legend-line line-p90"></span> 90th %ile</span>
-            <span class="legend-item"><span class="legend-line line-ul"></span> Upload</span>
+            <span class="legend-item"><span class="legend-line line-dl"></span> <span data-i18n="legend_download">Download</span></span>
+            <span class="legend-item"><span class="legend-line line-p90"></span> <span data-i18n="legend_p90">90th %ile</span></span>
+            <span class="legend-item"><span class="legend-line line-ul"></span> <span data-i18n="legend_upload">Upload</span></span>
           </div>
         </div>
 
@@ -141,23 +177,23 @@
                 <path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span>Restart Test</span>
+              <span data-i18n="btn_restart_test">Restart Test</span>
             </button>
             <button type="button" class="btn-toolbar" id="copyShareLinkBtn" title="Copy Share Link">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tb-icon">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
               </svg>
-              <span id="copyBtnText">Copy Share Link</span>
+              <span id="copyBtnText" data-i18n="btn_copy_link">Copy Share Link</span>
             </button>
           </div>
-          <div class="timestamp-display" id="timestampDisplay">Measured at --:--:--</div>
+          <div class="timestamp-display" id="timestampDisplay"><span data-i18n="measured_at">Measured at</span> --:--:--</div>
         </div>
       </div>
 
       <!-- RIGHT CARD: Server & Network Path -->
       <div class="cf-card hero-path-card">
-        <h2 class="hero-card-title">Server & Network Path</h2>
+        <h2 class="hero-card-title" data-i18n="server_network_path">Server & Network Path</h2>
 
         <!-- Clean Dark Topology Visual -->
         <div class="topology-container">
@@ -168,7 +204,7 @@
                 <path d="M8 21h8m-4-4v4" stroke-linecap="round"/>
               </svg>
             </div>
-            <span class="node-title">Client Device</span>
+            <span class="node-title" data-i18n="node_client">Client Device</span>
             <span class="node-sub" id="topoClientIp">172.16.x.x</span>
           </div>
 
@@ -187,7 +223,7 @@
                 <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
               </svg>
             </div>
-            <span class="node-title">Switch Core</span>
+            <span class="node-title" data-i18n="node_switch">Switch Core</span>
             <span class="node-sub">1.0 Gbps Full</span>
           </div>
 
@@ -205,7 +241,7 @@
                 <circle cx="6" cy="18" r="1" fill="currentColor"/>
               </svg>
             </div>
-            <span class="node-title">Debian Host</span>
+            <span class="node-title" data-i18n="node_server">Debian Host</span>
             <span class="node-sub">172.16.171.23</span>
           </div>
         </div>
@@ -213,20 +249,20 @@
         <!-- Metadata List -->
         <div class="topology-metadata-list">
           <div class="meta-row">
-            <span class="meta-key">Connected via IPv4</span>
+            <span class="meta-key" data-i18n="meta_connected_ipv4">Connected via IPv4</span>
             <span class="meta-val meta-highlight" id="metaClientIp">172.16.x.x</span>
           </div>
           <div class="meta-row">
-            <span class="meta-key">Server location</span>
-            <span class="meta-val">Local Debian Host (172.16.171.23)</span>
+            <span class="meta-key" data-i18n="meta_server_location">Server location</span>
+            <span class="meta-val" data-i18n="val_server_location">Local Debian Host (172.16.171.23)</span>
           </div>
           <div class="meta-row">
-            <span class="meta-key">Network</span>
-            <span class="meta-val">Local LAN Gigabit (Zero Internet Quota)</span>
+            <span class="meta-key" data-i18n="meta_network">Network</span>
+            <span class="meta-val" data-i18n="val_network">Local LAN Gigabit (Zero Internet Quota)</span>
           </div>
           <div class="meta-row">
-            <span class="meta-key">Latency Quality</span>
-            <span class="meta-val meta-quality" id="metaLatencyQuality">LAN Sub-millisecond</span>
+            <span class="meta-key" data-i18n="meta_latency_quality">Latency Quality</span>
+            <span class="meta-val meta-quality" id="metaLatencyQuality" data-i18n="val_latency_quality">LAN Sub-millisecond</span>
           </div>
         </div>
       </div>
@@ -235,8 +271,8 @@
     <!-- SECTION 2: Network Quality Score (Cloudflare AIM Style) -->
     <section class="cf-quality-section" aria-label="Network Quality Score">
       <div class="quality-header">
-        <h2 class="section-title">Network Quality Score</h2>
-        <span class="section-subtitle">Real-time Cloudflare AIM quality assessment for LAN workloads</span>
+        <h2 class="section-title" data-i18n="section_quality_score">Network Quality Score</h2>
+        <span class="section-subtitle" data-i18n="section_quality_subtitle">Real-time Cloudflare AIM quality assessment for LAN workloads</span>
       </div>
 
       <div class="quality-cards-grid">
@@ -249,8 +285,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="quality-title">Streaming</h3>
-              <p class="quality-desc">4K/8K Media & Live Buffers</p>
+              <h3 class="quality-title" data-i18n="quality_streaming">Streaming</h3>
+              <p class="quality-desc" data-i18n="desc_streaming">4K/8K Media & Live Buffers</p>
             </div>
           </div>
           <div class="stars-rating-row" id="starsStreaming" aria-label="5 of 5 stars">
@@ -261,8 +297,8 @@
             <span class="star filled">&#9733;</span>
           </div>
           <div class="quality-badge-row">
-            <span class="quality-status-badge badge-green" id="badgeStreaming">Ready</span>
-            <span class="quality-reason-text" id="reasonStreaming">Requires Jitter &lt; 5ms, DL &gt; 50M</span>
+            <span class="quality-status-badge badge-green" id="badgeStreaming" data-i18n="ready">Ready</span>
+            <span class="quality-reason-text" id="reasonStreaming" data-i18n="reason_streaming_init">Requires Jitter &lt; 5ms, DL &gt; 50M</span>
           </div>
         </div>
 
@@ -276,8 +312,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="quality-title">Gaming</h3>
-              <p class="quality-desc">Low Tick-rate & Competitive</p>
+              <h3 class="quality-title" data-i18n="quality_gaming">Gaming</h3>
+              <p class="quality-desc" data-i18n="desc_gaming">Low Tick-rate & Competitive</p>
             </div>
           </div>
           <div class="stars-rating-row" id="starsGaming" aria-label="5 of 5 stars">
@@ -288,8 +324,8 @@
             <span class="star filled">&#9733;</span>
           </div>
           <div class="quality-badge-row">
-            <span class="quality-status-badge badge-green" id="badgeGaming">Ready</span>
-            <span class="quality-reason-text" id="reasonGaming">Requires Ping &lt; 10ms, Jitter &lt; 3ms</span>
+            <span class="quality-status-badge badge-green" id="badgeGaming" data-i18n="ready">Ready</span>
+            <span class="quality-reason-text" id="reasonGaming" data-i18n="reason_gaming_init">Requires Ping &lt; 10ms, Jitter &lt; 3ms</span>
           </div>
         </div>
 
@@ -303,8 +339,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="quality-title">Video Calls</h3>
-              <p class="quality-desc">Real-time WebRTC & Audio</p>
+              <h3 class="quality-title" data-i18n="quality_video">Video Calls</h3>
+              <p class="quality-desc" data-i18n="desc_video">Real-time WebRTC & Audio</p>
             </div>
           </div>
           <div class="stars-rating-row" id="starsVideo" aria-label="5 of 5 stars">
@@ -315,8 +351,8 @@
             <span class="star filled">&#9733;</span>
           </div>
           <div class="quality-badge-row">
-            <span class="quality-status-badge badge-green" id="badgeVideo">Ready</span>
-            <span class="quality-reason-text" id="reasonVideo">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
+            <span class="quality-status-badge badge-green" id="badgeVideo" data-i18n="ready">Ready</span>
+            <span class="quality-reason-text" id="reasonVideo" data-i18n="reason_video_init">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
           </div>
         </div>
       </div>
@@ -325,8 +361,8 @@
     <!-- SECTION 3: Measurement Breakdown Matrix -->
     <section class="cf-breakdown-section" aria-label="Measurement Breakdown Matrix">
       <div class="quality-header">
-        <h2 class="section-title">Measurement Breakdown</h2>
-        <span class="section-subtitle">Detailed throughput, latency, and buffer statistics</span>
+        <h2 class="section-title" data-i18n="section_breakdown">Measurement Breakdown</h2>
+        <span class="section-subtitle" data-i18n="section_breakdown_subtitle">Detailed throughput, latency, and buffer statistics</span>
       </div>
 
       <div class="breakdown-grid">
@@ -336,19 +372,19 @@
             <svg class="b-icon icon-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <h3 class="breakdown-card-title">Download Measurements</h3>
+            <h3 class="breakdown-card-title" data-i18n="card_download_measurements">Download Measurements</h3>
           </div>
           <div class="breakdown-metrics-list">
             <div class="b-metric-row">
-              <span class="b-metric-name">Peak speed</span>
+              <span class="b-metric-name" data-i18n="peak_speed">Peak speed</span>
               <span class="b-metric-val"><strong id="bValDlPeak">--</strong> <small>Mbps</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Average speed</span>
+              <span class="b-metric-name" data-i18n="average_speed">Average speed</span>
               <span class="b-metric-val"><strong id="bValDlAvg">--</strong> <small>Mbps</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Data transferred</span>
+              <span class="b-metric-name" data-i18n="data_transferred">Data transferred</span>
               <span class="b-metric-val"><strong id="bValDlBytes">--</strong> <small>MB</small></span>
             </div>
           </div>
@@ -360,19 +396,19 @@
             <svg class="b-icon icon-ul" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 20V7m0 0l-5 5m5-5l5 5M4 4h16" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <h3 class="breakdown-card-title">Upload Measurements</h3>
+            <h3 class="breakdown-card-title" data-i18n="card_upload_measurements">Upload Measurements</h3>
           </div>
           <div class="breakdown-metrics-list">
             <div class="b-metric-row">
-              <span class="b-metric-name">Peak speed</span>
+              <span class="b-metric-name" data-i18n="peak_speed">Peak speed</span>
               <span class="b-metric-val"><strong id="bValUlPeak">--</strong> <small>Mbps</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Average speed</span>
+              <span class="b-metric-name" data-i18n="average_speed">Average speed</span>
               <span class="b-metric-val"><strong id="bValUlAvg">--</strong> <small>Mbps</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Data transferred</span>
+              <span class="b-metric-name" data-i18n="data_transferred">Data transferred</span>
               <span class="b-metric-val"><strong id="bValUlBytes">--</strong> <small>MB</small></span>
             </div>
           </div>
@@ -385,19 +421,19 @@
               <circle cx="12" cy="12" r="9"/>
               <path d="M12 7v5l3 3" stroke-linecap="round"/>
             </svg>
-            <h3 class="breakdown-card-title">Latency Measurements</h3>
+            <h3 class="breakdown-card-title" data-i18n="card_latency_measurements">Latency Measurements</h3>
           </div>
           <div class="breakdown-metrics-list">
             <div class="b-metric-row">
-              <span class="b-metric-name">Unloaded ping (Idle)</span>
+              <span class="b-metric-name" data-i18n="unloaded_ping">Unloaded ping (Idle)</span>
               <span class="b-metric-val"><strong id="bValPingUnloaded">--</strong> <small>ms</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Loaded bufferbloat</span>
+              <span class="b-metric-name" data-i18n="loaded_bufferbloat">Loaded bufferbloat</span>
               <span class="b-metric-val"><strong id="bValLoadedBuffer">--</strong> <small>ms (+0.0ms)</small></span>
             </div>
             <div class="b-metric-row">
-              <span class="b-metric-name">Jitter stability</span>
+              <span class="b-metric-name" data-i18n="jitter_stability">Jitter stability</span>
               <span class="b-metric-val"><strong id="bValJitterStat">--</strong> <small>ms</small></span>
             </div>
           </div>
@@ -414,11 +450,11 @@
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M22 4L12 14.01l-3-3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Result Saved</span>
+            <span data-i18n="result_saved">Result Saved</span>
           </div>
           <div class="telemetry-meta">
-            <span class="telemetry-id-label">Test ID: <strong id="telemetryIdDisplay">--</strong></span>
-            <span class="telemetry-hint">Persisted in local SQLite database</span>
+            <span class="telemetry-id-label"><span data-i18n="test_id_label">Test ID:</span> <strong id="telemetryIdDisplay">--</strong></span>
+            <span class="telemetry-hint" data-i18n="persisted_sqlite">Persisted in local SQLite database</span>
           </div>
         </div>
 
@@ -429,10 +465,10 @@
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
             </svg>
-            <span id="copyTelemetryBtnText">Copy</span>
+            <span id="copyTelemetryBtnText" data-i18n="copy">Copy</span>
           </button>
           <a href="#" target="_blank" rel="noopener" class="btn-view-card" id="linkViewResultCard">
-            <span>Open Result Card (PNG)</span>
+            <span data-i18n="open_result_card">Open Result Card (PNG)</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="link-icon">
               <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -444,9 +480,9 @@
     <!-- Footer -->
     <footer class="cf-footer">
       <div class="footer-meta">
-        <span>Local Speedtest • Powered by LibreSpeed Go backend</span>
+        <span data-i18n="footer_powered">Local Speedtest • Powered by LibreSpeed Go backend</span>
         <span>•</span>
-        <span>Zero Internet Quota • 100% Offline LAN Benchmark</span>
+        <span data-i18n="footer_lan">Zero Internet Quota • 100% Offline LAN Benchmark</span>
       </div>
     </footer>
   </div>

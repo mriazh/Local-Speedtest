@@ -48,6 +48,26 @@
   --shadow-glow: 0 0 24px var(--cf-orange-glow);
 }
 
+/* Light Theme Variables */
+[data-theme="light"] {
+  --cf-bg: #f8fafc;
+  --cf-surface: #ffffff;
+  --cf-surface-elevated: #f1f5f9;
+  --cf-surface-hover: #e2e8f0;
+  --cf-border: #e2e8f0;
+  --border: var(--cf-border);
+  --cf-border-hover: #cbd5e1;
+  --cf-border-active: #94a3b8;
+
+  --cf-text-primary: #0f172a;
+  --cf-text-secondary: #475569;
+  --cf-text-muted: #64748b;
+  --cf-text-dim: #94a3b8;
+
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --cf-star-dim: #cbd5e1;
+}
+
 /* Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -198,6 +218,86 @@ body {
 .badge-ip {
   color: var(--cf-text-primary);
   font-weight: 600;
+}
+
+/* Header Controls Area (Language & Theme) */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cf-surface-elevated);
+  border: 1px solid var(--cf-border);
+  color: var(--cf-text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  height: 33px;
+}
+
+.ctrl-btn:hover {
+  background: var(--cf-surface-hover);
+  color: var(--cf-text-primary);
+  border-color: var(--cf-border-hover);
+}
+
+.lang-btn {
+  font-family: var(--font-mono);
+  gap: 5px;
+  padding: 6px 10px;
+}
+
+.lang-opt {
+  transition: color 0.15s ease, font-weight 0.15s ease;
+  color: var(--cf-text-muted);
+}
+
+.lang-opt.active {
+  color: var(--cf-orange);
+  font-weight: 700;
+}
+
+.lang-divider {
+  color: var(--cf-border-active);
+  font-size: 0.72rem;
+}
+
+.theme-btn {
+  width: 36px;
+  padding: 0;
+}
+
+.theme-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Theme Icon Visibility */
+:root:not([data-theme="light"]) .theme-icon.icon-moon {
+  display: none;
+}
+:root:not([data-theme="light"]) .theme-icon.icon-sun {
+  display: block;
+  color: var(--cf-amber);
+}
+
+[data-theme="light"] .theme-icon.icon-sun {
+  display: none;
+}
+[data-theme="light"] .theme-icon.icon-moon {
+  display: block;
+  color: var(--cf-purple);
 }
 
 /* Card Common */
@@ -1127,3 +1227,57 @@ body {
   font-size: 0.8rem;
   color: var(--cf-text-muted);
 }
+
+/* ==========================================================================
+   Light Mode Overrides
+   ========================================================================== */
+[data-theme="light"] body {
+  background-color: var(--cf-bg);
+  background-image:
+    radial-gradient(1200px 700px at 50% -10%, rgba(246, 130, 31, 0.08) 0%, transparent 60%),
+    radial-gradient(900px 500px at 85% 15%, rgba(138, 99, 210, 0.05) 0%, transparent 50%),
+    #f8fafc;
+}
+
+[data-theme="light"] .hero-metric-row,
+[data-theme="light"] .topology-container,
+[data-theme="light"] .topology-metadata-list {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .hero-graph-container {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .graph-legend-overlay {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme="light"] .meta-row {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .telemetry-url-input {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .client-badge {
+  background: rgba(0, 164, 228, 0.08);
+  border-color: rgba(0, 164, 228, 0.25);
+  color: #0284c7;
+}
+
+[data-theme="light"] .btn-primary-hero {
+  color: #ffffff;
+}
+
+[data-theme="light"] .btn-copy-telemetry {
+  color: #ffffff;
+}
+
