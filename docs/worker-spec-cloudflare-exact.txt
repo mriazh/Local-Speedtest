@@ -1,0 +1,49 @@
+Rebuild the Local Speedtest web frontend (web/index.html, web/style.css, web/app.js) to replicate the exact layout, charts, and aesthetic of https://speed.cloudflare.com/.
+
+Key Architecture & Visual Requirements:
+1. Exact speed.cloudflare.com 2-Column Hero:
+   - LEFT CARD: "Your Network Speed"
+     * Metric row:
+       - Download (large number, e.g. 143 Mbps)
+       - Upload (large number, e.g. 57.9 Mbps)
+       - Latency (e.g. 1.8 ms with down/up min/avg sub-stats)
+       - Jitter (e.g. 0.2 ms with down/up sub-stats)
+       - Packet Loss (0% or -)
+     * Main Graph: Dual-area chart with smooth spline curve:
+       - Download test draws bright Cloudflare Orange (#f6821f) line with glowing translucent orange gradient area fill below, plus a dotted "90th percentile" guide line.
+       - Upload test draws vivid Purple (#8a63d2) line with glowing translucent purple gradient area fill below.
+     * Toolbar below graph:
+       - [Restart Test] button (Cloudflare style icon)
+       - [Copy Share Link] button
+       - Timestamp display ("Measured at HH:MM:SS")
+   - RIGHT CARD: "Server & Network Path"
+     * Clean dark topology visual showing: Client Device -> Switch Core -> Debian Host.
+     * Metadata list:
+       - Connected via IPv4: <client_ip>
+       - Server location: Local Debian Host (172.16.171.23)
+       - Network: Local LAN Gigabit (Zero Internet Quota)
+       - Latency Quality: LAN Sub-millisecond
+
+2. Network Quality Score (Cloudflare AIM Style):
+   - 3 interactive cards with 5-star ratings calculated dynamically:
+     * Streaming (5 stars if jitter < 5ms and DL > 50 Mbps)
+     * Gaming (5 stars if latency < 10ms and jitter < 3ms)
+     * Video Calls (5 stars if latency < 20ms and jitter < 5ms)
+
+3. Measurement Breakdown Matrix:
+   - Download Measurements card (Peak speed, Average speed, Data transferred)
+   - Upload Measurements card (Peak speed, Average speed, Data transferred)
+   - Latency Measurements card (Unloaded ping vs Loaded bufferbloat)
+
+4. Shareable Telemetry:
+   - Telemetry popup/bar with shareable link: http://speedtest.mriazh.my.id:8989/results/?id=<id>
+   - 1-click Copy button
+   - Direct link to PNG card: /results/?id=<id>
+
+5. Fix Latency & Jitter bug:
+   - In web/app.js, make sure `pingStatus` and `jitterStatus` from speedtest.js are NEVER lost or reset to '--'.
+   - Save final metrics in `onend` and ensure latency/jitter are populated on screen and in result card.
+
+6. Offline LAN constraint:
+   - 100% self-contained (no external CDNs or Google Fonts).
+   - Ensure config/settings.toml has assets_path = "web".
