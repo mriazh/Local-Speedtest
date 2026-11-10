@@ -1,0 +1,24 @@
+Adjust the Network Quality Score thresholds in web/app.js to be realistic and accurate for LAN/WiFi workloads:
+
+1. Streaming Quality Score:
+   - Streaming is bandwidth-bound (video buffers ahead), not micro-jitter sensitive.
+   - If dl >= 50 Mbps and jitter < 30 ms: 5 Stars (Great, "Ultra HD 4K/8K ready without buffering")
+   - Else if dl >= 25 Mbps: 4 Stars (Good, "Smooth 1080p Full HD streaming")
+   - Else if dl >= 10 Mbps: 3 Stars (Fair, "Standard 720p streaming")
+   - Else: 2 Stars (Poor)
+
+2. Gaming Quality Score:
+   - Gaming is latency-bound (ping is king). 2.9ms ping is God-tier esports level!
+   - If ping < 15 ms and jitter < 25 ms: 5 Stars (Great, "Tournament-grade LAN response (< 15ms)")
+   - Else if ping < 35 ms and jitter < 35 ms: 4 Stars (Good, "Competitive multiplayer ready")
+   - Else if ping < 60 ms: 3 Stars (Fair, "Casual gaming acceptable")
+   - Else: 2 Stars (Poor)
+
+3. Video Calls Quality Score:
+   - WebRTC / Zoom / Teams needs < 100ms ping and > 5 Mbps.
+   - If ping < 30 ms and jitter < 25 ms: 5 Stars (Great, "Crystal clear HD video & audio")
+   - Else if ping < 60 ms and jitter < 40 ms: 4 Stars (Good, "Smooth video calls with minor delay")
+   - Else if ping < 100 ms: 3 Stars (Fair, "Occasional talk-over or delay")
+   - Else: 2 Stars (Poor)
+
+Commit the change to git and report completion.
