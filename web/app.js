@@ -405,18 +405,18 @@
 
     // Helper: dynamic calculation of Cloudflare AIM style Quality Scores
     function updateQualityScores(dl, ping, jitter) {
-      // 1. Streaming: 5 stars if jitter < 5ms and DL > 50 Mbps
-      let sStars = 1;
+      // 1. Streaming: Bandwidth-bound (video buffers ahead), not micro-jitter sensitive
+      let sStars = 2;
       let sBadge = 'Poor';
       let sBadgeClass = 'badge-amber';
       let sReason = 'Low throughput or high jitter';
 
-      if (dl >= 50 && jitter < 5) {
+      if (dl >= 50 && jitter < 30) {
         sStars = 5;
         sBadge = 'Great';
         sBadgeClass = 'badge-green';
         sReason = 'Ultra HD 4K/8K ready without buffering';
-      } else if (dl >= 25 && jitter < 10) {
+      } else if (dl >= 25) {
         sStars = 4;
         sBadge = 'Good';
         sBadgeClass = 'badge-green';
@@ -434,23 +434,23 @@
       }
       if (reasonStreaming) reasonStreaming.textContent = sReason;
 
-      // 2. Gaming: 5 stars if latency < 10ms and jitter < 3ms
-      let gStars = 1;
+      // 2. Gaming: Latency-bound (ping is king)
+      let gStars = 2;
       let gBadge = 'Poor';
       let gBadgeClass = 'badge-amber';
       let gReason = 'High latency or noticeable jitter';
 
-      if (ping < 10 && jitter < 3) {
+      if (ping < 15 && jitter < 25) {
         gStars = 5;
         gBadge = 'Great';
         gBadgeClass = 'badge-green';
-        gReason = 'LAN Gigabit response (< 10ms)';
-      } else if (ping < 25 && jitter < 5) {
+        gReason = 'Tournament-grade LAN response (< 15ms)';
+      } else if (ping < 35 && jitter < 35) {
         gStars = 4;
         gBadge = 'Good';
         gBadgeClass = 'badge-green';
         gReason = 'Competitive multiplayer ready';
-      } else if (ping < 50 && jitter < 10) {
+      } else if (ping < 60) {
         gStars = 3;
         gBadge = 'Fair';
         gBadgeClass = 'badge-amber';
@@ -463,22 +463,22 @@
       }
       if (reasonGaming) reasonGaming.textContent = gReason;
 
-      // 3. Video Calls: 5 stars if latency < 20ms and jitter < 5ms
-      let vStars = 1;
+      // 3. Video Calls: WebRTC / Zoom / Teams needs < 100ms ping and > 5 Mbps
+      let vStars = 2;
       let vBadge = 'Poor';
       let vBadgeClass = 'badge-amber';
       let vReason = 'Noticeable lag or packet stutter';
 
-      if (ping < 20 && jitter < 5) {
+      if (ping < 30 && jitter < 25) {
         vStars = 5;
         vBadge = 'Great';
         vBadgeClass = 'badge-green';
-        vReason = 'Crystal clear real-time video/audio';
-      } else if (ping < 50 && jitter < 10) {
+        vReason = 'Crystal clear HD video & audio';
+      } else if (ping < 60 && jitter < 40) {
         vStars = 4;
         vBadge = 'Good';
         vBadgeClass = 'badge-green';
-        vReason = 'Smooth video calls with minor jitter';
+        vReason = 'Smooth video calls with minor delay';
       } else if (ping < 100) {
         vStars = 3;
         vBadge = 'Fair';
