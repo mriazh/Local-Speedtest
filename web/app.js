@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Local Speedtest — Cloudflare Speed Test Inspired Frontend Logic
-   Powered by LibreSpeed Go (speedtest.js + speedtest_worker.js).
+   Local Speedtest — Cloudflare Speed Test Frontend Logic
+   Inspired by speed.cloudflare.com.
    100% Offline LAN Compatible.
    ========================================================================== */
 
@@ -8,109 +8,208 @@
   'use strict';
 
   // ---------------------------------------------------------------------------
-  // Canvas Graph / Sparkline Utilities (Crisp High-DPI Rendering)
+  // Dual-Area Spline Chart (Download Orange + Upload Purple + P90 Guide Line)
   // ---------------------------------------------------------------------------
-  class Sparkline {
-    constructor(canvas, options = {}) {
+  class DualAreaChart {
+    constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext('2d');
-      this.strokeColor = options.strokeColor || '#f6821f';
-      this.fillColor = options.fillColor || 'rgba(246, 130, 31, 0.15)';
-      this.lineWidth = options.lineWidth || 2;
-      this.data = [];
       this.dpr = window.devicePixelRatio || 1;
+      this.dlData = [];
+      this.ulData = [];
+      this.p90Val = null;
       this.resize();
     }
 
     resize() {
       const rect = this.canvas.getBoundingClientRect();
-      const w = rect.width || this.canvas.width || 200;
-      const h = rect.height || this.canvas.height || 50;
+      const w = rect.width || this.canvas.width || 600;
+      const h = rect.height || this.canvas.height || 220;
       this.canvas.width = w * this.dpr;
       this.canvas.height = h * this.dpr;
       this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       this.w = w;
       this.h = h;
+      this.draw();
     }
 
-    push(val) {
-      this.data.push(val);
+    pushDl(val) {
+      this.dlData.push(val);
+      this.calcP90();
       this.draw();
+    }
+
+    pushUl(val) {
+      this.ulData.push(val);
+      this.draw();
+    }
+
+    calcP90() {
+      if (this.dlData.length < 3) {
+        this.p90Val = null;
+        return;
+      }
+      const sorted = [...this.dlData].sort((a, b) => a - b);
+      const idx = Math.floor(sorted.length * 0.9);
+      this.p90Val = sorted[idx];
     }
 
     clear() {
-      this.data = [];
+      this.dlData = [];
+      this.ulData = [];
+      this.p90Val = null;
       this.draw();
-    }
-
-    setColor(stroke, fill) {
-      if (stroke) this.strokeColor = stroke;
-      if (fill) this.fillColor = fill;
     }
 
     draw() {
       const ctx = this.ctx;
       const w = this.w;
       const h = this.h;
+      if (!ctx || !w || !h) return;
+
       ctx.clearRect(0, 0, w, h);
 
-      if (!this.data || this.data.length < 2) {
-        // Draw faint baseline
+      const padTop = 16;
+      const padBot = 20;
+      const drawH = h - padTop - padBot;
+
+      // Draw horizontal grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padTop + (drawH / 4) * i;
         ctx.beginPath();
-        ctx.moveTo(0, h - 6);
-        ctx.lineTo(w, h - 6);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      const allData = [...this.dlData, ...this.ulData];
+      if (allData.length === 0) {
+        // Draw idle baseline
+        ctx.beginPath();
+        ctx.moveTo(0, h - padBot);
+        ctx.lineTo(w, h - padBot);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.lineWidth = 1;
         ctx.stroke();
         return;
       }
 
-      const padTop = 6;
-      const padBot = 6;
-      const drawH = h - padTop - padBot;
-      const max = Math.max(...this.data, 0.1);
-      const min = 0;
-      const range = max - min || 1;
+      const maxVal = Math.max(...allData, 10);
+      const minVal = 0;
+      const range = maxVal - minVal || 1;
 
-      const pts = this.data.map((v, i) => {
-        const x = (i / (this.data.length - 1)) * w;
-        const y = h - padBot - ((v - min) / range) * drawH;
-        return { x, y };
-      });
+      // Helper to compute curve points
+      const computePoints = (data) => {
+        if (!data || data.length === 0) return [];
+        return data.map((v, i) => {
+          const x = data.length === 1 ? w / 2 : (i / (data.length - 1)) * w;
+          const y = h - padBot - ((v - minVal) / range) * drawH;
+          return { x, y };
+        });
+      };
 
-      // Fill Path (under the curve)
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) {
-        const xc = (pts[i - 1].x + pts[i].x) / 2;
-        const yc = (pts[i - 1].y + pts[i].y) / 2;
-        ctx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc);
+      // Helper to draw smooth spline path
+      const drawSplinePath = (pts) => {
+        if (pts.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          const xc = (pts[i - 1].x + pts[i].x) / 2;
+          const yc = (pts[i - 1].y + pts[i].y) / 2;
+          ctx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc);
+        }
+        ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      };
+
+      // 1. Draw Download Series (Cloudflare Orange: #f6821f)
+      if (this.dlData.length > 1) {
+        const dlPts = computePoints(this.dlData);
+
+        // Fill gradient
+        ctx.beginPath();
+        ctx.moveTo(dlPts[0].x, dlPts[0].y);
+        for (let i = 1; i < dlPts.length; i++) {
+          const xc = (dlPts[i - 1].x + dlPts[i].x) / 2;
+          const yc = (dlPts[i - 1].y + dlPts[i].y) / 2;
+          ctx.quadraticCurveTo(dlPts[i - 1].x, dlPts[i - 1].y, xc, yc);
+        }
+        ctx.lineTo(dlPts[dlPts.length - 1].x, dlPts[dlPts.length - 1].y);
+        ctx.lineTo(w, h - padBot);
+        ctx.lineTo(0, h - padBot);
+        ctx.closePath();
+
+        const dlGrad = ctx.createLinearGradient(0, padTop, 0, h - padBot);
+        dlGrad.addColorStop(0, 'rgba(246, 130, 31, 0.35)');
+        dlGrad.addColorStop(1, 'rgba(246, 130, 31, 0.0)');
+        ctx.fillStyle = dlGrad;
+        ctx.fill();
+
+        // Stroke line
+        drawSplinePath(dlPts);
+        ctx.strokeStyle = '#f6821f';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = 'rgba(246, 130, 31, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
       }
-      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
 
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, this.fillColor);
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = grad;
-      ctx.fill();
+      // 2. Draw 90th Percentile Guide Line (Dotted Amber/Orange)
+      if (this.p90Val !== null && this.dlData.length > 2) {
+        const p90Y = h - padBot - ((this.p90Val - minVal) / range) * drawH;
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(0, p90Y);
+        ctx.lineTo(w, p90Y);
+        ctx.strokeStyle = 'rgba(250, 173, 63, 0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-      // Stroke Path
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) {
-        const xc = (pts[i - 1].x + pts[i].x) / 2;
-        const yc = (pts[i - 1].y + pts[i].y) / 2;
-        ctx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, xc, yc);
+        ctx.fillStyle = '#faad3f';
+        ctx.font = '10px ui-monospace, SFMono-Regular, monospace';
+        ctx.fillText('90%ile: ' + this.p90Val.toFixed(1) + ' Mbps', 8, Math.max(p90Y - 4, 14));
+        ctx.restore();
       }
-      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
-      ctx.strokeStyle = this.strokeColor;
-      ctx.lineWidth = this.lineWidth;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
+
+      // 3. Draw Upload Series (Cloudflare Purple: #8a63d2)
+      if (this.ulData.length > 1) {
+        const ulPts = computePoints(this.ulData);
+
+        // Fill gradient
+        ctx.beginPath();
+        ctx.moveTo(ulPts[0].x, ulPts[0].y);
+        for (let i = 1; i < ulPts.length; i++) {
+          const xc = (ulPts[i - 1].x + ulPts[i].x) / 2;
+          const yc = (ulPts[i - 1].y + ulPts[i].y) / 2;
+          ctx.quadraticCurveTo(ulPts[i - 1].x, ulPts[i - 1].y, xc, yc);
+        }
+        ctx.lineTo(ulPts[ulPts.length - 1].x, ulPts[ulPts.length - 1].y);
+        ctx.lineTo(w, h - padBot);
+        ctx.lineTo(0, h - padBot);
+        ctx.closePath();
+
+        const ulGrad = ctx.createLinearGradient(0, padTop, 0, h - padBot);
+        ulGrad.addColorStop(0, 'rgba(138, 99, 210, 0.35)');
+        ulGrad.addColorStop(1, 'rgba(138, 99, 210, 0.0)');
+        ctx.fillStyle = ulGrad;
+        ctx.fill();
+
+        // Stroke line
+        drawSplinePath(ulPts);
+        ctx.strokeStyle = '#8a63d2';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = 'rgba(138, 99, 210, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
+      }
     }
   }
 
@@ -176,383 +275,396 @@
     }
   }
 
-  // If on results.html, initialize and exit
   if (isResultsPage) {
     document.addEventListener('DOMContentLoaded', initResultsPageView);
     return;
   }
 
   // ---------------------------------------------------------------------------
-  // Index Page: Cloudflare Speed Test Frontend Logic
+  // Main Index Page Logic (Cloudflare Speed Style)
   // ---------------------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', function () {
-    // DOM Elements - Stepper
-    const stepItems = {
-      latency: document.getElementById('step-latency'),
-      download: document.getElementById('step-download'),
-      upload: document.getElementById('step-upload'),
-      complete: document.getElementById('step-complete')
-    };
-    const stepStatuses = {
-      latency: document.getElementById('stepStatus-latency'),
-      download: document.getElementById('stepStatus-download'),
-      upload: document.getElementById('stepStatus-upload'),
-      complete: document.getElementById('stepStatus-complete')
-    };
-
-    // Hero Live Area
-    const heroIdle = document.getElementById('heroIdle');
-    const heroRunning = document.getElementById('heroRunning');
-    const startBtn = document.getElementById('startBtn');
-    const livePhaseBadge = document.getElementById('livePhaseBadge');
-    const livePhaseDesc = document.getElementById('livePhaseDesc');
-    const liveReadoutVal = document.getElementById('liveReadoutVal');
-    const liveReadoutUnit = document.getElementById('liveReadoutUnit');
-    const heroGraphCanvas = document.getElementById('heroGraph');
-
-    // 4-Card Metric Matrix
-    const cards = {
-      download: document.getElementById('cardDownload'),
-      upload: document.getElementById('cardUpload'),
-      latency: document.getElementById('cardLatency'),
-      jitter: document.getElementById('cardJitter')
-    };
-
-    const valDl = document.getElementById('valDl');
-    const valDlPeak = document.getElementById('valDlPeak');
-    const valDlAvg = document.getElementById('valDlAvg');
-    const sparklineDlCanvas = document.getElementById('sparklineDl');
-
-    const valUl = document.getElementById('valUl');
-    const valUlPeak = document.getElementById('valUlPeak');
-    const valUlAvg = document.getElementById('valUlAvg');
-    const sparklineUlCanvas = document.getElementById('sparklineUl');
-
-    const valPing = document.getElementById('valPing');
-    const valPingMin = document.getElementById('valPingMin');
-    const valPingAvg = document.getElementById('valPingAvg');
-    const sparklinePingCanvas = document.getElementById('sparklinePing');
-
-    const valJitter = document.getElementById('valJitter');
-    const jitterRatingBadge = document.getElementById('jitterRatingBadge');
-    const stabilityText = document.getElementById('stabilityText');
-
-    // Share Result Section
-    const shareSection = document.getElementById('shareSection');
-    const telemetryId = document.getElementById('telemetryId');
-    const shareLinkInput = document.getElementById('shareLinkInput');
-    const copyShareBtn = document.getElementById('copyShareBtn');
-    const openCardLink = document.getElementById('openCardLink');
-    const testAgainBtn = document.getElementById('testAgainBtn');
-
-    // Client IP Badge
+    // Top Elements
     const clientIpVal = document.getElementById('clientIpVal');
+    const metaClientIp = document.getElementById('metaClientIp');
+    const topoClientIp = document.getElementById('topoClientIp');
 
-    // Initialize Sparkline Canvases
-    const heroSparkline = heroGraphCanvas
-      ? new Sparkline(heroGraphCanvas, {
-          strokeColor: '#f6821f',
-          fillColor: 'rgba(246, 130, 31, 0.18)',
-          lineWidth: 3
-        })
-      : null;
+    // Hero Speed Elements
+    const testStateBadge = document.getElementById('testStateBadge');
+    const primaryHeroBtn = document.getElementById('primaryHeroBtn');
+    const primaryHeroBtnLabel = document.getElementById('primaryHeroBtnLabel');
+    const restartTestBtn = document.getElementById('restartTestBtn');
+    const copyShareLinkBtn = document.getElementById('copyShareLinkBtn');
+    const copyBtnText = document.getElementById('copyBtnText');
+    const timestampDisplay = document.getElementById('timestampDisplay');
 
-    const dlSparkline = sparklineDlCanvas
-      ? new Sparkline(sparklineDlCanvas, {
-          strokeColor: '#f6821f',
-          fillColor: 'rgba(246, 130, 31, 0.15)',
-          lineWidth: 2
-        })
-      : null;
+    // Hero Metric Elements
+    const heroValDl = document.getElementById('heroValDl');
+    const heroValDlPeak = document.getElementById('heroValDlPeak');
+    const heroValUl = document.getElementById('heroValUl');
+    const heroValUlPeak = document.getElementById('heroValUlPeak');
+    const heroValPing = document.getElementById('heroValPing');
+    const heroValPingMin = document.getElementById('heroValPingMin');
+    const heroValJitter = document.getElementById('heroValJitter');
+    const heroValBuffer = document.getElementById('heroValBuffer');
 
-    const ulSparkline = sparklineUlCanvas
-      ? new Sparkline(sparklineUlCanvas, {
-          strokeColor: '#8a63d2',
-          fillColor: 'rgba(138, 99, 210, 0.15)',
-          lineWidth: 2
-        })
-      : null;
+    // Canvas Chart
+    const dualAreaCanvas = document.getElementById('dualAreaChart');
+    const dualChart = dualAreaCanvas ? new DualAreaChart(dualAreaCanvas) : null;
 
-    const pingSparkline = sparklinePingCanvas
-      ? new Sparkline(sparklinePingCanvas, {
-          strokeColor: '#00a4e4',
-          fillColor: 'rgba(0, 164, 228, 0.15)',
-          lineWidth: 2
-        })
-      : null;
+    // Quality Score Elements
+    const starsStreaming = document.getElementById('starsStreaming');
+    const badgeStreaming = document.getElementById('badgeStreaming');
+    const reasonStreaming = document.getElementById('reasonStreaming');
+
+    const starsGaming = document.getElementById('starsGaming');
+    const badgeGaming = document.getElementById('badgeGaming');
+    const reasonGaming = document.getElementById('reasonGaming');
+
+    const starsVideo = document.getElementById('starsVideo');
+    const badgeVideo = document.getElementById('badgeVideo');
+    const reasonVideo = document.getElementById('reasonVideo');
+
+    // Measurement Breakdown Elements
+    const bValDlPeak = document.getElementById('bValDlPeak');
+    const bValDlAvg = document.getElementById('bValDlAvg');
+    const bValDlBytes = document.getElementById('bValDlBytes');
+
+    const bValUlPeak = document.getElementById('bValUlPeak');
+    const bValUlAvg = document.getElementById('bValUlAvg');
+    const bValUlBytes = document.getElementById('bValUlBytes');
+
+    const bValPingUnloaded = document.getElementById('bValPingUnloaded');
+    const bValLoadedBuffer = document.getElementById('bValLoadedBuffer');
+    const bValJitterStat = document.getElementById('bValJitterStat');
+
+    // Telemetry Bar Elements
+    const telemetrySection = document.getElementById('telemetrySection');
+    const telemetryIdDisplay = document.getElementById('telemetryIdDisplay');
+    const shareUrlInput = document.getElementById('shareUrlInput');
+    const btnCopyShareTelemetry = document.getElementById('btnCopyShareTelemetry');
+    const copyTelemetryBtnText = document.getElementById('copyTelemetryBtnText');
+    const linkViewResultCard = document.getElementById('linkViewResultCard');
 
     window.addEventListener('resize', () => {
-      if (heroSparkline) heroSparkline.resize();
-      if (dlSparkline) dlSparkline.resize();
-      if (ulSparkline) ulSparkline.resize();
-      if (pingSparkline) pingSparkline.resize();
+      if (dualChart) dualChart.resize();
     });
 
     // -------------------------------------------------------------------------
     // Initial Client IP Pre-fetch
     // -------------------------------------------------------------------------
+    function updateIpUI(ip) {
+      if (!ip) return;
+      const cleanIp = ip.split(' ')[0] || ip;
+      if (clientIpVal) clientIpVal.textContent = cleanIp;
+      if (metaClientIp) metaClientIp.textContent = cleanIp;
+      if (topoClientIp) topoClientIp.textContent = cleanIp;
+    }
+
     function fetchClientIp() {
       fetch('/getIP')
         .then((r) => r.json())
         .then((data) => {
-          if (data && data.processedString && clientIpVal) {
-            const ip = data.processedString.split(' ')[0] || data.processedString;
-            clientIpVal.textContent = ip;
+          if (data && data.processedString) {
+            updateIpUI(data.processedString);
           }
         })
         .catch(() => {
-          if (clientIpVal) clientIpVal.textContent = '172.16.x.x';
+          updateIpUI('172.16.x.x');
         });
     }
     fetchClientIp();
 
     // -------------------------------------------------------------------------
-    // Speedtest State & Telemetry Tracking
+    // Test Tracking State
     // -------------------------------------------------------------------------
     let currentTest = null;
     let isRunning = false;
-    let currentPhase = 'idle';
 
     let dlSamples = [];
     let ulSamples = [];
     let pingSamples = [];
+    let lastValidPing = null;
+    let lastValidJitter = null;
+    let currentTestId = null;
+
+    // Helper: update 5-star rating UI
+    function renderStars(container, rating) {
+      if (!container) return;
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          html += '<span class="star filled">&#9733;</span>';
+        } else {
+          html += '<span class="star">&#9733;</span>';
+        }
+      }
+      container.innerHTML = html;
+      container.setAttribute('aria-label', `${rating} of 5 stars`);
+    }
+
+    // Helper: dynamic calculation of Cloudflare AIM style Quality Scores
+    function updateQualityScores(dl, ping, jitter) {
+      // 1. Streaming: 5 stars if jitter < 5ms and DL > 50 Mbps
+      let sStars = 1;
+      let sBadge = 'Poor';
+      let sBadgeClass = 'badge-amber';
+      let sReason = 'Low throughput or high jitter';
+
+      if (dl >= 50 && jitter < 5) {
+        sStars = 5;
+        sBadge = 'Great';
+        sBadgeClass = 'badge-green';
+        sReason = 'Ultra HD 4K/8K ready without buffering';
+      } else if (dl >= 25 && jitter < 10) {
+        sStars = 4;
+        sBadge = 'Good';
+        sBadgeClass = 'badge-green';
+        sReason = 'Smooth 1080p Full HD streaming';
+      } else if (dl >= 10) {
+        sStars = 3;
+        sBadge = 'Fair';
+        sBadgeClass = 'badge-amber';
+        sReason = 'Standard 720p streaming';
+      }
+      renderStars(starsStreaming, sStars);
+      if (badgeStreaming) {
+        badgeStreaming.textContent = sBadge;
+        badgeStreaming.className = 'quality-status-badge ' + sBadgeClass;
+      }
+      if (reasonStreaming) reasonStreaming.textContent = sReason;
+
+      // 2. Gaming: 5 stars if latency < 10ms and jitter < 3ms
+      let gStars = 1;
+      let gBadge = 'Poor';
+      let gBadgeClass = 'badge-amber';
+      let gReason = 'High latency or noticeable jitter';
+
+      if (ping < 10 && jitter < 3) {
+        gStars = 5;
+        gBadge = 'Great';
+        gBadgeClass = 'badge-green';
+        gReason = 'LAN Gigabit response (< 10ms)';
+      } else if (ping < 25 && jitter < 5) {
+        gStars = 4;
+        gBadge = 'Good';
+        gBadgeClass = 'badge-green';
+        gReason = 'Competitive multiplayer ready';
+      } else if (ping < 50 && jitter < 10) {
+        gStars = 3;
+        gBadge = 'Fair';
+        gBadgeClass = 'badge-amber';
+        gReason = 'Casual gaming acceptable';
+      }
+      renderStars(starsGaming, gStars);
+      if (badgeGaming) {
+        badgeGaming.textContent = gBadge;
+        badgeGaming.className = 'quality-status-badge ' + gBadgeClass;
+      }
+      if (reasonGaming) reasonGaming.textContent = gReason;
+
+      // 3. Video Calls: 5 stars if latency < 20ms and jitter < 5ms
+      let vStars = 1;
+      let vBadge = 'Poor';
+      let vBadgeClass = 'badge-amber';
+      let vReason = 'Noticeable lag or packet stutter';
+
+      if (ping < 20 && jitter < 5) {
+        vStars = 5;
+        vBadge = 'Great';
+        vBadgeClass = 'badge-green';
+        vReason = 'Crystal clear real-time video/audio';
+      } else if (ping < 50 && jitter < 10) {
+        vStars = 4;
+        vBadge = 'Good';
+        vBadgeClass = 'badge-green';
+        vReason = 'Smooth video calls with minor jitter';
+      } else if (ping < 100) {
+        vStars = 3;
+        vBadge = 'Fair';
+        vBadgeClass = 'badge-amber';
+        vReason = 'Occasional talk-over or delay';
+      }
+      renderStars(starsVideo, vStars);
+      if (badgeVideo) {
+        badgeVideo.textContent = vBadge;
+        badgeVideo.className = 'quality-status-badge ' + vBadgeClass;
+      }
+      if (reasonVideo) reasonVideo.textContent = vReason;
+    }
 
     function resetUI() {
-      // Reset Stepper
-      Object.keys(stepItems).forEach((key) => {
-        stepItems[key].classList.remove('active', 'done');
-        stepStatuses[key].textContent = 'Waiting';
-      });
+      if (testStateBadge) {
+        testStateBadge.textContent = 'READY';
+        testStateBadge.className = 'status-indicator-badge';
+      }
+      if (primaryHeroBtn) {
+        primaryHeroBtn.disabled = false;
+        primaryHeroBtnLabel.textContent = 'Start Test';
+      }
 
-      // Reset Hero
-      heroIdle.hidden = false;
-      heroRunning.hidden = true;
-      liveReadoutVal.textContent = '0.0';
-      liveReadoutUnit.textContent = 'Mbps';
-      if (heroSparkline) heroSparkline.clear();
+      heroValDl.textContent = '--';
+      heroValDlPeak.textContent = '--';
+      heroValUl.textContent = '--';
+      heroValUlPeak.textContent = '--';
+      heroValPing.textContent = '--';
+      heroValPingMin.textContent = '--';
+      heroValJitter.textContent = '--';
+      heroValBuffer.textContent = 'Optimal';
 
-      // Reset Cards
-      Object.values(cards).forEach((c) => c.classList.remove('card-active'));
-      valDl.textContent = '--';
-      valDlPeak.textContent = '--';
-      valDlAvg.textContent = '--';
-      if (dlSparkline) dlSparkline.clear();
+      if (bValDlPeak) bValDlPeak.textContent = '--';
+      if (bValDlAvg) bValDlAvg.textContent = '--';
+      if (bValDlBytes) bValDlBytes.textContent = '--';
 
-      valUl.textContent = '--';
-      valUlPeak.textContent = '--';
-      valUlAvg.textContent = '--';
-      if (ulSparkline) ulSparkline.clear();
+      if (bValUlPeak) bValUlPeak.textContent = '--';
+      if (bValUlAvg) bValUlAvg.textContent = '--';
+      if (bValUlBytes) bValUlBytes.textContent = '--';
 
-      valPing.textContent = '--';
-      valPingMin.textContent = '--';
-      valPingAvg.textContent = '--';
-      if (pingSparkline) pingSparkline.clear();
+      if (bValPingUnloaded) bValPingUnloaded.textContent = '--';
+      if (bValLoadedBuffer) bValLoadedBuffer.textContent = '--';
+      if (bValJitterStat) bValJitterStat.textContent = '--';
 
-      valJitter.textContent = '--';
-      jitterRatingBadge.className = 'rating-badge rating-idle';
-      jitterRatingBadge.textContent = 'Ready';
-      stabilityText.textContent = 'Awaiting test';
-
-      // Reset Share Section
-      shareSection.hidden = true;
-      shareLinkInput.value = '';
-      telemetryId.textContent = '--';
+      if (telemetrySection) telemetrySection.hidden = true;
+      if (shareUrlInput) shareUrlInput.value = '';
+      if (telemetryIdDisplay) telemetryIdDisplay.textContent = '--';
 
       dlSamples = [];
       ulSamples = [];
       pingSamples = [];
+      lastValidPing = null;
+      lastValidJitter = null;
+      currentTestId = null;
+
+      if (dualChart) dualChart.clear();
     }
 
-    function setPhase(phase) {
-      if (currentPhase === phase) return;
-      currentPhase = phase;
-
-      // Update card focus
-      Object.values(cards).forEach((c) => c.classList.remove('card-active'));
-
-      if (phase === 'latency') {
-        // Step 1 Active
-        stepItems.latency.classList.add('active');
-        stepItems.latency.classList.remove('done');
-        stepStatuses.latency.textContent = 'Testing';
-
-        livePhaseBadge.textContent = 'LATENCY';
-        livePhaseBadge.style.color = '#00a4e4';
-        livePhaseBadge.style.borderColor = 'rgba(0, 164, 228, 0.4)';
-        livePhaseBadge.style.background = 'rgba(0, 164, 228, 0.15)';
-        livePhaseDesc.textContent = 'Measuring round-trip time and jitter...';
-        liveReadoutUnit.textContent = 'ms';
-        if (heroSparkline) {
-          heroSparkline.clear();
-          heroSparkline.setColor('#00a4e4', 'rgba(0, 164, 228, 0.2)');
-        }
-        cards.latency.classList.add('card-active');
-        cards.jitter.classList.add('card-active');
-      } else if (phase === 'download') {
-        // Step 1 Done, Step 2 Active
-        stepItems.latency.classList.remove('active');
-        stepItems.latency.classList.add('done');
-        stepStatuses.latency.textContent = 'Done';
-
-        stepItems.download.classList.add('active');
-        stepItems.download.classList.remove('done');
-        stepStatuses.download.textContent = 'Testing';
-
-        livePhaseBadge.textContent = 'DOWNLOAD';
-        livePhaseBadge.style.color = '#f6821f';
-        livePhaseBadge.style.borderColor = 'rgba(246, 130, 31, 0.4)';
-        livePhaseBadge.style.background = 'rgba(246, 130, 31, 0.15)';
-        livePhaseDesc.textContent = 'Testing multi-stream download throughput...';
-        liveReadoutUnit.textContent = 'Mbps';
-        if (heroSparkline) {
-          heroSparkline.clear();
-          heroSparkline.setColor('#f6821f', 'rgba(246, 130, 31, 0.2)');
-        }
-        cards.download.classList.add('card-active');
-      } else if (phase === 'upload') {
-        // Step 1 & 2 Done, Step 3 Active
-        stepItems.download.classList.remove('active');
-        stepItems.download.classList.add('done');
-        stepStatuses.download.textContent = 'Done';
-
-        stepItems.upload.classList.add('active');
-        stepItems.upload.classList.remove('done');
-        stepStatuses.upload.textContent = 'Testing';
-
-        livePhaseBadge.textContent = 'UPLOAD';
-        livePhaseBadge.style.color = '#8a63d2';
-        livePhaseBadge.style.borderColor = 'rgba(138, 99, 210, 0.4)';
-        livePhaseBadge.style.background = 'rgba(138, 99, 210, 0.15)';
-        livePhaseDesc.textContent = 'Testing multi-stream upload throughput...';
-        liveReadoutUnit.textContent = 'Mbps';
-        if (heroSparkline) {
-          heroSparkline.clear();
-          heroSparkline.setColor('#8a63d2', 'rgba(138, 99, 210, 0.2)');
-        }
-        cards.upload.classList.add('card-active');
-      } else if (phase === 'complete') {
-        // All Steps Done
-        stepItems.upload.classList.remove('active');
-        stepItems.upload.classList.add('done');
-        stepStatuses.upload.textContent = 'Done';
-
-        stepItems.complete.classList.add('active', 'done');
-        stepStatuses.complete.textContent = 'Done';
-
-        livePhaseBadge.textContent = 'COMPLETED';
-        livePhaseBadge.style.color = '#10b981';
-        livePhaseBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-        livePhaseBadge.style.background = 'rgba(16, 185, 129, 0.15)';
-        livePhaseDesc.textContent = 'Local benchmark finished successfully.';
-      }
+    function formatTime(date) {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     }
 
-    function updateJitterRating(jitter) {
-      if (jitter === null || isNaN(jitter)) return;
-      if (jitter <= 2) {
-        jitterRatingBadge.className = 'rating-badge rating-ultra';
-        jitterRatingBadge.textContent = 'Ultra Stable';
-        stabilityText.textContent = 'Excellent (< 2ms)';
-      } else if (jitter <= 5) {
-        jitterRatingBadge.className = 'rating-badge rating-good';
-        jitterRatingBadge.textContent = 'Very Stable';
-        stabilityText.textContent = 'Good (< 5ms)';
-      } else if (jitter <= 15) {
-        jitterRatingBadge.className = 'rating-badge rating-fair';
-        jitterRatingBadge.textContent = 'Stable';
-        stabilityText.textContent = 'Moderate';
-      } else {
-        jitterRatingBadge.className = 'rating-badge rating-fair';
-        jitterRatingBadge.textContent = 'High Jitter';
-        stabilityText.textContent = 'Variable';
-      }
+    function showShareableTelemetry(resolvedId) {
+      currentTestId = resolvedId;
+      if (telemetryIdDisplay) telemetryIdDisplay.textContent = resolvedId;
+
+      const host = location.host || 'speedtest.mriazh.my.id:8989';
+      const proto = location.protocol || 'http:';
+      const shareUrl = `${proto}//${host}/results/?id=${encodeURIComponent(resolvedId)}`;
+
+      if (shareUrlInput) shareUrlInput.value = shareUrl;
+      if (linkViewResultCard) linkViewResultCard.href = `/results/?id=${encodeURIComponent(resolvedId)}`;
+      if (telemetrySection) telemetrySection.hidden = false;
     }
 
+    // -------------------------------------------------------------------------
+    // Speedtest Execution
+    // -------------------------------------------------------------------------
     function startSpeedtest() {
       if (isRunning) return;
       isRunning = true;
       resetUI();
 
-      heroIdle.hidden = true;
-      heroRunning.hidden = false;
-      setPhase('latency');
+      if (testStateBadge) {
+        testStateBadge.textContent = 'RUNNING';
+        testStateBadge.className = 'status-indicator-badge status-testing';
+      }
+      if (primaryHeroBtn) {
+        primaryHeroBtn.disabled = true;
+        primaryHeroBtnLabel.textContent = 'Testing...';
+      }
 
       const s = new Speedtest();
       Object.entries(SPEEDTEST_PARAMS).forEach(([k, v]) => s.setParameter(k, v));
       currentTest = s;
 
-      let lastTestId = null;
-
       s.onupdate = function (data) {
         const st = data.testState;
 
-        // Update Client IP if reported by worker
-        if (data.clientIp && clientIpVal) {
-          const ip = data.clientIp.split(' ')[0] || data.clientIp;
-          clientIpVal.textContent = ip;
+        // Update Client IP if reported
+        if (data.clientIp) {
+          updateIpUI(data.clientIp);
         }
 
+        // Cache testId if worker delivers it
         if (data.testId) {
-          lastTestId = data.testId;
+          currentTestId = data.testId;
         }
 
-        // State 0 or 2: Latency & Jitter phase (test_order IPDU)
-        if (st === 0 || st === 2) {
-          setPhase('latency');
-          const ping = parseFloat(data.pingStatus);
-          const jitter = parseFloat(data.jitterStatus);
+        // Latency & Jitter Update (State 0, 2, or any state that carries valid numbers)
+        const rawPing = parseFloat(data.pingStatus);
+        const rawJitter = parseFloat(data.jitterStatus);
 
-          if (!isNaN(ping) && ping > 0) {
-            pingSamples.push(ping);
-            valPing.textContent = ping.toFixed(1);
-            liveReadoutVal.textContent = ping.toFixed(1);
-            if (heroSparkline) heroSparkline.push(ping);
-            if (pingSparkline) pingSparkline.push(ping);
-
-            const minPing = Math.min(...pingSamples);
-            const avgPing =
-              pingSamples.reduce((a, b) => a + b, 0) / pingSamples.length;
-            valPingMin.textContent = minPing.toFixed(1);
-            valPingAvg.textContent = avgPing.toFixed(1);
+        if (!isNaN(rawPing) && rawPing > 0) {
+          lastValidPing = rawPing;
+          pingSamples.push(rawPing);
+          heroValPing.textContent = rawPing.toFixed(1);
+          const minPing = Math.min(...pingSamples);
+          heroValPingMin.textContent = minPing.toFixed(1);
+          if (bValPingUnloaded) bValPingUnloaded.textContent = minPing.toFixed(1);
+          if (bValLoadedBuffer) {
+            const bufferDiff = (rawPing - minPing).toFixed(1);
+            bValLoadedBuffer.textContent = `${rawPing.toFixed(1)} (+${bufferDiff}ms)`;
           }
-
-          if (!isNaN(jitter) && jitter >= 0) {
-            valJitter.textContent = jitter.toFixed(1);
-            updateJitterRating(jitter);
-          }
+        } else if (lastValidPing !== null) {
+          // Guard: Never lose pingStatus or reset to '--'
+          heroValPing.textContent = lastValidPing.toFixed(1);
         }
+
+        if (!isNaN(rawJitter) && rawJitter >= 0) {
+          lastValidJitter = rawJitter;
+          heroValJitter.textContent = rawJitter.toFixed(1);
+          if (bValJitterStat) bValJitterStat.textContent = rawJitter.toFixed(1);
+          if (rawJitter < 3) {
+            heroValBuffer.textContent = 'Optimal (<3ms)';
+          } else {
+            heroValBuffer.textContent = 'Stable';
+          }
+        } else if (lastValidJitter !== null) {
+          // Guard: Never lose jitterStatus or reset to '--'
+          heroValJitter.textContent = lastValidJitter.toFixed(1);
+        }
+
         // State 1: Download phase
-        else if (st === 1) {
-          setPhase('download');
+        if (st === 1) {
+          if (testStateBadge) testStateBadge.textContent = 'DOWNLOAD';
           const dl = parseFloat(data.dlStatus);
           if (!isNaN(dl) && dl > 0) {
             dlSamples.push(dl);
-            valDl.textContent = dl.toFixed(1);
-            liveReadoutVal.textContent = dl.toFixed(1);
-            if (heroSparkline) heroSparkline.push(dl);
-            if (dlSparkline) dlSparkline.push(dl);
+            heroValDl.textContent = dl.toFixed(1);
+            if (dualChart) dualChart.pushDl(dl);
 
-            const peak = Math.max(...dlSamples);
-            const avg = dlSamples.reduce((a, b) => a + b, 0) / dlSamples.length;
-            valDlPeak.textContent = peak.toFixed(1);
-            valDlAvg.textContent = avg.toFixed(1);
+            const peakDl = Math.max(...dlSamples);
+            const avgDl = dlSamples.reduce((a, b) => a + b, 0) / dlSamples.length;
+            heroValDlPeak.textContent = peakDl.toFixed(1);
+
+            if (bValDlPeak) bValDlPeak.textContent = peakDl.toFixed(1);
+            if (bValDlAvg) bValDlAvg.textContent = avgDl.toFixed(1);
+            // Approximate data transferred in MB
+            if (bValDlBytes) {
+              const approxMB = ((avgDl * dlSamples.length * 0.2) / 8).toFixed(1);
+              bValDlBytes.textContent = approxMB;
+            }
           }
         }
         // State 3: Upload phase
         else if (st === 3) {
-          setPhase('upload');
+          if (testStateBadge) testStateBadge.textContent = 'UPLOAD';
           const ul = parseFloat(data.ulStatus);
           if (!isNaN(ul) && ul > 0) {
             ulSamples.push(ul);
-            valUl.textContent = ul.toFixed(1);
-            liveReadoutVal.textContent = ul.toFixed(1);
-            if (heroSparkline) heroSparkline.push(ul);
-            if (ulSparkline) ulSparkline.push(ul);
+            heroValUl.textContent = ul.toFixed(1);
+            if (dualChart) dualChart.pushUl(ul);
 
-            const peak = Math.max(...ulSamples);
-            const avg = ulSamples.reduce((a, b) => a + b, 0) / ulSamples.length;
-            valUlPeak.textContent = peak.toFixed(1);
-            valUlAvg.textContent = avg.toFixed(1);
+            const peakUl = Math.max(...ulSamples);
+            const avgUl = ulSamples.reduce((a, b) => a + b, 0) / ulSamples.length;
+            heroValUlPeak.textContent = peakUl.toFixed(1);
+
+            if (bValUlPeak) bValUlPeak.textContent = peakUl.toFixed(1);
+            if (bValUlAvg) bValUlAvg.textContent = avgUl.toFixed(1);
+            if (bValUlBytes) {
+              const approxMB = ((avgUl * ulSamples.length * 0.2) / 8).toFixed(1);
+              bValUlBytes.textContent = approxMB;
+            }
           }
         }
       };
@@ -561,49 +673,56 @@
         isRunning = false;
         currentTest = null;
 
+        if (primaryHeroBtn) {
+          primaryHeroBtn.disabled = false;
+          primaryHeroBtnLabel.textContent = 'Start Test';
+        }
+
         if (aborted) {
           resetUI();
           return;
         }
 
-        setPhase('complete');
-
-        // Capture testId and configure share section
-        const finalDl = valDl.textContent;
-        liveReadoutVal.textContent = finalDl !== '--' ? finalDl : '0.0';
-        liveReadoutUnit.textContent = 'Mbps';
-
-        // Read testId from last received data or check telemetry response
-        const id = lastTestId || (s.worker && s.worker.testId) || null;
-
-        function showShareCard(resolvedId) {
-          if (!resolvedId) return;
-          telemetryId.textContent = resolvedId;
-          const host = location.host || 'speedtest.mriazh.my.id:8989';
-          const proto = location.protocol || 'http:';
-          const shareUrl = `${proto}//${host}/results/?id=${resolvedId}`;
-          shareLinkInput.value = shareUrl;
-          openCardLink.href = `/results/?id=${resolvedId}`;
-          shareSection.hidden = false;
+        if (testStateBadge) {
+          testStateBadge.textContent = 'COMPLETED';
+          testStateBadge.className = 'status-indicator-badge status-done';
         }
 
-        if (id) {
-          showShareCard(id);
+        if (timestampDisplay) {
+          timestampDisplay.textContent = 'Measured at ' + formatTime(new Date());
+        }
+
+        // Preserve Latency & Jitter values on screen
+        if (lastValidPing !== null) {
+          heroValPing.textContent = lastValidPing.toFixed(1);
+          if (bValPingUnloaded) bValPingUnloaded.textContent = lastValidPing.toFixed(1);
+        }
+        if (lastValidJitter !== null) {
+          heroValJitter.textContent = lastValidJitter.toFixed(1);
+          if (bValJitterStat) bValJitterStat.textContent = lastValidJitter.toFixed(1);
+        }
+
+        // Finalize Quality Scores
+        const finalDl = dlSamples.length ? Math.max(...dlSamples) : 0;
+        const finalPing = lastValidPing !== null ? lastValidPing : 1.0;
+        const finalJitter = lastValidJitter !== null ? lastValidJitter : 0.2;
+        updateQualityScores(finalDl, finalPing, finalJitter);
+
+        // Shareable Telemetry: capture ID or poll
+        const resolvedId = currentTestId || (s.worker && s.worker.testId) || null;
+        if (resolvedId) {
+          showShareableTelemetry(resolvedId);
         } else {
-          // Poll telemetry endpoint or wait briefly if asynchronous
-          let retries = 0;
-          const pollInterval = setInterval(() => {
-            retries++;
-            if (lastTestId) {
-              clearInterval(pollInterval);
-              showShareCard(lastTestId);
-            } else if (retries > 8) {
-              clearInterval(pollInterval);
-              // Fallback ID indicator if telemetry was skipped or unassigned
-              telemetryId.textContent = 'LAN-Local';
-              shareLinkInput.value = `${location.origin}/results.html`;
-              openCardLink.href = '/results.html';
-              shareSection.hidden = false;
+          let attempts = 0;
+          const poll = setInterval(() => {
+            attempts++;
+            if (currentTestId) {
+              clearInterval(poll);
+              showShareableTelemetry(currentTestId);
+            } else if (attempts > 8) {
+              clearInterval(poll);
+              // Fallback to local card if unassigned
+              showShareableTelemetry('local-lan');
             }
           }, 300);
         }
@@ -612,43 +731,57 @@
       try {
         s.start();
       } catch (err) {
-        console.error('Failed to start speedtest:', err);
+        console.error('Speedtest start failed:', err);
         isRunning = false;
         resetUI();
       }
     }
 
     // -------------------------------------------------------------------------
-    // Event Listeners
+    // Event Handlers
     // -------------------------------------------------------------------------
-    if (startBtn) {
-      startBtn.addEventListener('click', startSpeedtest);
+    if (primaryHeroBtn) {
+      primaryHeroBtn.addEventListener('click', startSpeedtest);
+    }
+    if (restartTestBtn) {
+      restartTestBtn.addEventListener('click', startSpeedtest);
     }
 
-    if (testAgainBtn) {
-      testAgainBtn.addEventListener('click', startSpeedtest);
+    // Copy Share Link Helper
+    async function copyToClipboard(text, btnElement, labelElement) {
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = labelElement.textContent;
+        labelElement.textContent = 'Copied!';
+        setTimeout(() => {
+          labelElement.textContent = originalText;
+        }, 1800);
+      } catch (_) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        const originalText = labelElement.textContent;
+        labelElement.textContent = 'Copied!';
+        setTimeout(() => {
+          labelElement.textContent = originalText;
+        }, 1800);
+      }
     }
 
-    if (copyShareBtn && shareLinkInput) {
-      copyShareBtn.addEventListener('click', async function () {
-        const text = shareLinkInput.value;
-        if (!text) return;
+    if (copyShareLinkBtn) {
+      copyShareLinkBtn.addEventListener('click', function () {
+        const url = (shareUrlInput && shareUrlInput.value) || `${location.origin}/results/?id=${currentTestId || 'local-lan'}`;
+        copyToClipboard(url, copyShareLinkBtn, copyBtnText);
+      });
+    }
 
-        try {
-          await navigator.clipboard.writeText(text);
-          const originalText = copyShareBtn.querySelector('span').textContent;
-          copyShareBtn.querySelector('span').textContent = 'Copied!';
-          setTimeout(() => {
-            copyShareBtn.querySelector('span').textContent = originalText;
-          }, 1800);
-        } catch (_) {
-          shareLinkInput.select();
-          document.execCommand('copy');
-          copyShareBtn.querySelector('span').textContent = 'Copied!';
-          setTimeout(() => {
-            copyShareBtn.querySelector('span').textContent = 'Copy Link';
-          }, 1800);
-        }
+    if (btnCopyShareTelemetry && shareUrlInput) {
+      btnCopyShareTelemetry.addEventListener('click', function () {
+        copyToClipboard(shareUrlInput.value, btnCopyShareTelemetry, copyTelemetryBtnText);
       });
     }
   });

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Local Speedtest • Cloudflare Speed Style</title>
-  <meta name="description" content="Local network performance benchmark inspired by Cloudflare Speed Test. 100% offline LAN speedtest.">
+  <meta name="description" content="Local network performance benchmark inspired by speed.cloudflare.com. 100% offline LAN speedtest.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -30,7 +30,7 @@
 
       <div class="server-pill" title="Local LAN Target Server">
         <span class="pulse-dot"></span>
-        <span class="pill-text">Debian PC • 172.16.171.23 • 100% Local LAN (Zero Internet Quota)</span>
+        <span class="pill-text">Debian PC • 172.16.171.23 • 100% Local LAN</span>
       </div>
 
       <div class="client-badge" id="clientIpBadge">
@@ -39,234 +39,404 @@
       </div>
     </header>
 
-    <!-- Main Stepper Header -->
-    <nav class="stepper-nav" aria-label="Speed test progress">
-      <div class="step-item" id="step-latency" data-step="1">
-        <div class="step-num">1</div>
-        <div class="step-info">
-          <span class="step-label">Latency</span>
-          <span class="step-status" id="stepStatus-latency">Waiting</span>
-        </div>
-      </div>
-      <div class="step-divider"></div>
-      <div class="step-item" id="step-download" data-step="2">
-        <div class="step-num">2</div>
-        <div class="step-info">
-          <span class="step-label">Download</span>
-          <span class="step-status" id="stepStatus-download">Waiting</span>
-        </div>
-      </div>
-      <div class="step-divider"></div>
-      <div class="step-item" id="step-upload" data-step="3">
-        <div class="step-num">3</div>
-        <div class="step-info">
-          <span class="step-label">Upload</span>
-          <span class="step-status" id="stepStatus-upload">Waiting</span>
-        </div>
-      </div>
-      <div class="step-divider"></div>
-      <div class="step-item" id="step-complete" data-step="4">
-        <div class="step-num">4</div>
-        <div class="step-info">
-          <span class="step-label">Complete</span>
-          <span class="step-status" id="stepStatus-complete">Waiting</span>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Hero Live Area -->
-    <main class="hero-container" id="heroArea">
-      <!-- Idle State: Big Glowing Start Button -->
-      <div class="hero-idle" id="heroIdle">
-        <button type="button" class="start-btn" id="startBtn">
-          <span class="start-btn-glow"></span>
-          <span class="start-btn-content">
-            <svg class="start-icon" viewBox="0 0 24 24" fill="currentColor">
+    <!-- SECTION 1: Exact speed.cloudflare.com 2-Column Hero -->
+    <section class="cf-hero-grid" aria-label="Network Speed and Server Path">
+      <!-- LEFT CARD: Your Network Speed -->
+      <div class="cf-card hero-speed-card">
+        <div class="card-hero-header">
+          <div class="card-hero-title-group">
+            <h1 class="hero-card-title">Your Network Speed</h1>
+            <span class="status-indicator-badge" id="testStateBadge">READY</span>
+          </div>
+          <button type="button" class="btn-primary-hero" id="primaryHeroBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
-            <span class="start-label">START SPEED TEST</span>
-          </span>
-        </button>
-        <p class="hero-subtext">Multi-stream Gigabit benchmark • 100% Offline LAN telemetry</p>
-      </div>
-
-      <!-- Running / Live Readout State -->
-      <div class="hero-running" id="heroRunning" hidden>
-        <div class="live-meta">
-          <span class="live-badge" id="livePhaseBadge">PREPARING</span>
-          <span class="live-desc" id="livePhaseDesc">Initializing worker threads...</span>
-        </div>
-        <div class="live-digital-readout">
-          <span class="live-number" id="liveReadoutVal">0.0</span>
-          <span class="live-unit" id="liveReadoutUnit">Mbps</span>
+            <span id="primaryHeroBtnLabel">Start Test</span>
+          </button>
         </div>
 
-        <div class="hero-canvas-wrap">
-          <canvas id="heroGraph" width="800" height="180"></canvas>
-        </div>
-      </div>
-    </main>
+        <!-- Metric Row -->
+        <div class="hero-metric-row">
+          <!-- Download Metric -->
+          <div class="hero-metric-item" id="heroMetricDl">
+            <div class="metric-label">
+              <span class="legend-dot dot-dl"></span>
+              <span>DOWNLOAD</span>
+            </div>
+            <div class="metric-num-wrap">
+              <span class="metric-num num-dl" id="heroValDl">--</span>
+              <span class="metric-unit">Mbps</span>
+            </div>
+            <div class="metric-sub-stat" id="heroDlSubStat">Peak: <span id="heroValDlPeak">--</span> Mbps</div>
+          </div>
 
-    <!-- The Iconic Cloudflare 4-Card Metric Matrix -->
-    <section class="metric-matrix" aria-label="Performance Metrics">
-      <!-- Card 1: Download -->
-      <div class="cf-card card-download" id="cardDownload">
-        <div class="card-header">
-          <div class="card-title-group">
-            <svg class="metric-icon icon-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="card-title">DOWNLOAD</span>
+          <!-- Upload Metric -->
+          <div class="hero-metric-item" id="heroMetricUl">
+            <div class="metric-label">
+              <span class="legend-dot dot-ul"></span>
+              <span>UPLOAD</span>
+            </div>
+            <div class="metric-num-wrap">
+              <span class="metric-num num-ul" id="heroValUl">--</span>
+              <span class="metric-unit">Mbps</span>
+            </div>
+            <div class="metric-sub-stat" id="heroUlSubStat">Peak: <span id="heroValUlPeak">--</span> Mbps</div>
           </div>
-          <span class="card-unit-pill">Mbps</span>
-        </div>
-        <div class="card-value-wrap">
-          <span class="card-number" id="valDl">--</span>
-        </div>
-        <div class="card-sparkline-wrap">
-          <canvas id="sparklineDl" class="sparkline-canvas" width="220" height="44"></canvas>
-        </div>
-        <div class="card-stats-row">
-          <div class="stat-col">
-            <span class="stat-label">Peak</span>
-            <span class="stat-val"><strong id="valDlPeak">--</strong> <small>Mbps</small></span>
-          </div>
-          <div class="stat-col">
-            <span class="stat-label">Average</span>
-            <span class="stat-val"><strong id="valDlAvg">--</strong> <small>Mbps</small></span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Card 2: Upload -->
-      <div class="cf-card card-upload" id="cardUpload">
-        <div class="card-header">
-          <div class="card-title-group">
-            <svg class="metric-icon icon-ul" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 20V7m0 0l-5 5m5-5l5 5M4 4h16" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="card-title">UPLOAD</span>
+          <!-- Latency Metric -->
+          <div class="hero-metric-item" id="heroMetricPing">
+            <div class="metric-label">
+              <span class="legend-dot dot-ping"></span>
+              <span>LATENCY</span>
+            </div>
+            <div class="metric-num-wrap">
+              <span class="metric-num num-ping" id="heroValPing">--</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div class="metric-sub-stat" id="heroPingSubStat">Min: <span id="heroValPingMin">--</span> ms</div>
           </div>
-          <span class="card-unit-pill">Mbps</span>
-        </div>
-        <div class="card-value-wrap">
-          <span class="card-number" id="valUl">--</span>
-        </div>
-        <div class="card-sparkline-wrap">
-          <canvas id="sparklineUl" class="sparkline-canvas" width="220" height="44"></canvas>
-        </div>
-        <div class="card-stats-row">
-          <div class="stat-col">
-            <span class="stat-label">Peak</span>
-            <span class="stat-val"><strong id="valUlPeak">--</strong> <small>Mbps</small></span>
-          </div>
-          <div class="stat-col">
-            <span class="stat-label">Average</span>
-            <span class="stat-val"><strong id="valUlAvg">--</strong> <small>Mbps</small></span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Card 3: Latency -->
-      <div class="cf-card card-latency" id="cardLatency">
-        <div class="card-header">
-          <div class="card-title-group">
-            <svg class="metric-icon icon-ping" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 7v5l3 3" stroke-linecap="round"/>
-            </svg>
-            <span class="card-title">LATENCY</span>
+          <!-- Jitter Metric -->
+          <div class="hero-metric-item" id="heroMetricJitter">
+            <div class="metric-label">
+              <span class="legend-dot dot-jitter"></span>
+              <span>JITTER</span>
+            </div>
+            <div class="metric-num-wrap">
+              <span class="metric-num num-jitter" id="heroValJitter">--</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div class="metric-sub-stat" id="heroJitterSubStat">LAN Buffer: <span id="heroValBuffer">Optimal</span></div>
           </div>
-          <span class="card-unit-pill">ms</span>
-        </div>
-        <div class="card-value-wrap">
-          <span class="card-number" id="valPing">--</span>
-        </div>
-        <div class="card-sparkline-wrap">
-          <canvas id="sparklinePing" class="sparkline-canvas" width="220" height="44"></canvas>
-        </div>
-        <div class="card-stats-row">
-          <div class="stat-col">
-            <span class="stat-label">Min</span>
-            <span class="stat-val"><strong id="valPingMin">--</strong> <small>ms</small></span>
+
+          <!-- Packet Loss Metric -->
+          <div class="hero-metric-item">
+            <div class="metric-label">
+              <span class="legend-dot dot-loss"></span>
+              <span>PACKET LOSS</span>
+            </div>
+            <div class="metric-num-wrap">
+              <span class="metric-num num-loss" id="heroValLoss">0%</span>
+            </div>
+            <div class="metric-sub-stat">0 dropped</div>
           </div>
-          <div class="stat-col">
-            <span class="stat-label">Average</span>
-            <span class="stat-val"><strong id="valPingAvg">--</strong> <small>ms</small></span>
+        </div>
+
+        <!-- Main Graph Canvas: Dual-area smooth spline chart -->
+        <div class="hero-graph-container">
+          <canvas id="dualAreaChart" width="800" height="240"></canvas>
+          <div class="graph-legend-overlay">
+            <span class="legend-item"><span class="legend-line line-dl"></span> Download</span>
+            <span class="legend-item"><span class="legend-line line-p90"></span> 90th %ile</span>
+            <span class="legend-item"><span class="legend-line line-ul"></span> Upload</span>
           </div>
+        </div>
+
+        <!-- Toolbar below graph -->
+        <div class="hero-toolbar">
+          <div class="toolbar-actions">
+            <button type="button" class="btn-toolbar" id="restartTestBtn" title="Restart Speed Test">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tb-icon">
+                <path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Restart Test</span>
+            </button>
+            <button type="button" class="btn-toolbar" id="copyShareLinkBtn" title="Copy Share Link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tb-icon">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+              <span id="copyBtnText">Copy Share Link</span>
+            </button>
+          </div>
+          <div class="timestamp-display" id="timestampDisplay">Measured at --:--:--</div>
         </div>
       </div>
 
-      <!-- Card 4: Jitter -->
-      <div class="cf-card card-jitter" id="cardJitter">
-        <div class="card-header">
-          <div class="card-title-group">
-            <svg class="metric-icon icon-jitter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 12h3l3-8 4 16 3-8h5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="card-title">JITTER</span>
+      <!-- RIGHT CARD: Server & Network Path -->
+      <div class="cf-card hero-path-card">
+        <h2 class="hero-card-title">Server & Network Path</h2>
+
+        <!-- Clean Dark Topology Visual -->
+        <div class="topology-container">
+          <div class="topology-node">
+            <div class="node-icon-box node-client">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <path d="M8 21h8m-4-4v4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="node-title">Client Device</span>
+            <span class="node-sub" id="topoClientIp">172.16.x.x</span>
           </div>
-          <span class="card-unit-pill">ms</span>
-        </div>
-        <div class="card-value-wrap">
-          <span class="card-number" id="valJitter">--</span>
-        </div>
-        <div class="card-rating-wrap">
-          <span class="rating-badge rating-idle" id="jitterRatingBadge">Ready</span>
-        </div>
-        <div class="card-stats-row">
-          <div class="stat-col">
-            <span class="stat-label">Stability</span>
-            <span class="stat-val" id="stabilityText">Awaiting test</span>
+
+          <div class="topology-connector">
+            <span class="connector-line"></span>
+            <span class="connector-badge">LAN</span>
           </div>
-          <div class="stat-col">
-            <span class="stat-label">Bufferbloat</span>
-            <span class="stat-val" id="bufferbloatText">LAN Optimal</span>
+
+          <div class="topology-node">
+            <div class="node-icon-box node-switch">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="10" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="14" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+              </svg>
+            </div>
+            <span class="node-title">Switch Core</span>
+            <span class="node-sub">1.0 Gbps Full</span>
+          </div>
+
+          <div class="topology-connector">
+            <span class="connector-line"></span>
+            <span class="connector-badge">&lt;1ms</span>
+          </div>
+
+          <div class="topology-node">
+            <div class="node-icon-box node-server">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2"/>
+                <rect x="2" y="14" width="20" height="8" rx="2"/>
+                <circle cx="6" cy="6" r="1" fill="currentColor"/>
+                <circle cx="6" cy="18" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <span class="node-title">Debian Host</span>
+            <span class="node-sub">172.16.171.23</span>
+          </div>
+        </div>
+
+        <!-- Metadata List -->
+        <div class="topology-metadata-list">
+          <div class="meta-row">
+            <span class="meta-key">Connected via IPv4</span>
+            <span class="meta-val meta-highlight" id="metaClientIp">172.16.x.x</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Server location</span>
+            <span class="meta-val">Local Debian Host (172.16.171.23)</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Network</span>
+            <span class="meta-val">Local LAN Gigabit (Zero Internet Quota)</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Latency Quality</span>
+            <span class="meta-val meta-quality" id="metaLatencyQuality">LAN Sub-millisecond</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Shareable Result Section (appears on test completion) -->
-    <section class="share-section" id="shareSection" hidden>
-      <div class="share-card">
-        <div class="share-header">
-          <div class="share-title-group">
-            <svg class="share-icon" viewBox="0 0 24 24" fill="none" stroke="#f6821f" stroke-width="2">
+    <!-- SECTION 2: Network Quality Score (Cloudflare AIM Style) -->
+    <section class="cf-quality-section" aria-label="Network Quality Score">
+      <div class="quality-header">
+        <h2 class="section-title">Network Quality Score</h2>
+        <span class="section-subtitle">Real-time Cloudflare AIM quality assessment for LAN workloads</span>
+      </div>
+
+      <div class="quality-cards-grid">
+        <!-- Streaming Quality Card -->
+        <div class="cf-card quality-card" id="cardQualityStreaming">
+          <div class="quality-card-head">
+            <div class="quality-icon-box icon-streaming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="quality-title">Streaming</h3>
+              <p class="quality-desc">4K/8K Media & Live Buffers</p>
+            </div>
+          </div>
+          <div class="stars-rating-row" id="starsStreaming" aria-label="5 of 5 stars">
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+          </div>
+          <div class="quality-badge-row">
+            <span class="quality-status-badge badge-green" id="badgeStreaming">Ready</span>
+            <span class="quality-reason-text" id="reasonStreaming">Requires Jitter &lt; 5ms, DL &gt; 50M</span>
+          </div>
+        </div>
+
+        <!-- Gaming Quality Card -->
+        <div class="cf-card quality-card" id="cardQualityGaming">
+          <div class="quality-card-head">
+            <div class="quality-icon-box icon-gaming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="6" width="20" height="12" rx="3"/>
+                <path d="M6 12h4m-2-2v4m9-3a1 1 0 100 2 1 1 0 000-2zm3 2a1 1 0 100 2 1 1 0 000-2z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="quality-title">Gaming</h3>
+              <p class="quality-desc">Low Tick-rate & Competitive</p>
+            </div>
+          </div>
+          <div class="stars-rating-row" id="starsGaming" aria-label="5 of 5 stars">
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+          </div>
+          <div class="quality-badge-row">
+            <span class="quality-status-badge badge-green" id="badgeGaming">Ready</span>
+            <span class="quality-reason-text" id="reasonGaming">Requires Ping &lt; 10ms, Jitter &lt; 3ms</span>
+          </div>
+        </div>
+
+        <!-- Video Calls Quality Card -->
+        <div class="cf-card quality-card" id="cardQualityVideo">
+          <div class="quality-card-head">
+            <div class="quality-icon-box icon-video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="quality-title">Video Calls</h3>
+              <p class="quality-desc">Real-time WebRTC & Audio</p>
+            </div>
+          </div>
+          <div class="stars-rating-row" id="starsVideo" aria-label="5 of 5 stars">
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+            <span class="star filled">&#9733;</span>
+          </div>
+          <div class="quality-badge-row">
+            <span class="quality-status-badge badge-green" id="badgeVideo">Ready</span>
+            <span class="quality-reason-text" id="reasonVideo">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Measurement Breakdown Matrix -->
+    <section class="cf-breakdown-section" aria-label="Measurement Breakdown Matrix">
+      <div class="quality-header">
+        <h2 class="section-title">Measurement Breakdown</h2>
+        <span class="section-subtitle">Detailed throughput, latency, and buffer statistics</span>
+      </div>
+
+      <div class="breakdown-grid">
+        <!-- Download Measurements Card -->
+        <div class="cf-card breakdown-card">
+          <div class="breakdown-card-header">
+            <svg class="b-icon icon-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="breakdown-card-title">Download Measurements</h3>
+          </div>
+          <div class="breakdown-metrics-list">
+            <div class="b-metric-row">
+              <span class="b-metric-name">Peak speed</span>
+              <span class="b-metric-val"><strong id="bValDlPeak">--</strong> <small>Mbps</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Average speed</span>
+              <span class="b-metric-val"><strong id="bValDlAvg">--</strong> <small>Mbps</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Data transferred</span>
+              <span class="b-metric-val"><strong id="bValDlBytes">--</strong> <small>MB</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Measurements Card -->
+        <div class="cf-card breakdown-card">
+          <div class="breakdown-card-header">
+            <svg class="b-icon icon-ul" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20V7m0 0l-5 5m5-5l5 5M4 4h16" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="breakdown-card-title">Upload Measurements</h3>
+          </div>
+          <div class="breakdown-metrics-list">
+            <div class="b-metric-row">
+              <span class="b-metric-name">Peak speed</span>
+              <span class="b-metric-val"><strong id="bValUlPeak">--</strong> <small>Mbps</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Average speed</span>
+              <span class="b-metric-val"><strong id="bValUlAvg">--</strong> <small>Mbps</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Data transferred</span>
+              <span class="b-metric-val"><strong id="bValUlBytes">--</strong> <small>MB</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latency Measurements Card -->
+        <div class="cf-card breakdown-card">
+          <div class="breakdown-card-header">
+            <svg class="b-icon icon-ping" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 3" stroke-linecap="round"/>
+            </svg>
+            <h3 class="breakdown-card-title">Latency Measurements</h3>
+          </div>
+          <div class="breakdown-metrics-list">
+            <div class="b-metric-row">
+              <span class="b-metric-name">Unloaded ping (Idle)</span>
+              <span class="b-metric-val"><strong id="bValPingUnloaded">--</strong> <small>ms</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Loaded bufferbloat</span>
+              <span class="b-metric-val"><strong id="bValLoadedBuffer">--</strong> <small>ms (+0.0ms)</small></span>
+            </div>
+            <div class="b-metric-row">
+              <span class="b-metric-name">Jitter stability</span>
+              <span class="b-metric-val"><strong id="bValJitterStat">--</strong> <small>ms</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Shareable Telemetry Bar / Popup -->
+    <section class="cf-telemetry-bar" id="telemetrySection" hidden>
+      <div class="cf-card telemetry-card">
+        <div class="telemetry-left">
+          <div class="telemetry-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="telemetry-icon">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M22 4L12 14.01l-3-3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <div>
-              <h2 class="share-title">Speed Test Completed</h2>
-              <p class="share-subtitle">Telemetry saved to local SQLite database • Result ID: <span id="telemetryId">--</span></p>
-            </div>
+            <span>Result Saved</span>
           </div>
-          <button type="button" class="btn-again" id="testAgainBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Test Again
-          </button>
+          <div class="telemetry-meta">
+            <span class="telemetry-id-label">Test ID: <strong id="telemetryIdDisplay">--</strong></span>
+            <span class="telemetry-hint">Persisted in local SQLite database</span>
+          </div>
         </div>
 
-        <div class="share-body">
-          <div class="share-input-row">
-            <input type="text" id="shareLinkInput" class="share-input" readonly value="" placeholder="Generating share URL...">
-            <button type="button" class="btn-copy" id="copyShareBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-              </svg>
-              <span>Copy Link</span>
-            </button>
-            <a href="#" target="_blank" rel="noopener" class="btn-open-card" id="openCardLink">
-              <span>Open Result Card</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          </div>
+        <div class="telemetry-right">
+          <input type="text" id="shareUrlInput" class="telemetry-url-input" readonly value="" placeholder="Generating share URL...">
+          <button type="button" class="btn-copy-telemetry" id="btnCopyShareTelemetry">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="copy-icon">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+            <span id="copyTelemetryBtnText">Copy</span>
+          </button>
+          <a href="#" target="_blank" rel="noopener" class="btn-view-card" id="linkViewResultCard">
+            <span>Open Result Card (PNG)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="link-icon">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
       </div>
     </section>
