@@ -8,6 +8,190 @@
   'use strict';
 
   // ---------------------------------------------------------------------------
+  // Internationalization (i18n) Dictionary
+  // ---------------------------------------------------------------------------
+  const I18N = {
+    en: {
+      brand_desc: 'LAN speedtest &bull; speedtest.mriazh.my.id',
+      server_pill: 'Debian PC • 172.16.171.23 • 100% Local LAN',
+      badge_client_ip: 'CLIENT IP',
+      your_network_speed: 'Your Network Speed',
+      btn_start_test: 'Start Test',
+      btn_testing: 'Testing...',
+      btn_restart_test: 'Restart Test',
+      btn_copy_link: 'Copy Share Link',
+      label_download: 'DOWNLOAD',
+      label_upload: 'UPLOAD',
+      label_latency: 'LATENCY',
+      label_jitter: 'JITTER',
+      label_packet_loss: 'PACKET LOSS',
+      peak_colon: 'Peak:',
+      min_colon: 'Min:',
+      lan_buffer_colon: 'LAN Buffer:',
+      optimal: 'Optimal',
+      stable: 'Stable',
+      optimal_sub3: 'Optimal (<3ms)',
+      zero_dropped: '0 dropped',
+      legend_download: 'Download',
+      legend_p90: '90th %ile',
+      legend_upload: 'Upload',
+      measured_at: 'Measured at',
+      server_network_path: 'Server & Network Path',
+      node_client: 'Client Device',
+      node_switch: 'Switch Core',
+      node_server: 'Debian Host',
+      meta_connected_ipv4: 'Connected via IPv4',
+      meta_server_location: 'Server location',
+      val_server_location: 'Local Debian Host (172.16.171.23)',
+      meta_network: 'Network',
+      val_network: 'Local LAN Gigabit (Zero Internet Quota)',
+      meta_latency_quality: 'Latency Quality',
+      val_latency_quality: 'LAN Sub-millisecond',
+      section_quality_score: 'Network Quality Score',
+      section_quality_subtitle: 'Real-time Cloudflare AIM quality assessment for LAN workloads',
+      quality_streaming: 'Streaming',
+      desc_streaming: '4K/8K Media & Live Buffers',
+      quality_gaming: 'Gaming',
+      desc_gaming: 'Low Tick-rate & Competitive',
+      quality_video: 'Video Calls',
+      desc_video: 'Real-time WebRTC & Audio',
+      ready: 'Ready',
+      status_ready: 'READY',
+      status_running: 'RUNNING',
+      status_completed: 'COMPLETED',
+      status_download: 'DOWNLOAD',
+      status_upload: 'UPLOAD',
+      badge_great: 'Great',
+      badge_good: 'Good',
+      badge_fair: 'Fair',
+      badge_poor: 'Poor',
+      reason_streaming_init: 'Requires Jitter < 5ms, DL > 50M',
+      reason_streaming_5: 'Ultra HD 4K/8K ready without buffering',
+      reason_streaming_4: 'Smooth 1080p Full HD streaming',
+      reason_streaming_3: 'Standard 720p streaming',
+      reason_streaming_2: 'Low throughput or high jitter',
+      reason_gaming_init: 'Requires Ping < 10ms, Jitter < 3ms',
+      reason_gaming_5: 'Tournament-grade LAN response (< 15ms)',
+      reason_gaming_4: 'Competitive multiplayer ready',
+      reason_gaming_3: 'Casual gaming acceptable',
+      reason_gaming_2: 'High latency or noticeable jitter',
+      reason_video_init: 'Requires Ping < 20ms, Jitter < 5ms',
+      reason_video_5: 'Crystal clear HD video & audio',
+      reason_video_4: 'Smooth video calls with minor delay',
+      reason_video_3: 'Occasional talk-over or delay',
+      reason_video_2: 'Noticeable lag or packet stutter',
+      section_breakdown: 'Measurement Breakdown',
+      section_breakdown_subtitle: 'Detailed throughput, latency, and buffer statistics',
+      card_download_measurements: 'Download Measurements',
+      card_upload_measurements: 'Upload Measurements',
+      card_latency_measurements: 'Latency Measurements',
+      peak_speed: 'Peak speed',
+      average_speed: 'Average speed',
+      data_transferred: 'Data transferred',
+      unloaded_ping: 'Unloaded ping (Idle)',
+      loaded_bufferbloat: 'Loaded bufferbloat',
+      jitter_stability: 'Jitter stability',
+      result_saved: 'Result Saved',
+      test_id_label: 'Test ID:',
+      persisted_sqlite: 'Persisted in local SQLite database',
+      copy: 'Copy',
+      copied: 'Copied!',
+      open_result_card: 'Open Result Card (PNG)',
+      footer_powered: 'Local Speedtest • Powered by LibreSpeed Go backend',
+      footer_lan: 'Zero Internet Quota • 100% Offline LAN Benchmark'
+    },
+    id: {
+      brand_desc: 'Uji Kecepatan LAN &bull; speedtest.mriazh.my.id',
+      server_pill: 'PC Debian • 172.16.171.23 • 100% LAN Lokal',
+      badge_client_ip: 'IP KLIEN',
+      your_network_speed: 'Kecepatan Jaringan Anda',
+      btn_start_test: 'MULAI UJI KECEPATAN',
+      btn_testing: 'Menguji...',
+      btn_restart_test: 'Uji Ulang',
+      btn_copy_link: 'Salin Tautan',
+      label_download: 'UNDUH',
+      label_upload: 'UNGGAH',
+      label_latency: 'LATENSI',
+      label_jitter: 'JITTER',
+      label_packet_loss: 'PAKET HILANG',
+      peak_colon: 'Puncak:',
+      min_colon: 'Min:',
+      lan_buffer_colon: 'Buffer LAN:',
+      optimal: 'Optimal',
+      stable: 'Stabil',
+      optimal_sub3: 'Optimal (<3ms)',
+      zero_dropped: '0 hilang',
+      legend_download: 'Unduh',
+      legend_p90: 'Persentil ke-90',
+      legend_upload: 'Unggah',
+      measured_at: 'Diukur pada',
+      server_network_path: 'Jalur Server & Jaringan',
+      node_client: 'Perangkat Klien',
+      node_switch: 'Inti Switch',
+      node_server: 'Host Debian',
+      meta_connected_ipv4: 'Terhubung melalui IPv4',
+      meta_server_location: 'Lokasi Server',
+      val_server_location: 'Host Debian Lokal (172.16.171.23)',
+      meta_network: 'Jaringan',
+      val_network: 'LAN Gigabit Lokal (Tanpa Kuota Internet)',
+      meta_latency_quality: 'Kualitas Latensi',
+      val_latency_quality: 'LAN Sub-milidetik',
+      section_quality_score: 'Skor Kualitas Jaringan',
+      section_quality_subtitle: 'Penilaian kualitas Cloudflare AIM waktu nyata untuk beban kerja LAN',
+      quality_streaming: 'Streaming Video',
+      desc_streaming: 'Media 4K/8K & Buffer Siaran Langsung',
+      quality_gaming: 'Game Online',
+      desc_gaming: 'Tick-rate Rendah & Kompetitif',
+      quality_video: 'Panggilan Video',
+      desc_video: 'WebRTC & Audio Waktu Nyata',
+      ready: 'Siap',
+      status_ready: 'SIAP',
+      status_running: 'MENGUJI',
+      status_completed: 'SELESAI',
+      status_download: 'UNDUH',
+      status_upload: 'UNGGAH',
+      badge_great: 'Bagus Sekali',
+      badge_good: 'Baik',
+      badge_fair: 'Cukup',
+      badge_poor: 'Kurang',
+      reason_streaming_init: 'Membutuhkan Jitter < 5ms, DL > 50M',
+      reason_streaming_5: 'Siap Ultra HD 4K/8K tanpa buffering',
+      reason_streaming_4: 'Streaming lancar 1080p Full HD',
+      reason_streaming_3: 'Streaming standar 720p',
+      reason_streaming_2: 'Throughput rendah atau jitter tinggi',
+      reason_gaming_init: 'Membutuhkan Ping < 10ms, Jitter < 3ms',
+      reason_gaming_5: 'Respons LAN tingkat turnamen (< 15ms)',
+      reason_gaming_4: 'Siap multiplayer kompetitif',
+      reason_gaming_3: 'Dapat diterima untuk game kasual',
+      reason_gaming_2: 'Latensi tinggi atau jitter terasa',
+      reason_video_init: 'Membutuhkan Ping < 20ms, Jitter < 5ms',
+      reason_video_5: 'Video & audio HD sangat jernih',
+      reason_video_4: 'Panggilan video lancar dengan jeda minim',
+      reason_video_3: 'Terkadang terjadi tabrakan suara atau jeda',
+      reason_video_2: 'Lag terasa atau stutter paket',
+      section_breakdown: 'Rincian Pengukuran',
+      section_breakdown_subtitle: 'Statistik throughput, latensi, dan buffer terperinci',
+      card_download_measurements: 'Pengukuran Unduh',
+      card_upload_measurements: 'Pengukuran Unggah',
+      card_latency_measurements: 'Pengukuran Latensi',
+      peak_speed: 'Kecepatan Puncak',
+      average_speed: 'Kecepatan Rata-rata',
+      data_transferred: 'Data Ditransfer',
+      unloaded_ping: 'Ping Tanpa Beban (Idle)',
+      loaded_bufferbloat: 'Bufferbloat Saat Terbebani',
+      jitter_stability: 'Stabilitas Jitter',
+      result_saved: 'Hasil Disimpan',
+      test_id_label: 'ID Uji:',
+      persisted_sqlite: 'Tersimpan di basis data SQLite lokal',
+      copy: 'Salin',
+      copied: 'Tersalin!',
+      open_result_card: 'Buka Kartu Hasil (PNG)',
+      footer_powered: 'Local Speedtest • Ditenagai oleh backend LibreSpeed Go',
+      footer_lan: 'Tanpa Kuota Internet • Tolok Ukur LAN Offline 100%'
+    }
+  };
+
+  // ---------------------------------------------------------------------------
   // Dual-Area Spline Chart (Download Orange + Upload Purple + P90 Guide Line)
   // ---------------------------------------------------------------------------
   class DualAreaChart {
@@ -69,12 +253,13 @@
 
       ctx.clearRect(0, 0, w, h);
 
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
       const padTop = 16;
       const padBot = 20;
       const drawH = h - padTop - padBot;
 
-      // Draw horizontal grid lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      // Draw horizontal grid lines adapting to theme
+      ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const y = padTop + (drawH / 4) * i;
@@ -90,7 +275,7 @@
         ctx.beginPath();
         ctx.moveTo(0, h - padBot);
         ctx.lineTo(w, h - padBot);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)';
         ctx.lineWidth = 1;
         ctx.stroke();
         return;
@@ -141,7 +326,7 @@
         ctx.closePath();
 
         const dlGrad = ctx.createLinearGradient(0, padTop, 0, h - padBot);
-        dlGrad.addColorStop(0, 'rgba(246, 130, 31, 0.35)');
+        dlGrad.addColorStop(0, isLight ? 'rgba(246, 130, 31, 0.22)' : 'rgba(246, 130, 31, 0.35)');
         dlGrad.addColorStop(1, 'rgba(246, 130, 31, 0.0)');
         ctx.fillStyle = dlGrad;
         ctx.fill();
@@ -152,7 +337,7 @@
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(246, 130, 31, 0.5)';
+        ctx.shadowColor = isLight ? 'rgba(246, 130, 31, 0.3)' : 'rgba(246, 130, 31, 0.5)';
         ctx.shadowBlur = 8;
         ctx.stroke();
         ctx.shadowBlur = 0; // reset
@@ -166,11 +351,11 @@
         ctx.setLineDash([4, 4]);
         ctx.moveTo(0, p90Y);
         ctx.lineTo(w, p90Y);
-        ctx.strokeStyle = 'rgba(250, 173, 63, 0.7)';
+        ctx.strokeStyle = isLight ? 'rgba(217, 119, 6, 0.75)' : 'rgba(250, 173, 63, 0.7)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        ctx.fillStyle = '#faad3f';
+        ctx.fillStyle = isLight ? '#d97706' : '#faad3f';
         ctx.font = '10px ui-monospace, SFMono-Regular, monospace';
         ctx.fillText('90%ile: ' + this.p90Val.toFixed(1) + ' Mbps', 8, Math.max(p90Y - 4, 14));
         ctx.restore();
@@ -194,7 +379,7 @@
         ctx.closePath();
 
         const ulGrad = ctx.createLinearGradient(0, padTop, 0, h - padBot);
-        ulGrad.addColorStop(0, 'rgba(138, 99, 210, 0.35)');
+        ulGrad.addColorStop(0, isLight ? 'rgba(138, 99, 210, 0.22)' : 'rgba(138, 99, 210, 0.35)');
         ulGrad.addColorStop(1, 'rgba(138, 99, 210, 0.0)');
         ctx.fillStyle = ulGrad;
         ctx.fill();
@@ -205,7 +390,7 @@
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(138, 99, 210, 0.5)';
+        ctx.shadowColor = isLight ? 'rgba(138, 99, 210, 0.3)' : 'rgba(138, 99, 210, 0.5)';
         ctx.shadowBlur = 8;
         ctx.stroke();
         ctx.shadowBlur = 0; // reset
@@ -284,10 +469,14 @@
   // Main Index Page Logic (Cloudflare Speed Style)
   // ---------------------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', function () {
-    // Top Elements
+    // Header & Control Elements
     const clientIpVal = document.getElementById('clientIpVal');
     const metaClientIp = document.getElementById('metaClientIp');
     const topoClientIp = document.getElementById('topoClientIp');
+    const langToggleBtn = document.getElementById('langToggleBtn');
+    const langOptId = document.getElementById('langOptId');
+    const langOptEn = document.getElementById('langOptEn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
 
     // Hero Speed Elements
     const testStateBadge = document.getElementById('testStateBadge');
@@ -351,6 +540,135 @@
     });
 
     // -------------------------------------------------------------------------
+    // Theme Management
+    // -------------------------------------------------------------------------
+    function getInitialTheme() {
+      try {
+        const stored = localStorage.getItem('cf_theme');
+        if (stored === 'light' || stored === 'dark') return stored;
+      } catch (_) {}
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        return 'light';
+      }
+      return 'dark';
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      try {
+        localStorage.setItem('cf_theme', theme);
+      } catch (_) {}
+      if (dualChart) {
+        dualChart.draw();
+      }
+    }
+
+    applyTheme(getInitialTheme());
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', function () {
+        const isCurrentLight = document.documentElement.getAttribute('data-theme') === 'light';
+        applyTheme(isCurrentLight ? 'dark' : 'light');
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // Language / i18n Management
+    // -------------------------------------------------------------------------
+    function getInitialLang() {
+      try {
+        const stored = localStorage.getItem('cf_lang');
+        if (stored === 'id' || stored === 'en') return stored;
+      } catch (_) {}
+      const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      return navLang.startsWith('id') ? 'id' : 'en';
+    }
+
+    let currentLang = getInitialLang();
+
+    function t(key) {
+      const dict = I18N[currentLang] || I18N.en;
+      return dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+    }
+
+    // Cached measurement metrics for language rerendering
+    let lastDlVal = null;
+    let lastPingVal = null;
+    let lastJitterVal = null;
+    let lastMeasuredTime = null;
+
+    function applyLanguage(lang) {
+      currentLang = lang === 'id' ? 'id' : 'en';
+      document.documentElement.setAttribute('lang', currentLang);
+      try {
+        localStorage.setItem('cf_lang', currentLang);
+      } catch (_) {}
+
+      // Update [ ID | EN ] button active state
+      if (langOptId && langOptEn) {
+        if (currentLang === 'id') {
+          langOptId.classList.add('active');
+          langOptEn.classList.remove('active');
+        } else {
+          langOptEn.classList.add('active');
+          langOptId.classList.remove('active');
+        }
+      }
+
+      // Translate all static data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (val) {
+          if (val.includes('&bull;')) {
+            el.innerHTML = val;
+          } else {
+            el.textContent = val;
+          }
+        }
+      });
+
+      // Update dynamic elements
+      if (primaryHeroBtnLabel) {
+        primaryHeroBtnLabel.textContent = isRunning ? t('btn_testing') : t('btn_start_test');
+      }
+
+      if (testStateBadge) {
+        if (!isRunning && dlSamples.length === 0) {
+          testStateBadge.textContent = t('status_ready');
+        } else if (isRunning) {
+          testStateBadge.textContent = t('status_running');
+        } else {
+          testStateBadge.textContent = t('status_completed');
+        }
+      }
+
+      if (timestampDisplay) {
+        if (lastMeasuredTime) {
+          timestampDisplay.textContent = `${t('measured_at')} ${lastMeasuredTime}`;
+        } else {
+          timestampDisplay.textContent = `${t('measured_at')} --:--:--`;
+        }
+      }
+
+      if (copyBtnText) copyBtnText.textContent = t('btn_copy_link');
+      if (copyTelemetryBtnText) copyTelemetryBtnText.textContent = t('copy');
+
+      // Recompute quality score descriptions in active language
+      updateQualityScores(lastDlVal, lastPingVal, lastJitterVal);
+    }
+
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener('click', function () {
+        applyLanguage(currentLang === 'id' ? 'en' : 'id');
+      });
+    }
+
+    // -------------------------------------------------------------------------
     // Initial Client IP Pre-fetch
     // -------------------------------------------------------------------------
     function updateIpUI(ip) {
@@ -405,27 +723,55 @@
 
     // Helper: dynamic calculation of Cloudflare AIM style Quality Scores
     function updateQualityScores(dl, ping, jitter) {
+      lastDlVal = dl;
+      lastPingVal = ping;
+      lastJitterVal = jitter;
+
+      if (dl === null || ping === null || jitter === null) {
+        renderStars(starsStreaming, 5);
+        if (badgeStreaming) {
+          badgeStreaming.textContent = t('ready');
+          badgeStreaming.className = 'quality-status-badge badge-green';
+        }
+        if (reasonStreaming) reasonStreaming.textContent = t('reason_streaming_init');
+
+        renderStars(starsGaming, 5);
+        if (badgeGaming) {
+          badgeGaming.textContent = t('ready');
+          badgeGaming.className = 'quality-status-badge badge-green';
+        }
+        if (reasonGaming) reasonGaming.textContent = t('reason_gaming_init');
+
+        renderStars(starsVideo, 5);
+        if (badgeVideo) {
+          badgeVideo.textContent = t('ready');
+          badgeVideo.className = 'quality-status-badge badge-green';
+        }
+        if (reasonVideo) reasonVideo.textContent = t('reason_video_init');
+        return;
+      }
+
       // 1. Streaming: Bandwidth-bound (video buffers ahead), not micro-jitter sensitive
       let sStars = 2;
-      let sBadge = 'Poor';
+      let sBadge = t('badge_poor');
       let sBadgeClass = 'badge-amber';
-      let sReason = 'Low throughput or high jitter';
+      let sReason = t('reason_streaming_2');
 
       if (dl >= 50 && jitter < 30) {
         sStars = 5;
-        sBadge = 'Great';
+        sBadge = t('badge_great');
         sBadgeClass = 'badge-green';
-        sReason = 'Ultra HD 4K/8K ready without buffering';
+        sReason = t('reason_streaming_5');
       } else if (dl >= 25) {
         sStars = 4;
-        sBadge = 'Good';
+        sBadge = t('badge_good');
         sBadgeClass = 'badge-green';
-        sReason = 'Smooth 1080p Full HD streaming';
+        sReason = t('reason_streaming_4');
       } else if (dl >= 10) {
         sStars = 3;
-        sBadge = 'Fair';
+        sBadge = t('badge_fair');
         sBadgeClass = 'badge-amber';
-        sReason = 'Standard 720p streaming';
+        sReason = t('reason_streaming_3');
       }
       renderStars(starsStreaming, sStars);
       if (badgeStreaming) {
@@ -436,25 +782,25 @@
 
       // 2. Gaming: Latency-bound (ping is king)
       let gStars = 2;
-      let gBadge = 'Poor';
+      let gBadge = t('badge_poor');
       let gBadgeClass = 'badge-amber';
-      let gReason = 'High latency or noticeable jitter';
+      let gReason = t('reason_gaming_2');
 
       if (ping < 15 && jitter < 25) {
         gStars = 5;
-        gBadge = 'Great';
+        gBadge = t('badge_great');
         gBadgeClass = 'badge-green';
-        gReason = 'Tournament-grade LAN response (< 15ms)';
+        gReason = t('reason_gaming_5');
       } else if (ping < 35 && jitter < 35) {
         gStars = 4;
-        gBadge = 'Good';
+        gBadge = t('badge_good');
         gBadgeClass = 'badge-green';
-        gReason = 'Competitive multiplayer ready';
+        gReason = t('reason_gaming_4');
       } else if (ping < 60) {
         gStars = 3;
-        gBadge = 'Fair';
+        gBadge = t('badge_fair');
         gBadgeClass = 'badge-amber';
-        gReason = 'Casual gaming acceptable';
+        gReason = t('reason_gaming_3');
       }
       renderStars(starsGaming, gStars);
       if (badgeGaming) {
@@ -465,25 +811,25 @@
 
       // 3. Video Calls: WebRTC / Zoom / Teams needs < 100ms ping and > 5 Mbps
       let vStars = 2;
-      let vBadge = 'Poor';
+      let vBadge = t('badge_poor');
       let vBadgeClass = 'badge-amber';
-      let vReason = 'Noticeable lag or packet stutter';
+      let vReason = t('reason_video_2');
 
       if (ping < 30 && jitter < 25) {
         vStars = 5;
-        vBadge = 'Great';
+        vBadge = t('badge_great');
         vBadgeClass = 'badge-green';
-        vReason = 'Crystal clear HD video & audio';
+        vReason = t('reason_video_5');
       } else if (ping < 60 && jitter < 40) {
         vStars = 4;
-        vBadge = 'Good';
+        vBadge = t('badge_good');
         vBadgeClass = 'badge-green';
-        vReason = 'Smooth video calls with minor delay';
+        vReason = t('reason_video_4');
       } else if (ping < 100) {
         vStars = 3;
-        vBadge = 'Fair';
+        vBadge = t('badge_fair');
         vBadgeClass = 'badge-amber';
-        vReason = 'Occasional talk-over or delay';
+        vReason = t('reason_video_3');
       }
       renderStars(starsVideo, vStars);
       if (badgeVideo) {
@@ -495,12 +841,12 @@
 
     function resetUI() {
       if (testStateBadge) {
-        testStateBadge.textContent = 'READY';
+        testStateBadge.textContent = t('status_ready');
         testStateBadge.className = 'status-indicator-badge';
       }
       if (primaryHeroBtn) {
         primaryHeroBtn.disabled = false;
-        primaryHeroBtnLabel.textContent = 'Start Test';
+        primaryHeroBtnLabel.textContent = t('btn_start_test');
       }
 
       heroValDl.textContent = '--';
@@ -510,7 +856,7 @@
       heroValPing.textContent = '--';
       heroValPingMin.textContent = '--';
       heroValJitter.textContent = '--';
-      heroValBuffer.textContent = 'Optimal';
+      heroValBuffer.textContent = t('optimal');
 
       if (bValDlPeak) bValDlPeak.textContent = '--';
       if (bValDlAvg) bValDlAvg.textContent = '--';
@@ -534,6 +880,9 @@
       lastValidPing = null;
       lastValidJitter = null;
       currentTestId = null;
+      lastMeasuredTime = null;
+
+      updateQualityScores(null, null, null);
 
       if (dualChart) dualChart.clear();
     }
@@ -565,12 +914,12 @@
       resetUI();
 
       if (testStateBadge) {
-        testStateBadge.textContent = 'RUNNING';
+        testStateBadge.textContent = t('status_running');
         testStateBadge.className = 'status-indicator-badge status-testing';
       }
       if (primaryHeroBtn) {
         primaryHeroBtn.disabled = true;
-        primaryHeroBtnLabel.textContent = 'Testing...';
+        primaryHeroBtnLabel.textContent = t('btn_testing');
       }
 
       const s = new Speedtest();
@@ -606,7 +955,6 @@
             bValLoadedBuffer.textContent = `${rawPing.toFixed(1)} (+${bufferDiff}ms)`;
           }
         } else if (lastValidPing !== null) {
-          // Guard: Never lose pingStatus or reset to '--'
           heroValPing.textContent = lastValidPing.toFixed(1);
         }
 
@@ -615,18 +963,17 @@
           heroValJitter.textContent = rawJitter.toFixed(1);
           if (bValJitterStat) bValJitterStat.textContent = rawJitter.toFixed(1);
           if (rawJitter < 3) {
-            heroValBuffer.textContent = 'Optimal (<3ms)';
+            heroValBuffer.textContent = t('optimal_sub3');
           } else {
-            heroValBuffer.textContent = 'Stable';
+            heroValBuffer.textContent = t('stable');
           }
         } else if (lastValidJitter !== null) {
-          // Guard: Never lose jitterStatus or reset to '--'
           heroValJitter.textContent = lastValidJitter.toFixed(1);
         }
 
         // State 1: Download phase
         if (st === 1) {
-          if (testStateBadge) testStateBadge.textContent = 'DOWNLOAD';
+          if (testStateBadge) testStateBadge.textContent = t('status_download');
           const dl = parseFloat(data.dlStatus);
           if (!isNaN(dl) && dl > 0) {
             dlSamples.push(dl);
@@ -639,7 +986,6 @@
 
             if (bValDlPeak) bValDlPeak.textContent = peakDl.toFixed(1);
             if (bValDlAvg) bValDlAvg.textContent = avgDl.toFixed(1);
-            // Approximate data transferred in MB
             if (bValDlBytes) {
               const approxMB = ((avgDl * dlSamples.length * 0.2) / 8).toFixed(1);
               bValDlBytes.textContent = approxMB;
@@ -648,7 +994,7 @@
         }
         // State 3: Upload phase
         else if (st === 3) {
-          if (testStateBadge) testStateBadge.textContent = 'UPLOAD';
+          if (testStateBadge) testStateBadge.textContent = t('status_upload');
           const ul = parseFloat(data.ulStatus);
           if (!isNaN(ul) && ul > 0) {
             ulSamples.push(ul);
@@ -675,7 +1021,7 @@
 
         if (primaryHeroBtn) {
           primaryHeroBtn.disabled = false;
-          primaryHeroBtnLabel.textContent = 'Start Test';
+          primaryHeroBtnLabel.textContent = t('btn_start_test');
         }
 
         if (aborted) {
@@ -684,12 +1030,13 @@
         }
 
         if (testStateBadge) {
-          testStateBadge.textContent = 'COMPLETED';
+          testStateBadge.textContent = t('status_completed');
           testStateBadge.className = 'status-indicator-badge status-done';
         }
 
+        lastMeasuredTime = formatTime(new Date());
         if (timestampDisplay) {
-          timestampDisplay.textContent = 'Measured at ' + formatTime(new Date());
+          timestampDisplay.textContent = `${t('measured_at')} ${lastMeasuredTime}`;
         }
 
         // Preserve Latency & Jitter values on screen
@@ -721,7 +1068,6 @@
               showShareableTelemetry(currentTestId);
             } else if (attempts > 8) {
               clearInterval(poll);
-              // Fallback to local card if unassigned
               showShareableTelemetry('local-lan');
             }
           }, 300);
@@ -753,7 +1099,7 @@
       try {
         await navigator.clipboard.writeText(text);
         const originalText = labelElement.textContent;
-        labelElement.textContent = 'Copied!';
+        labelElement.textContent = t('copied');
         setTimeout(() => {
           labelElement.textContent = originalText;
         }, 1800);
@@ -765,7 +1111,7 @@
         document.execCommand('copy');
         document.body.removeChild(temp);
         const originalText = labelElement.textContent;
-        labelElement.textContent = 'Copied!';
+        labelElement.textContent = t('copied');
         setTimeout(() => {
           labelElement.textContent = originalText;
         }, 1800);
@@ -784,5 +1130,8 @@
         copyToClipboard(shareUrlInput.value, btnCopyShareTelemetry, copyTelemetryBtnText);
       });
     }
+
+    // Apply language on initial load
+    applyLanguage(currentLang);
   });
 })();
