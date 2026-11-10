@@ -1,21 +1,19 @@
 # Active Context: Local Speedtest
 
 ## Session Status
-- **Current State:** Cloudflare Speed Test (`speed.cloudflare.com`) full layout replicated, verified, and live on Debian host.
-- **Backend & Network:** Running on Debian (`172.16.171.23:8989`), DNS `speedtest.mriazh.my.id` (Cloudflare DNS-Only).
+- **Current State:** Production Reverse Proxy (Apache port 80 & 443) with Let's Encrypt SSL (DNS-01 Challenge via Cloudflare API) fully active and operational.
+- **Access URL:** `https://speedtest.mriazh.my.id` (Official Trusted SSL, no custom port needed).
+- **Backend Service:** LibreSpeed Go (`127.0.0.1:8989`), SQLite telemetry (`data/telemetry.db`).
 
-## Delivered Capabilities
-1. **Light / Dark Mode Toggle (Speed.cloudflare.com Style):**
-   - Sun/Moon icon in header controls.
-   - Light Theme (`[data-theme="light"]`): Crisp clean white surfaces (#ffffff), light gray background (#f8fafc), dark typography, dual-area spline chart adapting with light fill gradients.
-   - Dark Theme: Obsidian black background (#0b0c0e) and cards (#121316).
-   - Persisted in `localStorage.getItem('cf_theme')`.
-2. **Language Switcher (EN / ID):**
-   - `[ ID | EN ]` toggle button in header.
-   - Full bilingual dictionary covering all metrics, cards, labels, statuses, and explanations in English and Bahasa Indonesia.
-   - Persisted in `localStorage.getItem('cf_lang')`.
-3. **Custom Favicon:**
-   - SVG vector favicon (`web/favicon.svg`) linked in `<head>` for browser tabs.
-4. **Network Quality Score & Accurate Telemetry:**
-   - Real-time layer-7 HTTP throughput via multi-threaded Web Workers.
-   - Calibrated 5-star rating for Streaming, Gaming, and Video Calls.
+## Delivered Production Stack
+1. **Domain & Routing:**
+   - Cloudflare DNS-Only (Grey Cloud) -> Debian Local IP (`172.16.171.23`).
+   - Reverse Proxy: Apache 2.4 VirtualHost on port 80 (auto 301 redirect to HTTPS) and port 443 (SSL termination).
+   - Let's Encrypt SSL: DNS-01 verification via Cloudflare API token. Auto-renew enabled via `certbot.timer`.
+2. **Frontend UI:**
+   - Cloudflare Speed Test (`speed.cloudflare.com`) Dark/Light theme with Sun/Moon toggle.
+   - Bilingual support: `[ ID | EN ]` toggle covering all labels and statuses.
+   - Custom SVG Favicon.
+   - Real-time dual-area spline chart (Download Orange #f6821f, Upload Purple #8a63d2, 90th %ile line).
+   - Topology & AIM Quality Score matrix calibrated for Gigabit LAN / WiFi.
+   - Shareable result card with 1-click Copy Link.
