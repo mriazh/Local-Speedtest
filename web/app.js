@@ -421,6 +421,18 @@
   // Shared: Theme & i18n (runs on both index and results pages)
   // ---------------------------------------------------------------------------
   let currentLang;
+  let isRunning = false;
+  let currentTest = null;
+  let dlSamples = [];
+  let ulSamples = [];
+  let pingSamples = [];
+  let lastValidPing = null;
+  let lastValidJitter = null;
+  let currentTestId = null;
+  let lastMeasuredTime = null;
+  let lastDlVal = null;
+  let lastPingVal = null;
+  let lastJitterVal = null;
 
   function t(key) {
     const dict = I18N[currentLang] || I18N.en;
@@ -1002,16 +1014,6 @@
     // -------------------------------------------------------------------------
     // Test Tracking State
     // -------------------------------------------------------------------------
-    let currentTest = null;
-    let isRunning = false;
-
-    let dlSamples = [];
-    let ulSamples = [];
-    let pingSamples = [];
-    let lastValidPing = null;
-    let lastValidJitter = null;
-    let currentTestId = null;
-    let lastMeasuredTime = null;
 
     // Helper: update 5-star rating UI
     function renderStars(container, rating) {
