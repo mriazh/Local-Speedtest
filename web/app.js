@@ -20,7 +20,7 @@
       btn_testing: 'Testing...',
       btn_restart_test: 'Restart Test',
       btn_copy_link: 'Copy Share Link',
-      btn_download_card_png: 'Download Card (PNG)',
+      btn_download_card_png: 'Download Card',
       btn_share_whatsapp: 'Share to WhatsApp',
       btn_test_your_speed: 'Test Your Speed',
       label_download: 'DOWNLOAD',
@@ -100,7 +100,7 @@
       persisted_sqlite: 'Persisted in local SQLite database',
       copy: 'Copy',
       copied: 'Copied!',
-      open_result_card: 'Open Result Card (PNG)',
+      open_result_card: 'Open Result Card',
       network_details: 'Network Details',
       server_ip: 'Server IP',
       result_certificate: 'Speedtest Result',
@@ -116,7 +116,7 @@
       btn_testing: 'Menguji...',
       btn_restart_test: 'Uji Ulang',
       btn_copy_link: 'Salin Tautan',
-      btn_download_card_png: 'Unduh Kartu (PNG)',
+      btn_download_card_png: 'Unduh Kartu',
       btn_share_whatsapp: 'Bagikan ke WhatsApp',
       btn_test_your_speed: 'Uji Kecepatan Anda',
       label_download: 'UNDUH',
@@ -196,7 +196,7 @@
       persisted_sqlite: 'Tersimpan di basis data SQLite lokal',
       copy: 'Salin',
       copied: 'Tersalin!',
-      open_result_card: 'Buka Kartu Hasil (PNG)',
+      open_result_card: 'Buka Kartu Hasil',
       network_details: 'Detail Jaringan',
       server_ip: 'IP Server',
       result_certificate: 'Hasil Speedtest',
@@ -728,14 +728,23 @@
       if (resPing) resPing.textContent = ping.toFixed(1);
       if (resJitter) resJitter.textContent = jitter.toFixed(1);
 
-      // Extract client IP: prefer data.clientIp, otherwise parse from
-      // data.ispinfo.processedString (e.g. "172.16.x.x - ISP ...").
-      let clientIp = data.clientIp;
-      if (!clientIp && data.ispinfo && data.ispinfo.processedString) {
-        clientIp = String(data.ispinfo.processedString).split(' - ')[0].trim();
-        if (!clientIp) {
-          clientIp = String(data.ispinfo.processedString).split(' ')[0].trim();
+      // Extract client IP: prefer URL param, then data, then fallback to /getIP
+      let clientIp = params.get('ip') || data.clientIp || '';
+      if (!clientIp && data.ispinfo) {
+        if (typeof data.ispinfo === 'object' && data.ispinfo.processedString) {
+          clientIp = String(data.ispinfo.processedString).split(' - ')[0].trim();
+        } else if (typeof data.ispinfo === 'string' && /^\d+\.\d+\.\d+\.\d+/.test(data.ispinfo)) {
+          clientIp = data.ispinfo.split(' ')[0].trim();
         }
+      }
+      if (!clientIp) {
+        try {
+          const r = await fetch('/getIP');
+          const ipData = await r.json();
+          if (ipData && ipData.processedString) {
+            clientIp = ipData.processedString.split(' ')[0].trim();
+          }
+        } catch (_) {}
       }
       if (resClientIp) resClientIp.textContent = clientIp || '--';
       if (resServerIp) resServerIp.textContent = data.serverIp || '172.16.171.23';
@@ -1344,13 +1353,42 @@
       currentTestId = resolvedId;
       if (telemetryIdDisplay) telemetryIdDisplay.textContent = resolvedId;
 
-      const host = location.host || 'speedtest.mriazh.my.id:8989';
-      const proto = location.protocol || 'http:';
-      const shareUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(resolvedId)}`;
+      const host = location.host || 'speedtest.mriazh.my.id';
+      const proto = location.protocol || 'https:';
+      const cleanIp = (clientIpVal && clientIpVal.textContent && clientIpVal.textContent !== 'Loading...') ? clientIpVal.textContent : '';
+      const shareUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(resolvedId)}${cleanIp ? '&ip=' + encodeURIComponent(cleanIp) : ''}`;
 
       if (shareUrlInput) shareUrlInput.value = shareUrl;
-      if (linkViewResultCard) linkViewResultCard.href = `/results.html?id=${encodeURIComponent(resolvedId)}`;
+      if (linkViewResultCard) linkViewResultCard.href = shareUrl;
       if (telemetrySection) telemetrySection.hidden = false;
+
+      // Reconcile headline metrics with the exact database record
+      fetch('/results/json?id=' + encodeURIComponent(resolvedId) + '&n=' + Date.now(), { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((dbData) => {
+          if (dbData) {
+            const dbDl = parseFloat(dbData.download);
+            const dbUl = parseFloat(dbData.upload);
+            const dbPing = parseFloat(dbData.ping);
+            const dbJitter = parseFloat(dbData.jitter);
+            if (!isNaN(dbDl) && dbDl > 0) {
+              heroValDl.textContent = dbDl.toFixed(1);
+              if (bValDlAvg) bValDlAvg.textContent = dbDl.toFixed(1);
+            }
+            if (!isNaN(dbUl) && dbUl > 0) {
+              heroValUl.textContent = dbUl.toFixed(1);
+              if (bValUlAvg) bValUlAvg.textContent = dbUl.toFixed(1);
+            }
+            if (!isNaN(dbPing) && dbPing > 0) {
+              heroValPing.textContent = dbPing.toFixed(1);
+            }
+            if (!isNaN(dbJitter) && dbJitter >= 0) {
+              heroValJitter.textContent = dbJitter.toFixed(1);
+            }
+            updateQualityScores(dbDl, dbPing, dbJitter);
+          }
+        })
+        .catch(() => {});
     }
 
     // -------------------------------------------------------------------------
