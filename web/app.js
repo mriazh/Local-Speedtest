@@ -910,10 +910,8 @@
     const clientIpVal = document.getElementById('clientIpVal');
     const metaClientIp = document.getElementById('metaClientIp');
     const topoClientIp = document.getElementById('topoClientIp');
-    const langToggleBtn = document.getElementById('langToggleBtn');
     const langOptId = document.getElementById('langOptId');
     const langOptEn = document.getElementById('langOptEn');
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
 
     // Hero Speed Elements
     const testStateBadge = document.getElementById('testStateBadge');
