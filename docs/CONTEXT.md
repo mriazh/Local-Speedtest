@@ -1,17 +1,8 @@
 # Active Context: Local Speedtest
 
 ## Session Status
-- **Current State:** Metric reconciliation, client IP fallback persistence, and clean label polishing complete and verified in real browser via Playwright. Live on Debian host.
-- **Access URL:** `https://speedtest.mriazh.my.id` (Let's Encrypt SSL, Apache Reverse Proxy port 443).
-
-## Delivered Fixes & Refinements
-1. **Word "(PNG)" Removed:**
-   - Buttons now cleanly state `Open Result Card` and `Download Card` (Bahasa Indonesia: `Buka Kartu Hasil` and `Unduh Kartu`).
-2. **Exact Metric Reconciliation:**
-   - `showShareableTelemetry` now reconciles headline speed with the exact SQLite database record (`/results/json?id=<id>`).
-   - Ensures the numbers on `index.html` and `results.html` match 100.0% to the exact decimal point.
-3. **Client IP Persistence:**
-   - Client IP passed via share link parameter `&ip=<client_ip>` and fallback to `/getIP`.
-   - Client IP on `results.html` displays the actual IP (e.g. `172.31.136.118`) and is never left blank as `--`.
-4. **Verified via Playwright:**
-   - Zero console errors across both pages.
+- **Current State:** Production hardening and layout refinement complete.
+  - Download card button removed per user feedback.
+  - Backend reconfigured to bind strictly to `127.0.0.1:8989` (localhost loopback only).
+  - Port 8989 direct access blocked from LAN; all traffic securely routed via Apache Reverse Proxy on port 443 (HTTPS) with Let's Encrypt SSL.
+- **Access URL:** `https://speedtest.mriazh.my.id` (Enforced HTTPS).
