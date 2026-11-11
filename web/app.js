@@ -433,6 +433,7 @@
   let lastDlVal = null;
   let lastPingVal = null;
   let lastJitterVal = null;
+  let updateQualityScores;
 
   // Helper: render 5-star rating into a container by id
   function renderStarsById(containerId, rating) {
