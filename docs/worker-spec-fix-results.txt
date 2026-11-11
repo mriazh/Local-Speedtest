@@ -1,0 +1,32 @@
+Fix styling and layout of web/results.html, web/style.css, and web/app.js:
+
+1. Fix Giant Action Icons in web/style.css:
+   - Define global desktop & mobile icon sizes for .action-icon and .btn-action svg:
+     .action-icon, .btn-action svg {
+       width: 18px !important;
+       height: 18px !important;
+       min-width: 18px !important;
+       min-height: 18px !important;
+       flex-shrink: 0;
+     }
+   - Style .actions-grid:
+     * Desktop: grid-template-columns: repeat(4, 1fr); gap: 12px;
+     * Tablet: grid-template-columns: repeat(2, 1fr);
+     * Mobile: grid-template-columns: 1fr;
+   - Style .btn-action: height: 44px; padding: 0 16px; border-radius: 10px; font-size: 0.82rem;
+
+2. Sleek Certificate Card Styling for web/results.html:
+   - Constrain .cf-results-app or .cf-results-main to max-width: 820px; margin: 0 auto;
+   - Style .headline-metric as proper cards:
+     background: var(--cf-surface);
+     border: 1px solid var(--cf-border);
+     border-radius: var(--radius-lg);
+     padding: 18px 14px;
+     box-shadow: var(--shadow-card);
+   - Add top accent borders matching metrics (Orange for Download, Purple for Upload, Cyan for Ping, Amber for Jitter).
+
+3. Fix Client IP & Quality Stars in web/app.js for results.html:
+   - In initResultsPageView: extract client IP properly from data.ispinfo (which contains processedString like "172.16.x.x - ...") if data.clientIp is missing.
+   - Make sure updateQualityScores runs and renders the 5-star rating and badge (e.g. Great / Good) on results.html instead of showing "Ready".
+
+Commit changes and report completion.
