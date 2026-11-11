@@ -20,6 +20,9 @@
       btn_testing: 'Testing...',
       btn_restart_test: 'Restart Test',
       btn_copy_link: 'Copy Share Link',
+      btn_download_card_png: 'Download Card (PNG)',
+      btn_share_whatsapp: 'Share to WhatsApp',
+      btn_test_your_speed: 'Test Your Speed',
       label_download: 'DOWNLOAD',
       label_upload: 'UPLOAD',
       label_latency: 'LATENCY',
@@ -93,10 +96,14 @@
       jitter_stability: 'Jitter stability',
       result_saved: 'Result Saved',
       test_id_label: 'Test ID:',
+      tested_at: 'Tested at',
       persisted_sqlite: 'Persisted in local SQLite database',
       copy: 'Copy',
       copied: 'Copied!',
       open_result_card: 'Open Result Card (PNG)',
+      network_details: 'Network Details',
+      server_ip: 'Server IP',
+      result_certificate: 'Speedtest Result',
       footer_powered: 'Local Speedtest • Powered by LibreSpeed Go backend',
       footer_lan: 'Zero Internet Quota • 100% Offline LAN Benchmark'
     },
@@ -109,6 +116,9 @@
       btn_testing: 'Menguji...',
       btn_restart_test: 'Uji Ulang',
       btn_copy_link: 'Salin Tautan',
+      btn_download_card_png: 'Unduh Kartu (PNG)',
+      btn_share_whatsapp: 'Bagikan ke WhatsApp',
+      btn_test_your_speed: 'Uji Kecepatan Anda',
       label_download: 'UNDUH',
       label_upload: 'UNGGAH',
       label_latency: 'LATENSI',
@@ -182,10 +192,14 @@
       jitter_stability: 'Stabilitas Jitter',
       result_saved: 'Hasil Disimpan',
       test_id_label: 'ID Uji:',
+      tested_at: 'Diuji pada',
       persisted_sqlite: 'Tersimpan di basis data SQLite lokal',
       copy: 'Salin',
       copied: 'Tersalin!',
       open_result_card: 'Buka Kartu Hasil (PNG)',
+      network_details: 'Detail Jaringan',
+      server_ip: 'IP Server',
+      result_certificate: 'Hasil Speedtest',
       footer_powered: 'Local Speedtest • Ditenagai oleh backend LibreSpeed Go',
       footer_lan: 'Tanpa Kuota Internet • Tolok Ukur LAN Offline 100%'
     }
@@ -258,7 +272,6 @@
       const padBot = 20;
       const drawH = h - padTop - padBot;
 
-      // Draw horizontal grid lines adapting to theme
       ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
@@ -271,7 +284,6 @@
 
       const allData = [...this.dlData, ...this.ulData];
       if (allData.length === 0) {
-        // Draw idle baseline
         ctx.beginPath();
         ctx.moveTo(0, h - padBot);
         ctx.lineTo(w, h - padBot);
@@ -285,7 +297,6 @@
       const minVal = 0;
       const range = maxVal - minVal || 1;
 
-      // Helper to compute curve points
       const computePoints = (data) => {
         if (!data || data.length === 0) return [];
         return data.map((v, i) => {
@@ -295,7 +306,6 @@
         });
       };
 
-      // Helper to draw smooth spline path
       const drawSplinePath = (pts) => {
         if (pts.length < 2) return;
         ctx.beginPath();
@@ -308,11 +318,9 @@
         ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
       };
 
-      // 1. Draw Download Series (Cloudflare Orange: #f6821f)
       if (this.dlData.length > 1) {
         const dlPts = computePoints(this.dlData);
 
-        // Fill gradient
         ctx.beginPath();
         ctx.moveTo(dlPts[0].x, dlPts[0].y);
         for (let i = 1; i < dlPts.length; i++) {
@@ -331,7 +339,6 @@
         ctx.fillStyle = dlGrad;
         ctx.fill();
 
-        // Stroke line
         drawSplinePath(dlPts);
         ctx.strokeStyle = '#f6821f';
         ctx.lineWidth = 2.5;
@@ -340,10 +347,9 @@
         ctx.shadowColor = isLight ? 'rgba(246, 130, 31, 0.3)' : 'rgba(246, 130, 31, 0.5)';
         ctx.shadowBlur = 8;
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0;
       }
 
-      // 2. Draw 90th Percentile Guide Line (Dotted Amber/Orange)
       if (this.p90Val !== null && this.dlData.length > 2) {
         const p90Y = h - padBot - ((this.p90Val - minVal) / range) * drawH;
         ctx.save();
@@ -361,11 +367,9 @@
         ctx.restore();
       }
 
-      // 3. Draw Upload Series (Cloudflare Purple: #8a63d2)
       if (this.ulData.length > 1) {
         const ulPts = computePoints(this.ulData);
 
-        // Fill gradient
         ctx.beginPath();
         ctx.moveTo(ulPts[0].x, ulPts[0].y);
         for (let i = 1; i < ulPts.length; i++) {
@@ -384,7 +388,6 @@
         ctx.fillStyle = ulGrad;
         ctx.fill();
 
-        // Stroke line
         drawSplinePath(ulPts);
         ctx.strokeStyle = '#8a63d2';
         ctx.lineWidth = 2.5;
@@ -393,7 +396,7 @@
         ctx.shadowColor = isLight ? 'rgba(138, 99, 210, 0.3)' : 'rgba(138, 99, 210, 0.5)';
         ctx.shadowBlur = 8;
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0;
       }
     }
   }
@@ -415,22 +418,149 @@
     location.pathname.endsWith('results.html') || location.pathname.includes('/results.html');
 
   // ---------------------------------------------------------------------------
+  // Shared: Theme & i18n (runs on both index and results pages)
+  // ---------------------------------------------------------------------------
+  let currentLang;
+
+  function t(key) {
+    const dict = I18N[currentLang] || I18N.en;
+    return dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  }
+
+  function getInitialTheme() {
+    try {
+      const stored = localStorage.getItem('cf_theme');
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch (_) {}
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';
+    }
+    return 'dark';
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    try {
+      localStorage.setItem('cf_theme', theme);
+    } catch (_) {}
+  }
+
+  function getInitialLang() {
+    try {
+      const stored = localStorage.getItem('cf_lang');
+      if (stored === 'id' || stored === 'en') return stored;
+    } catch (_) {}
+    const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    return navLang.startsWith('id') ? 'id' : 'en';
+  }
+
+  function applyLanguage(lang) {
+    currentLang = lang === 'id' ? 'id' : 'en';
+    document.documentElement.setAttribute('lang', currentLang);
+    try {
+      localStorage.setItem('cf_lang', currentLang);
+    } catch (_) {}
+
+    const langOptId = document.getElementById('langOptId');
+    const langOptEn = document.getElementById('langOptEn');
+    if (langOptId && langOptEn) {
+      if (currentLang === 'id') {
+        langOptId.classList.add('active');
+        langOptEn.classList.remove('active');
+      } else {
+        langOptEn.classList.add('active');
+        langOptId.classList.remove('active');
+      }
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      const val = t(key);
+      if (val) {
+        if (val.includes('&bull;')) {
+          el.innerHTML = val;
+        } else {
+          el.textContent = val;
+        }
+      }
+    });
+
+    const primaryHeroBtnLabel = document.getElementById('primaryHeroBtnLabel');
+    if (primaryHeroBtnLabel) {
+      primaryHeroBtnLabel.textContent = isRunning ? t('btn_testing') : t('btn_start_test');
+    }
+
+    const testStateBadge = document.getElementById('testStateBadge');
+    if (testStateBadge) {
+      if (!isRunning && dlSamples.length === 0) {
+        testStateBadge.textContent = t('status_ready');
+      } else if (isRunning) {
+        testStateBadge.textContent = t('status_running');
+      } else {
+        testStateBadge.textContent = t('status_completed');
+      }
+    }
+
+    const timestampDisplay = document.getElementById('timestampDisplay');
+    if (timestampDisplay) {
+      if (lastMeasuredTime) {
+        timestampDisplay.textContent = `${t('measured_at')} ${lastMeasuredTime}`;
+      } else {
+        timestampDisplay.textContent = `${t('measured_at')} --:--:--`;
+      }
+    }
+
+    const copyBtnText = document.getElementById('copyBtnText');
+    if (copyBtnText) copyBtnText.textContent = t('btn_copy_link');
+    const copyTelemetryBtnText = document.getElementById('copyTelemetryBtnText');
+    if (copyTelemetryBtnText) copyTelemetryBtnText.textContent = t('copy');
+
+    const copyResultBtnText = document.getElementById('copyResultBtnText');
+    if (copyResultBtnText) copyResultBtnText.textContent = t('btn_copy_link');
+
+    updateQualityScores(lastDlVal, lastPingVal, lastJitterVal);
+  }
+
+  // ---------------------------------------------------------------------------
   // Results Page Handler (web/results.html)
   // ---------------------------------------------------------------------------
   async function initResultsPageView() {
     const statusEl = document.getElementById('resultStatus');
-    const gaugesEl = document.getElementById('gauges');
-    const rDl = document.getElementById('rDl');
-    const rUl = document.getElementById('rUl');
-    const rPing = document.getElementById('rPing');
-    const rJitter = document.getElementById('rJitter');
-    const rMeta = document.getElementById('rMeta');
-    const rCard = document.getElementById('rCard');
+    const statusText = document.getElementById('resultStatusText');
+    const headlineSection = document.getElementById('headlineSection');
+    const qualitySection = document.getElementById('qualitySection');
+    const detailsSection = document.getElementById('detailsSection');
+    const identitySection = document.getElementById('identitySection');
+    const actionsSection = document.getElementById('actionsSection');
+
+    const resDl = document.getElementById('resDl');
+    const resUl = document.getElementById('resUl');
+    const resPing = document.getElementById('resPing');
+    const resJitter = document.getElementById('resJitter');
+    const resClientIp = document.getElementById('resClientIp');
+    const resServerIp = document.getElementById('resServerIp');
+    const resTestId = document.getElementById('resTestId');
+    const resTestedAt = document.getElementById('resTestedAt');
+
+    const starsStreaming = document.getElementById('starsStreaming');
+    const badgeStreaming = document.getElementById('badgeStreaming');
+    const reasonStreaming = document.getElementById('reasonStreaming');
+    const starsGaming = document.getElementById('starsGaming');
+    const badgeGaming = document.getElementById('badgeGaming');
+    const reasonGaming = document.getElementById('reasonGaming');
+    const starsVideo = document.getElementById('starsVideo');
+    const badgeVideo = document.getElementById('badgeVideo');
+    const reasonVideo = document.getElementById('reasonVideo');
 
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
     if (!id) {
-      if (statusEl) statusEl.textContent = 'No result ID provided. Example: /results.html?id=<id>';
+      if (statusEl) statusEl.hidden = false;
+      if (statusText) statusText.textContent = 'No result ID provided. Example: /results.html?id=<id>';
       return;
     }
 
@@ -441,34 +571,341 @@
       if (!res.ok) throw new Error('Result not found');
       const data = await res.json();
 
-      if (rDl) rDl.textContent = data.download || '--';
-      if (rUl) rUl.textContent = data.upload || '--';
-      if (rPing) rPing.textContent = data.ping || '--';
-      if (rJitter) rJitter.textContent = data.jitter || '--';
-      if (rMeta) {
-        rMeta.textContent =
-          (data.ispinfo ? data.ispinfo + ' • ' : '') + (data.timestamp || '');
-      }
-      if (rCard) {
-        rCard.src = '/results?id=' + encodeURIComponent(id);
-        rCard.hidden = false;
-      }
-      if (gaugesEl) gaugesEl.hidden = false;
+      const dl = parseFloat(data.download) || 0;
+      const ul = parseFloat(data.upload) || 0;
+      const ping = parseFloat(data.ping) || 0;
+      const jitter = parseFloat(data.jitter) || 0;
+
+      // Cache for language re-render
+      lastDlVal = dl;
+      lastPingVal = ping;
+      lastJitterVal = jitter;
+
+      if (resDl) resDl.textContent = dl.toFixed(1);
+      if (resUl) resUl.textContent = ul.toFixed(1);
+      if (resPing) resPing.textContent = ping.toFixed(1);
+      if (resJitter) resJitter.textContent = jitter.toFixed(1);
+
+      if (resClientIp) resClientIp.textContent = data.clientIp || '--';
+      if (resServerIp) resServerIp.textContent = data.serverIp || '172.16.171.23';
+
+      if (resTestId) resTestId.textContent = id;
+      if (resTestedAt) resTestedAt.textContent = data.timestamp || '--';
+
+      // Render quality stars in current language
+      updateQualityScores(dl, ping, jitter);
+
       if (statusEl) statusEl.hidden = true;
+      if (headlineSection) headlineSection.hidden = false;
+      if (qualitySection) qualitySection.hidden = false;
+      if (detailsSection) detailsSection.hidden = false;
+      if (identitySection) identitySection.hidden = false;
+      if (actionsSection) actionsSection.hidden = false;
+
+      // Wire action buttons
+      const btnDownloadPng = document.getElementById('btnDownloadPng');
+      const btnShareWhatsapp = document.getElementById('btnShareWhatsapp');
+      const btnCopyResultLink = document.getElementById('btnCopyResultLink');
+      const copyResultBtnText = document.getElementById('copyResultBtnText');
+
+      const host = location.host || 'speedtest.mriazh.my.id';
+      const proto = location.protocol || 'http:';
+      const resultUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(id)}`;
+
+      if (btnCopyResultLink && copyResultBtnText) {
+        btnCopyResultLink.addEventListener('click', function () {
+          copyToClipboard(resultUrl, btnCopyResultLink, copyResultBtnText);
+        });
+      }
+
+      if (btnShareWhatsapp) {
+        const dlS = dl.toFixed(1);
+        const ulS = ul.toFixed(1);
+        const pingS = ping.toFixed(1);
+        const jitterS = jitter.toFixed(1);
+        const msgKey = t('whatsapp_msg');
+        let msg = msgKey
+          .replace('{dl}', dlS)
+          .replace('{ul}', ulS)
+          .replace('{ping}', pingS)
+          .replace('{jitter}', jitterS)
+          .replace('{id}', id);
+        btnShareWhatsapp.addEventListener('click', function () {
+          const waUrl = 'https://wa.me/?text=' + encodeURIComponent(msg);
+          try {
+            window.open(waUrl, '_blank');
+          } catch (_) {
+            location.href = waUrl;
+          }
+        });
+      }
+
+      if (btnDownloadPng) {
+        btnDownloadPng.addEventListener('click', function () {
+          exportResultCardPng({ id, dl, ul, ping, jitter, timestamp: data.timestamp || '' });
+        });
+      }
     } catch (err) {
-      if (statusEl) statusEl.textContent = 'Could not load result: ' + err.message;
+      if (statusEl) statusEl.hidden = false;
+      if (statusText) statusText.textContent = 'Could not load result: ' + err.message;
     }
   }
 
-  if (isResultsPage) {
-    document.addEventListener('DOMContentLoaded', initResultsPageView);
-    return;
+  // ---------------------------------------------------------------------------
+  // PNG Export: HD canvas result certificate drawn entirely in-browser
+  // ---------------------------------------------------------------------------
+  function exportResultCardPng(opts) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = 800;
+    const h = 960;
+    const canvas = document.createElement('canvas');
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const bg = isLight ? '#f8fafc' : '#0b0c0e';
+    const surface = isLight ? '#ffffff' : '#121316';
+    const border = isLight ? '#e2e8f0' : '#22242c';
+    const textPrimary = isLight ? '#0f172a' : '#f4f4f6';
+    const textMuted = isLight ? '#64748b' : '#656976';
+    const accent = '#f6821f';
+
+    const dlS = (opts.dl || 0).toFixed(1);
+    const ulS = (opts.ul || 0).toFixed(1);
+    const pingS = (opts.ping || 0).toFixed(1);
+    const jitterS = (opts.jitter || 0).toFixed(1);
+
+    // Background
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Card surface
+    const pad = 40;
+    const cardX = pad;
+    const cardY = 40;
+    const cardW = w - pad * 2;
+    const cardH = h - cardY - 40;
+    ctx.fillStyle = surface;
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardW, cardH, 16);
+    ctx.fill();
+    ctx.stroke();
+
+    // Brand
+    ctx.fillStyle = textPrimary;
+    ctx.font = 'bold 20px ' + getFontStack();
+    ctx.fillText(t('result_certificate'), cardX, cardY + 34);
+    ctx.fillStyle = textMuted;
+    ctx.font = '13px ' + getFontStack();
+    ctx.fillText(t('brand_desc').replace('&bull;', '•'), cardX, cardY + 56);
+
+    // Divider
+    ctx.strokeStyle = border;
+    ctx.beginPath();
+    ctx.moveTo(cardX, cardY + 74);
+    ctx.lineTo(cardX + cardW, cardY + 74);
+    ctx.stroke();
+
+    // Headline metrics
+    const metrics = [
+      { label: t('label_download'), value: dlS, unit: 'Mbps', color: '#f6821f' },
+      { label: t('label_upload'), value: ulS, unit: 'Mbps', color: '#8a63d2' },
+      { label: t('label_latency'), value: pingS, unit: 'ms', color: '#00a4e4' },
+      { label: t('label_jitter'), value: jitterS, unit: 'ms', color: '#f59e0b' }
+    ];
+    const mStartY = cardY + 100;
+    const mRowH = 70;
+    const mColW = (cardW - 24) / 2;
+    for (let i = 0; i < metrics.length; i++) {
+      const m = metrics[i];
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = cardX + 12 + col * (mColW + 24);
+      const y = mStartY + row * mRowH;
+      ctx.fillStyle = textMuted;
+      ctx.font = '11px ' + getFontStack();
+      ctx.fillText(m.label.toUpperCase(), x, y + 16);
+      ctx.fillStyle = m.color;
+      ctx.font = 'bold 26px ' + getFontStack();
+      ctx.fillText(m.value, x, y + 48);
+      ctx.fillStyle = textMuted;
+      ctx.font = '12px ' + getFontStack();
+      ctx.fillText(m.unit, x + ctx.measureText(m.value).width + 6, y + 46);
+    }
+
+    // Quality score
+    const qStartY = mStartY + 2 * mRowH + 30;
+    ctx.fillStyle = textPrimary;
+    ctx.font = 'bold 17px ' + getFontStack();
+    ctx.fillText(t('section_quality_score'), cardX, qStartY);
+    ctx.fillStyle = textMuted;
+    ctx.font = '12px ' + getFontStack();
+    ctx.fillText(t('section_quality_subtitle'), cardX, qStartY + 18);
+
+    const quality = [
+      { key: 'quality_streaming', stars: qualityStars(dl, ping, jitter, 'streaming') },
+      { key: 'quality_gaming', stars: qualityStars(dl, ping, jitter, 'gaming') },
+      { key: 'quality_video', stars: qualityStars(dl, ping, jitter, 'video') }
+    ];
+    const qy = qStartY + 42;
+    const qColW = (cardW - 24) / 3;
+    for (let i = 0; i < quality.length; i++) {
+      const q = quality[i];
+      const x = cardX + 12 + i * qColW;
+      ctx.fillStyle = textPrimary;
+      ctx.font = '12px ' + getFontStack();
+      ctx.fillText(t(q.key), x, qy);
+      let starHtml = '';
+      for (let s = 1; s <= 5; s++) {
+        starHtml += s <= q.stars ? '★' : '☆';
+      }
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '16px ' + getFontStack();
+      ctx.fillText(starHtml, x, qy + 22);
+    }
+
+    // Network details
+    const dStartY = qy + 60;
+    ctx.fillStyle = textPrimary;
+    ctx.font = 'bold 17px ' + getFontStack();
+    ctx.fillText(t('network_details'), cardX, dStartY);
+    const details = [
+      { label: t('badge_client_ip'), value: opts.clientIp || '--' },
+      { label: t('server_ip'), value: '172.16.171.23' },
+      { label: 'Gigabit LAN', value: t('val_network') }
+    ];
+    let dy = dStartY + 24;
+    for (const d of details) {
+      ctx.fillStyle = textMuted;
+      ctx.font = '12px ' + getFontStack();
+      ctx.fillText(d.label, cardX, dy);
+      ctx.fillStyle = textPrimary;
+      ctx.font = '12px ' + getFontStack();
+      ctx.fillText(d.value, cardX + 150, dy);
+      dy += 22;
+    }
+
+    // Test identity
+    const idStartY = dy + 18;
+    ctx.fillStyle = textMuted;
+    ctx.font = '12px ' + getFontStack();
+    ctx.fillText(t('test_id_label'), cardX, idStartY);
+    ctx.fillStyle = textPrimary;
+    ctx.font = 'bold 13px ' + getFontStack();
+    ctx.fillText(opts.id, cardX + 70, idStartY);
+    ctx.fillStyle = textMuted;
+    ctx.font = '12px ' + getFontStack();
+    ctx.fillText(t('tested_at'), cardX + 210, idStartY);
+    ctx.fillStyle = textPrimary;
+    ctx.font = '13px ' + getFontStack();
+    ctx.fillText(opts.timestamp || '--', cardX + 270, idStartY);
+
+    // Footer
+    ctx.fillStyle = textMuted;
+    ctx.font = '11px ' + getFontStack();
+    ctx.fillText(t('footer_powered'), cardX, h - 26);
+
+    // Download
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'speedtest-result-' + opts.id + '.png';
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function getFontStack() {
+    return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  }
+
+  function qualityStars(dl, ping, jitter, type) {
+    if (type === 'streaming') {
+      if (dl >= 50 && jitter < 30) return 5;
+      if (dl >= 25) return 4;
+      if (dl >= 10) return 3;
+      return 2;
+    }
+    if (type === 'gaming') {
+      if (ping < 15 && jitter < 25) return 5;
+      if (ping < 35 && jitter < 35) return 4;
+      if (ping < 60) return 3;
+      return 2;
+    }
+    if (type === 'video') {
+      if (ping < 30 && jitter < 25) return 5;
+      if (ping < 60 && jitter < 40) return 4;
+      if (ping < 100) return 3;
+      return 2;
+    }
+    return 2;
   }
 
   // ---------------------------------------------------------------------------
-  // Main Index Page Logic (Cloudflare Speed Style)
+  // Clipboard helper (shared)
+  // ---------------------------------------------------------------------------
+  async function copyToClipboard(text, btnElement, labelElement) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const originalText = labelElement.textContent;
+      labelElement.textContent = t('copied');
+      setTimeout(() => {
+        labelElement.textContent = originalText;
+      }, 1800);
+    } catch (_) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      const originalText = labelElement.textContent;
+      labelElement.textContent = t('copied');
+      setTimeout(() => {
+        labelElement.textContent = originalText;
+      }, 1800);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Document Ready
   // ---------------------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', function () {
+    // Shared theme
+    applyTheme(getInitialTheme());
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', function () {
+        const isCurrentLight = document.documentElement.getAttribute('data-theme') === 'light';
+        applyTheme(isCurrentLight ? 'dark' : 'light');
+        if (typeof dualChart !== 'undefined' && dualChart) dualChart.draw();
+      });
+    }
+
+    // Shared language
+    currentLang = getInitialLang();
+    applyLanguage(currentLang);
+    const langToggleBtn = document.getElementById('langToggleBtn');
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener('click', function () {
+        applyLanguage(currentLang === 'id' ? 'en' : 'id');
+      });
+    }
+
+    // Results page branch
+    if (isResultsPage) {
+      initResultsPageView();
+      return;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Main Index Page Logic (Cloudflare Speed Style)
+    // ---------------------------------------------------------------------------
     // Header & Control Elements
     const clientIpVal = document.getElementById('clientIpVal');
     const metaClientIp = document.getElementById('metaClientIp');
@@ -540,135 +977,6 @@
     });
 
     // -------------------------------------------------------------------------
-    // Theme Management
-    // -------------------------------------------------------------------------
-    function getInitialTheme() {
-      try {
-        const stored = localStorage.getItem('cf_theme');
-        if (stored === 'light' || stored === 'dark') return stored;
-      } catch (_) {}
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        return 'light';
-      }
-      return 'dark';
-    }
-
-    function applyTheme(theme) {
-      if (theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-      try {
-        localStorage.setItem('cf_theme', theme);
-      } catch (_) {}
-      if (dualChart) {
-        dualChart.draw();
-      }
-    }
-
-    applyTheme(getInitialTheme());
-
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener('click', function () {
-        const isCurrentLight = document.documentElement.getAttribute('data-theme') === 'light';
-        applyTheme(isCurrentLight ? 'dark' : 'light');
-      });
-    }
-
-    // -------------------------------------------------------------------------
-    // Language / i18n Management
-    // -------------------------------------------------------------------------
-    function getInitialLang() {
-      try {
-        const stored = localStorage.getItem('cf_lang');
-        if (stored === 'id' || stored === 'en') return stored;
-      } catch (_) {}
-      const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-      return navLang.startsWith('id') ? 'id' : 'en';
-    }
-
-    let currentLang = getInitialLang();
-
-    function t(key) {
-      const dict = I18N[currentLang] || I18N.en;
-      return dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
-    }
-
-    // Cached measurement metrics for language rerendering
-    let lastDlVal = null;
-    let lastPingVal = null;
-    let lastJitterVal = null;
-    let lastMeasuredTime = null;
-
-    function applyLanguage(lang) {
-      currentLang = lang === 'id' ? 'id' : 'en';
-      document.documentElement.setAttribute('lang', currentLang);
-      try {
-        localStorage.setItem('cf_lang', currentLang);
-      } catch (_) {}
-
-      // Update [ ID | EN ] button active state
-      if (langOptId && langOptEn) {
-        if (currentLang === 'id') {
-          langOptId.classList.add('active');
-          langOptEn.classList.remove('active');
-        } else {
-          langOptEn.classList.add('active');
-          langOptId.classList.remove('active');
-        }
-      }
-
-      // Translate all static data-i18n elements
-      document.querySelectorAll('[data-i18n]').forEach((el) => {
-        const key = el.getAttribute('data-i18n');
-        const val = t(key);
-        if (val) {
-          if (val.includes('&bull;')) {
-            el.innerHTML = val;
-          } else {
-            el.textContent = val;
-          }
-        }
-      });
-
-      // Update dynamic elements
-      if (primaryHeroBtnLabel) {
-        primaryHeroBtnLabel.textContent = isRunning ? t('btn_testing') : t('btn_start_test');
-      }
-
-      if (testStateBadge) {
-        if (!isRunning && dlSamples.length === 0) {
-          testStateBadge.textContent = t('status_ready');
-        } else if (isRunning) {
-          testStateBadge.textContent = t('status_running');
-        } else {
-          testStateBadge.textContent = t('status_completed');
-        }
-      }
-
-      if (timestampDisplay) {
-        if (lastMeasuredTime) {
-          timestampDisplay.textContent = `${t('measured_at')} ${lastMeasuredTime}`;
-        } else {
-          timestampDisplay.textContent = `${t('measured_at')} --:--:--`;
-        }
-      }
-
-      if (copyBtnText) copyBtnText.textContent = t('btn_copy_link');
-      if (copyTelemetryBtnText) copyTelemetryBtnText.textContent = t('copy');
-
-      // Recompute quality score descriptions in active language
-      updateQualityScores(lastDlVal, lastPingVal, lastJitterVal);
-    }
-
-    if (langToggleBtn) {
-      langToggleBtn.addEventListener('click', function () {
-        applyLanguage(currentLang === 'id' ? 'en' : 'id');
-      });
-    }
-
-    // -------------------------------------------------------------------------
     // Initial Client IP Pre-fetch
     // -------------------------------------------------------------------------
     function updateIpUI(ip) {
@@ -705,6 +1013,7 @@
     let lastValidPing = null;
     let lastValidJitter = null;
     let currentTestId = null;
+    let lastMeasuredTime = null;
 
     // Helper: update 5-star rating UI
     function renderStars(container, rating) {
@@ -751,7 +1060,7 @@
         return;
       }
 
-      // 1. Streaming: Bandwidth-bound (video buffers ahead), not micro-jitter sensitive
+      // 1. Streaming: Bandwidth-bound
       let sStars = 2;
       let sBadge = t('badge_poor');
       let sBadgeClass = 'badge-amber';
@@ -780,7 +1089,7 @@
       }
       if (reasonStreaming) reasonStreaming.textContent = sReason;
 
-      // 2. Gaming: Latency-bound (ping is king)
+      // 2. Gaming: Latency-bound
       let gStars = 2;
       let gBadge = t('badge_poor');
       let gBadgeClass = 'badge-amber';
@@ -809,7 +1118,7 @@
       }
       if (reasonGaming) reasonGaming.textContent = gReason;
 
-      // 3. Video Calls: WebRTC / Zoom / Teams needs < 100ms ping and > 5 Mbps
+      // 3. Video Calls
       let vStars = 2;
       let vBadge = t('badge_poor');
       let vBadgeClass = 'badge-amber';
@@ -898,10 +1207,10 @@
 
       const host = location.host || 'speedtest.mriazh.my.id:8989';
       const proto = location.protocol || 'http:';
-      const shareUrl = `${proto}//${host}/results/?id=${encodeURIComponent(resolvedId)}`;
+      const shareUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(resolvedId)}`;
 
       if (shareUrlInput) shareUrlInput.value = shareUrl;
-      if (linkViewResultCard) linkViewResultCard.href = `/results/?id=${encodeURIComponent(resolvedId)}`;
+      if (linkViewResultCard) linkViewResultCard.href = `/results.html?id=${encodeURIComponent(resolvedId)}`;
       if (telemetrySection) telemetrySection.hidden = false;
     }
 
@@ -929,17 +1238,14 @@
       s.onupdate = function (data) {
         const st = data.testState;
 
-        // Update Client IP if reported
         if (data.clientIp) {
           updateIpUI(data.clientIp);
         }
 
-        // Cache testId if worker delivers it
         if (data.testId) {
           currentTestId = data.testId;
         }
 
-        // Latency & Jitter Update (State 0, 2, or any state that carries valid numbers)
         const rawPing = parseFloat(data.pingStatus);
         const rawJitter = parseFloat(data.jitterStatus);
 
@@ -971,7 +1277,6 @@
           heroValJitter.textContent = lastValidJitter.toFixed(1);
         }
 
-        // State 1: Download phase
         if (st === 1) {
           if (testStateBadge) testStateBadge.textContent = t('status_download');
           const dl = parseFloat(data.dlStatus);
@@ -992,7 +1297,6 @@
             }
           }
         }
-        // State 3: Upload phase
         else if (st === 3) {
           if (testStateBadge) testStateBadge.textContent = t('status_upload');
           const ul = parseFloat(data.ulStatus);
@@ -1039,7 +1343,6 @@
           timestampDisplay.textContent = `${t('measured_at')} ${lastMeasuredTime}`;
         }
 
-        // Preserve Latency & Jitter values on screen
         if (lastValidPing !== null) {
           heroValPing.textContent = lastValidPing.toFixed(1);
           if (bValPingUnloaded) bValPingUnloaded.textContent = lastValidPing.toFixed(1);
@@ -1049,13 +1352,11 @@
           if (bValJitterStat) bValJitterStat.textContent = lastValidJitter.toFixed(1);
         }
 
-        // Finalize Quality Scores
         const finalDl = dlSamples.length ? Math.max(...dlSamples) : 0;
         const finalPing = lastValidPing !== null ? lastValidPing : 1.0;
         const finalJitter = lastValidJitter !== null ? lastValidJitter : 0.2;
         updateQualityScores(finalDl, finalPing, finalJitter);
 
-        // Shareable Telemetry: capture ID or poll
         const resolvedId = currentTestId || (s.worker && s.worker.testId) || null;
         if (resolvedId) {
           showShareableTelemetry(resolvedId);
@@ -1093,34 +1394,9 @@
       restartTestBtn.addEventListener('click', startSpeedtest);
     }
 
-    // Copy Share Link Helper
-    async function copyToClipboard(text, btnElement, labelElement) {
-      if (!text) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        const originalText = labelElement.textContent;
-        labelElement.textContent = t('copied');
-        setTimeout(() => {
-          labelElement.textContent = originalText;
-        }, 1800);
-      } catch (_) {
-        const temp = document.createElement('textarea');
-        temp.value = text;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand('copy');
-        document.body.removeChild(temp);
-        const originalText = labelElement.textContent;
-        labelElement.textContent = t('copied');
-        setTimeout(() => {
-          labelElement.textContent = originalText;
-        }, 1800);
-      }
-    }
-
     if (copyShareLinkBtn) {
       copyShareLinkBtn.addEventListener('click', function () {
-        const url = (shareUrlInput && shareUrlInput.value) || `${location.origin}/results/?id=${currentTestId || 'local-lan'}`;
+        const url = (shareUrlInput && shareUrlInput.value) || `${location.origin}/results.html?id=${currentTestId || 'local-lan'}`;
         copyToClipboard(url, copyShareLinkBtn, copyBtnText);
       });
     }
@@ -1130,8 +1406,5 @@
         copyToClipboard(shareUrlInput.value, btnCopyShareTelemetry, copyTelemetryBtnText);
       });
     }
-
-    // Apply language on initial load
-    applyLanguage(currentLang);
   });
 })();
