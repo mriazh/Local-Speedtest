@@ -763,7 +763,6 @@
       if (actionsSection) actionsSection.hidden = false;
 
       // Wire action buttons
-      const btnDownloadPng = document.getElementById('btnDownloadPng');
       const btnShareWhatsapp = document.getElementById('btnShareWhatsapp');
       const btnCopyResultLink = document.getElementById('btnCopyResultLink');
       const copyResultBtnText = document.getElementById('copyResultBtnText');
@@ -797,12 +796,6 @@
           } catch (_) {
             location.href = waUrl;
           }
-        });
-      }
-
-      if (btnDownloadPng) {
-        btnDownloadPng.addEventListener('click', function () {
-          exportResultCardPng({ id, dl, ul, ping, jitter, timestamp: data.timestamp || '' });
         });
       }
     } catch (err) {
