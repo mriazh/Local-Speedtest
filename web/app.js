@@ -433,7 +433,135 @@
   let lastDlVal = null;
   let lastPingVal = null;
   let lastJitterVal = null;
-  let updateQualityScores = function () {};
+
+  // Helper: render 5-star rating into a container by id
+  function renderStarsById(containerId, rating) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        html += '<span class="star filled">&#9733;</span>';
+      } else {
+        html += '<span class="star">&#9733;</span>';
+      }
+    }
+    container.innerHTML = html;
+    container.setAttribute('aria-label', `${rating} of 5 stars`);
+  }
+
+  // Helper: dynamic calculation of Cloudflare AIM style Quality Scores.
+  // Works on both index and results pages by looking up elements by id.
+  updateQualityScores = function (dl, ping, jitter) {
+    lastDlVal = dl;
+    lastPingVal = ping;
+    lastJitterVal = jitter;
+
+    if (dl === null || ping === null || jitter === null) {
+      renderStarsById('starsStreaming', 5);
+      const b = document.getElementById('badgeStreaming');
+      if (b) { b.textContent = t('ready'); b.className = 'quality-status-badge badge-green'; }
+      const r = document.getElementById('reasonStreaming');
+      if (r) r.textContent = t('reason_streaming_init');
+
+      renderStarsById('starsGaming', 5);
+      const b2 = document.getElementById('badgeGaming');
+      if (b2) { b2.textContent = t('ready'); b2.className = 'quality-status-badge badge-green'; }
+      const r2 = document.getElementById('reasonGaming');
+      if (r2) r2.textContent = t('reason_gaming_init');
+
+      renderStarsById('starsVideo', 5);
+      const b3 = document.getElementById('badgeVideo');
+      if (b3) { b3.textContent = t('ready'); b3.className = 'quality-status-badge badge-green'; }
+      const r3 = document.getElementById('reasonVideo');
+      if (r3) r3.textContent = t('reason_video_init');
+      return;
+    }
+
+    // 1. Streaming: Bandwidth-bound
+    let sStars = 2;
+    let sBadge = t('badge_poor');
+    let sBadgeClass = 'badge-amber';
+    let sReason = t('reason_streaming_2');
+
+    if (dl >= 50 && jitter < 30) {
+      sStars = 5;
+      sBadge = t('badge_great');
+      sBadgeClass = 'badge-green';
+      sReason = t('reason_streaming_5');
+    } else if (dl >= 25) {
+      sStars = 4;
+      sBadge = t('badge_good');
+      sBadgeClass = 'badge-green';
+      sReason = t('reason_streaming_4');
+    } else if (dl >= 10) {
+      sStars = 3;
+      sBadge = t('badge_fair');
+      sBadgeClass = 'badge-amber';
+      sReason = t('reason_streaming_3');
+    }
+    renderStarsById('starsStreaming', sStars);
+    const bs = document.getElementById('badgeStreaming');
+    if (bs) { bs.textContent = sBadge; bs.className = 'quality-status-badge ' + sBadgeClass; }
+    const rs = document.getElementById('reasonStreaming');
+    if (rs) rs.textContent = sReason;
+
+    // 2. Gaming: Latency-bound
+    let gStars = 2;
+    let gBadge = t('badge_poor');
+    let gBadgeClass = 'badge-amber';
+    let gReason = t('reason_gaming_2');
+
+    if (ping < 15 && jitter < 25) {
+      gStars = 5;
+      gBadge = t('badge_great');
+      gBadgeClass = 'badge-green';
+      gReason = t('reason_gaming_5');
+    } else if (ping < 35 && jitter < 35) {
+      gStars = 4;
+      gBadge = t('badge_good');
+      gBadgeClass = 'badge-green';
+      gReason = t('reason_gaming_4');
+    } else if (ping < 60) {
+      gStars = 3;
+      gBadge = t('badge_fair');
+      gBadgeClass = 'badge-amber';
+      gReason = t('reason_gaming_3');
+    }
+    renderStarsById('starsGaming', gStars);
+    const bg = document.getElementById('badgeGaming');
+    if (bg) { bg.textContent = gBadge; bg.className = 'quality-status-badge ' + gBadgeClass; }
+    const rg = document.getElementById('reasonGaming');
+    if (rg) rg.textContent = gReason;
+
+    // 3. Video Calls
+    let vStars = 2;
+    let vBadge = t('badge_poor');
+    let vBadgeClass = 'badge-amber';
+    let vReason = t('reason_video_2');
+
+    if (ping < 30 && jitter < 25) {
+      vStars = 5;
+      vBadge = t('badge_great');
+      vBadgeClass = 'badge-green';
+      vReason = t('reason_video_5');
+    } else if (ping < 60 && jitter < 40) {
+      vStars = 4;
+      vBadge = t('badge_good');
+      vBadgeClass = 'badge-green';
+      vReason = t('reason_video_4');
+    } else if (ping < 100) {
+      vStars = 3;
+      vBadge = t('badge_fair');
+      vBadgeClass = 'badge-amber';
+      vReason = t('reason_video_3');
+    }
+    renderStarsById('starsVideo', vStars);
+    const bv = document.getElementById('badgeVideo');
+    if (bv) { bv.textContent = vBadge; bv.className = 'quality-status-badge ' + vBadgeClass; }
+    const rv = document.getElementById('reasonVideo');
+    if (rv) rv.textContent = vReason;
+  };
 
   function t(key) {
     const dict = I18N[currentLang] || I18N.en;
@@ -599,7 +727,16 @@
       if (resPing) resPing.textContent = ping.toFixed(1);
       if (resJitter) resJitter.textContent = jitter.toFixed(1);
 
-      if (resClientIp) resClientIp.textContent = data.clientIp || '--';
+      // Extract client IP: prefer data.clientIp, otherwise parse from
+      // data.ispinfo.processedString (e.g. "172.16.x.x - ISP ...").
+      let clientIp = data.clientIp;
+      if (!clientIp && data.ispinfo && data.ispinfo.processedString) {
+        clientIp = String(data.ispinfo.processedString).split(' - ')[0].trim();
+        if (!clientIp) {
+          clientIp = String(data.ispinfo.processedString).split(' ')[0].trim();
+        }
+      }
+      if (resClientIp) resClientIp.textContent = clientIp || '--';
       if (resServerIp) resServerIp.textContent = data.serverIp || '172.16.171.23';
 
       if (resTestId) resTestId.textContent = id;
