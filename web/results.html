@@ -1,55 +1,248 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Speedtest Result</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css">
-<script>
-  (function() {
-    try {
-      var t = localStorage.getItem('cf_theme');
-      if (t === 'light' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    } catch (_) {}
-  })();
-</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speedtest Result • Local Speedtest</title>
+  <meta name="description" content="Local network performance benchmark result certificate. 100% offline LAN speedtest.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('cf_theme');
+        if (t === 'light' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 <body>
-<div class="shell">
-  <header>
-    <h1>Test Result</h1>
-    <a href="index.html" class="open">&larr; New test</a>
-  </header>
-
-  <main>
-    <div class="card" id="resultView">
-      <p class="status" id="resultStatus">Loading result&hellip;</p>
-      <div class="gauges" id="gauges" hidden>
-        <div class="gauge">
-          <span class="label">Download</span>
-          <span class="value" id="rDl">--</span> <span class="unit">Mbps</span>
-        </div>
-        <div class="gauge">
-          <span class="label">Upload</span>
-          <span class="value" id="rUl">--</span> <span class="unit">Mbps</span>
-        </div>
-        <div class="gauge">
-          <span class="label">Ping</span>
-          <span class="value" id="rPing">--</span> <span class="unit">ms</span>
-        </div>
-        <div class="gauge">
-          <span class="label">Jitter</span>
-          <span class="value" id="rJitter">--</span> <span class="unit">ms</span>
+  <div class="cf-app cf-results-app">
+    <!-- Header -->
+    <header class="cf-header cf-results-header">
+      <div class="header-brand">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M24.2 13.8c-.4-4.5-4.2-8-8.8-8-3.7 0-6.9 2.3-8.2 5.7C3.1 12 0 15.3 0 19.3 0 23.7 3.6 27.3 8 27.3h16c4.4 0 8-3.6 8-8 0-4-3-7.3-6.9-7.8l-.9-.1v-.9c0-1.8-.7-3.5-1.9-4.7l1 8z" fill="url(#cf-grad)"/>
+          <path d="M12.5 19.5l4-8 1.5 5 3.5-3-5 10.5-1.5-4.5-2.5z" fill="#0b0c0e"/>
+          <defs>
+            <linearGradient id="cf-grad" x1="0" y1="5.8" x2="32" y2="27.3" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#f6821f"/>
+              <stop offset="1" stop-color="#faad3f"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="brand-text">
+          <div class="brand-title" data-i18n="result_certificate">Speedtest Result</div>
+          <div class="brand-domain" data-i18n="brand_desc">LAN speedtest &bull; speedtest.mriazh.my.id</div>
         </div>
       </div>
-      <p id="rMeta"></p>
-      <img id="rCard" alt="Result card" style="max-width:100%;height:auto;border:1px solid var(--border);border-radius:8px;margin-top:1rem;" hidden>
-    </div>
-  </main>
-</div>
-<script src="app.js"></script>
+
+      <div class="header-controls">
+        <button type="button" class="ctrl-btn lang-btn" id="langToggleBtn" aria-label="Toggle language" title="Ganti Bahasa / Switch Language">
+          <span class="lang-opt" id="langOptId">ID</span>
+          <span class="lang-divider">|</span>
+          <span class="lang-opt active" id="langOptEn">EN</span>
+        </button>
+        <button type="button" class="ctrl-btn theme-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="cf-results-main">
+      <!-- Status / Error -->
+      <div class="cf-card cf-results-status" id="resultStatus">
+        <p id="resultStatusText">Loading result&hellip;</p>
+      </div>
+
+      <!-- Headline Metrics -->
+      <section class="cf-headline-section" id="headlineSection" hidden>
+        <div class="headline-grid">
+          <div class="headline-metric headline-dl">
+            <span class="headline-label" data-i18n="label_download">Download</span>
+            <span class="headline-value" id="resDl">--</span>
+            <span class="headline-unit">Mbps</span>
+          </div>
+          <div class="headline-metric headline-ul">
+            <span class="headline-label" data-i18n="label_upload">Upload</span>
+            <span class="headline-value" id="resUl">--</span>
+            <span class="headline-unit">Mbps</span>
+          </div>
+          <div class="headline-metric headline-ping">
+            <span class="headline-label" data-i18n="label_latency">Latency</span>
+            <span class="headline-value" id="resPing">--</span>
+            <span class="headline-unit">ms</span>
+          </div>
+          <div class="headline-metric headline-jitter">
+            <span class="headline-label" data-i18n="label_jitter">Jitter</span>
+            <span class="headline-value" id="resJitter">--</span>
+            <span class="headline-unit">ms</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Network Quality Score -->
+      <section class="cf-quality-section cf-results-quality" id="qualitySection" hidden>
+        <div class="quality-header">
+          <h2 class="section-title" data-i18n="section_quality_score">Network Quality Score</h2>
+          <span class="section-subtitle" data-i18n="section_quality_subtitle">Real-time Cloudflare AIM quality assessment</span>
+        </div>
+        <div class="quality-cards-grid cf-results-quality-grid">
+          <!-- Streaming Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityStreaming">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-streaming">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_streaming">Streaming</h3>
+                <p class="quality-desc" data-i18n="desc_streaming">4K/8K Media & Live Buffers</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsStreaming" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeStreaming" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonStreaming" data-i18n="reason_streaming_init">Requires Jitter &lt; 5ms, DL &gt; 50M</span>
+            </div>
+          </div>
+
+          <!-- Gaming Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityGaming">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-gaming">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="6" width="20" height="12" rx="3"/>
+                  <path d="M6 12h4m-2-2v4m9-3a1 1 0 100 2 1 1 0 000-2zm3 2a1 1 0 100 2 1 1 0 000-2z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_gaming">Gaming</h3>
+                <p class="quality-desc" data-i18n="desc_gaming">Low Tick-rate & Competitive</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsGaming" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeGaming" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonGaming" data-i18n="reason_gaming_init">Requires Ping &lt; 10ms, Jitter &lt; 3ms</span>
+            </div>
+          </div>
+
+          <!-- Video Calls Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityVideo">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-video">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_video">Video Calls</h3>
+                <p class="quality-desc" data-i18n="desc_video">Real-time WebRTC & Audio</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsVideo" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeVideo" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonVideo" data-i18n="reason_video_init">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Network Details -->
+      <section class="cf-details-section" id="detailsSection" hidden>
+        <div class="quality-header">
+          <h2 class="section-title" data-i18n="network_details">Network Details</h2>
+        </div>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label" data-i18n="badge_client_ip">Client IP</span>
+            <span class="detail-value" id="resClientIp">--</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label" data-i18n="server_ip">Server IP</span>
+            <span class="detail-value" id="resServerIp">172.16.171.23</span>
+          </div>
+          <div class="detail-item detail-gigabit">
+            <span class="lan-badge">Gigabit LAN</span>
+            <span class="detail-value" data-i18n="val_network">Local LAN Gigabit (Zero Internet Quota)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Test Identity -->
+      <div class="cf-card cf-results-identity" id="identitySection" hidden>
+        <div class="identity-row">
+          <span class="identity-label" data-i18n="test_id_label">Test ID:</span>
+          <span class="identity-value" id="resTestId">--</span>
+          <span class="identity-label" data-i18n="tested_at">Tested at:</span>
+          <span class="identity-value" id="resTestedAt">--</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <section class="cf-actions-section" id="actionsSection" hidden>
+        <div class="actions-grid">
+          <button type="button" class="btn-action btn-download-png" id="btnDownloadPng" aria-label="Download Card (PNG)">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span data-i18n="btn_download_card_png">Download Card (PNG)</span>
+          </button>
+          <button type="button" class="btn-action btn-whatsapp" id="btnShareWhatsapp" aria-label="Share to WhatsApp">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12c0-4.714-3.822-8.536-8.536-8.536S5 7.286 5 12c0 3.78 2.4 6.986 5.754 8.218a2.28 2.28 0 001.724 0C19.6 18.986 22 15.78 22 12z"/>
+              <path d="M16 12A4 4 0 1112 8a4 4 0 014 4z"/>
+              <line x1="17.5" y1="9.5" x2="17.5" y2="9.01"/>
+            </svg>
+            <span data-i18n="btn_share_whatsapp">Share to WhatsApp</span>
+          </button>
+          <button type="button" class="btn-action btn-copy-link" id="btnCopyResultLink" aria-label="Copy Link">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+            <span id="copyResultBtnText" data-i18n="btn_copy_link">Copy Link</span>
+          </button>
+          <a href="index.html" class="btn-action btn-test-speed" id="btnTestSpeed" aria-label="Test Your Speed">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span data-i18n="btn_test_your_speed">Test Your Speed</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="cf-footer cf-results-footer">
+      <div class="footer-meta">
+        <span data-i18n="footer_powered">Local Speedtest • Powered by LibreSpeed Go backend</span>
+        <span>•</span>
+        <span data-i18n="footer_lan">Zero Internet Quota • 100% Offline LAN Benchmark</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
