@@ -433,6 +433,7 @@
   let lastDlVal = null;
   let lastPingVal = null;
   let lastJitterVal = null;
+  let updateQualityScores = function () {};
 
   function t(key) {
     const dict = I18N[currentLang] || I18N.en;
@@ -1031,7 +1032,7 @@
     }
 
     // Helper: dynamic calculation of Cloudflare AIM style Quality Scores
-    function updateQualityScores(dl, ping, jitter) {
+    updateQualityScores = function (dl, ping, jitter) {
       lastDlVal = dl;
       lastPingVal = ping;
       lastJitterVal = jitter;
