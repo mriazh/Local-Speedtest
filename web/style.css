@@ -778,11 +778,17 @@ body {
 
 .quality-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
 }
 
 @media (max-width: 800px) {
+  .quality-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .quality-cards-grid {
     grid-template-columns: 1fr;
   }
@@ -821,16 +827,28 @@ body {
   border: 1px solid rgba(246, 130, 31, 0.3);
 }
 
-.icon-gaming {
-  background: rgba(0, 164, 228, 0.12);
-  color: var(--cf-cyan);
-  border: 1px solid rgba(0, 164, 228, 0.3);
-}
-
 .icon-video {
   background: rgba(138, 99, 210, 0.12);
   color: var(--cf-purple);
   border: 1px solid rgba(138, 99, 210, 0.3);
+}
+
+.icon-anydesk {
+  background: rgba(246, 130, 31, 0.12);
+  color: var(--cf-orange);
+  border: 1px solid rgba(246, 130, 31, 0.3);
+}
+
+.icon-filetransfer {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--cf-green);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.icon-cloud {
+  background: rgba(0, 164, 228, 0.12);
+  color: var(--cf-cyan);
+  border: 1px solid rgba(0, 164, 228, 0.3);
 }
 
 .quality-title {
@@ -1515,7 +1533,7 @@ body {
 
   .hero-graph-container { height: 160px !important; }
 
-  .quality-cards-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .quality-cards-grid { grid-template-columns: 1fr; gap: 10px; }
   .quality-card { padding: 14px; gap: 10px; }
   .quality-card-head { gap: 10px; }
   .quality-icon-box { width: 32px; height: 32px; }
