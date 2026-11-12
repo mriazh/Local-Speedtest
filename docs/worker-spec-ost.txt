@@ -1,5 +1,0 @@
-Integrate OpenSpeedTest UI into web/:
-1. Run: python docs/integrate_ost.py
-2. Verify web/index.html and web/assets/ exist.
-3. Commit changes to git.
-4. Report completion with orca orchestration send --type worker_done --subject "OpenSpeedTest integration complete"

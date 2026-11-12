@@ -2,6 +2,9 @@
 speedtest-backend
 *.tar.gz
 
+# Internal Documentation & Specs
+docs/
+
 # Runtime Data
 data/
 *.db
