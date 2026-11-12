@@ -123,24 +123,67 @@
             </div>
           </div>
 
-          <!-- Gaming Quality Card -->
-          <div class="cf-card quality-card" id="cardQualityGaming">
+          <!-- Remote Desktop (AnyDesk) Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityAnyDesk">
             <div class="quality-card-head">
-              <div class="quality-icon-box icon-gaming">
+              <div class="quality-icon-box icon-anydesk">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="6" width="20" height="12" rx="3"/>
-                  <path d="M6 12h4m-2-2v4m9-3a1 1 0 100 2 1 1 0 000-2zm3 2a1 1 0 100 2 1 1 0 000-2z"/>
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="9" y1="15" x2="15" y2="9"/>
+                  <line x1="15" y1="15" x2="9" y2="9"/>
                 </svg>
               </div>
               <div>
-                <h3 class="quality-title" data-i18n="quality_gaming">Gaming</h3>
-                <p class="quality-desc" data-i18n="desc_gaming">Low Tick-rate & Competitive</p>
+                <h3 class="quality-title" data-i18n="quality_anydesk">AnyDesk</h3>
+                <p class="quality-desc" data-i18n="desc_anydesk">Remote Desktop & Control</p>
               </div>
             </div>
-            <div class="stars-rating-row" id="starsGaming" aria-label="5 of 5 stars"></div>
+            <div class="stars-rating-row" id="starsAnyDesk" aria-label="5 of 5 stars"></div>
             <div class="quality-badge-row">
-              <span class="quality-status-badge badge-green" id="badgeGaming" data-i18n="ready">Ready</span>
-              <span class="quality-reason-text" id="reasonGaming" data-i18n="reason_gaming_init">Requires Ping &lt; 10ms, Jitter &lt; 3ms</span>
+              <span class="quality-status-badge badge-green" id="badgeAnyDesk" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonAnyDesk" data-i18n="reason_anydesk_init">Requires Ping &lt; 20ms, Jitter &lt; 15ms</span>
+            </div>
+          </div>
+
+          <!-- File Transfer & Sync Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityFileTransfer">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-filetransfer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3 2-3h5a2 2 0 012 2z"/>
+                  <path d="M12 10L12 18M15 13l-3 3-3-3"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_filetransfer">File Transfer</h3>
+                <p class="quality-desc" data-i18n="desc_filetransfer">NAS Gigabit & Sinkronisasi</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsFileTransfer" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeFileTransfer" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonFileTransfer" data-i18n="reason_filetransfer_init">Requires DL &gt;= 100 Mbps, UL &gt;= 80 Mbps</span>
+            </div>
+          </div>
+
+          <!-- Cloud & Office Apps Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityCloud">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-cloud">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 16a5 5 0 010.45-9.97A8.5 8.5 0 0118 9a7 7 0 11-8 5a8.5 8.5 0 01-1.15-1.63A5 5 0 013 16z"/>
+                  <path d="M10 7h4a2 2 0 012 2v4M10 7l3 3M10 13l3-3"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_cloud">Cloud &amp; Office</h3>
+                <p class="quality-desc" data-i18n="desc_cloud">Portal Intranet &amp; SaaS</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsCloud" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeCloud" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonCloud" data-i18n="reason_cloud_init">Requires Ping &lt; 40ms, DL &gt;= 25 Mbps</span>
             </div>
           </div>
 

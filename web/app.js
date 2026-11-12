@@ -54,10 +54,14 @@
       section_quality_subtitle: 'Real-time Cloudflare AIM quality assessment for LAN workloads',
       quality_streaming: 'Streaming',
       desc_streaming: '4K/8K Media & Live Buffers',
-      quality_gaming: 'Gaming',
-      desc_gaming: 'Low Tick-rate & Competitive',
+      quality_anydesk: 'AnyDesk',
+      desc_anydesk: 'Remote Desktop & Control',
       quality_video: 'Video Calls',
       desc_video: 'Real-time WebRTC & Audio',
+      quality_filetransfer: 'File Transfer',
+      desc_filetransfer: 'Gigabit NAS & Data Sync',
+      quality_cloud: 'Cloud & Office',
+      desc_cloud: 'SaaS & Intranet Portals',
       ready: 'Ready',
       status_ready: 'READY',
       status_running: 'RUNNING',
@@ -73,16 +77,26 @@
       reason_streaming_4: 'Smooth 1080p Full HD streaming',
       reason_streaming_3: 'Standard 720p streaming',
       reason_streaming_2: 'Low throughput or high jitter',
-      reason_gaming_init: 'Requires Ping < 10ms, Jitter < 3ms',
-      reason_gaming_5: 'Tournament-grade LAN response (< 15ms)',
-      reason_gaming_4: 'Competitive multiplayer ready',
-      reason_gaming_3: 'Casual gaming acceptable',
-      reason_gaming_2: 'High latency or noticeable jitter',
+      reason_anydesk_init: 'Requires Ping < 20ms, Jitter < 15ms',
+      reason_anydesk_5: 'Ultra-responsive remote control (< 20ms)',
+      reason_anydesk_4: 'Smooth remote desktop session',
+      reason_anydesk_3: 'Occasional input lag',
+      reason_anydesk_2: 'High latency or jitter',
       reason_video_init: 'Requires Ping < 20ms, Jitter < 5ms',
       reason_video_5: 'Crystal clear HD video & audio',
       reason_video_4: 'Smooth video calls with minor delay',
       reason_video_3: 'Occasional talk-over or delay',
       reason_video_2: 'Noticeable lag or packet stutter',
+      reason_filetransfer_init: 'Requires DL >= 100 Mbps, UL >= 80 Mbps',
+      reason_filetransfer_5: 'High-speed LAN file transfer',
+      reason_filetransfer_4: 'Fast large-file sync',
+      reason_filetransfer_3: 'Usable for smaller files',
+      reason_filetransfer_2: 'Slow transfer or imbalance',
+      reason_cloud_init: 'Requires Ping < 40ms, DL >= 25 Mbps',
+      reason_cloud_5: 'Instant response & cloud sync',
+      reason_cloud_4: 'Responsive SaaS & intranet use',
+      reason_cloud_3: 'Minor cloud-app delay',
+      reason_cloud_2: 'Sluggish cloud response',
       section_breakdown: 'Measurement Breakdown',
       section_breakdown_subtitle: 'Detailed throughput, latency, and buffer statistics',
       card_download_measurements: 'Download Measurements',
@@ -150,10 +164,14 @@
       section_quality_subtitle: 'Penilaian kualitas Cloudflare AIM waktu nyata untuk beban kerja LAN',
       quality_streaming: 'Streaming Video',
       desc_streaming: 'Media 4K/8K & Buffer Siaran Langsung',
-      quality_gaming: 'Game Online',
-      desc_gaming: 'Tick-rate Rendah & Kompetitif',
+      quality_anydesk: 'AnyDesk',
+      desc_anydesk: 'Remote Desktop & Kontrol',
       quality_video: 'Panggilan Video',
       desc_video: 'WebRTC & Audio Waktu Nyata',
+      quality_filetransfer: 'Transfer File',
+      desc_filetransfer: 'NAS Gigabit & Sinkronisasi',
+      quality_cloud: 'Aplikasi Kantor & Cloud',
+      desc_cloud: 'Portal Intranet & SaaS',
       ready: 'Siap',
       status_ready: 'SIAP',
       status_running: 'MENGUJI',
@@ -169,16 +187,26 @@
       reason_streaming_4: 'Streaming lancar 1080p Full HD',
       reason_streaming_3: 'Streaming standar 720p',
       reason_streaming_2: 'Throughput rendah atau jitter tinggi',
-      reason_gaming_init: 'Membutuhkan Ping < 10ms, Jitter < 3ms',
-      reason_gaming_5: 'Respons LAN tingkat turnamen (< 15ms)',
-      reason_gaming_4: 'Siap multiplayer kompetitif',
-      reason_gaming_3: 'Dapat diterima untuk game kasual',
-      reason_gaming_2: 'Latensi tinggi atau jitter terasa',
+      reason_anydesk_init: 'Membutuhkan Ping < 20ms, Jitter < 15ms',
+      reason_anydesk_5: 'Kontrol remote ultra-responsif (< 20ms)',
+      reason_anydesk_4: 'Sesi remote desktop lancar',
+      reason_anydesk_3: 'Terkadang terjadi lag masukan',
+      reason_anydesk_2: 'Latensi atau jitter tinggi',
       reason_video_init: 'Membutuhkan Ping < 20ms, Jitter < 5ms',
       reason_video_5: 'Video & audio HD sangat jernih',
       reason_video_4: 'Panggilan video lancar dengan jeda minim',
       reason_video_3: 'Terkadang terjadi tabrakan suara atau jeda',
       reason_video_2: 'Lag terasa atau stutter paket',
+      reason_filetransfer_init: 'Membutuhkan DL >= 100 Mbps, UL >= 80 Mbps',
+      reason_filetransfer_5: 'Transfer file LAN kecepatan tinggi',
+      reason_filetransfer_4: 'Sinkronisasi file besar cepat',
+      reason_filetransfer_3: 'Dapat digunakan untuk file kecil',
+      reason_filetransfer_2: 'Transfer lambat atau tidak seimbang',
+      reason_cloud_init: 'Membutuhkan Ping < 40ms, DL >= 25 Mbps',
+      reason_cloud_5: 'Respons instan & sinkronisasi cloud',
+      reason_cloud_4: 'Penggunaan SaaS & intranet responsif',
+      reason_cloud_3: 'Keterlambatan aplikasi cloud kecil',
+      reason_cloud_2: 'Respons cloud lambat',
       section_breakdown: 'Rincian Pengukuran',
       section_breakdown_subtitle: 'Statistik throughput, latensi, dan buffer terperinci',
       card_download_measurements: 'Pengukuran Unduh',
@@ -433,6 +461,7 @@
   let lastDlVal = null;
   let lastPingVal = null;
   let lastJitterVal = null;
+  let lastUlVal = null;
   let updateQualityScores;
 
   // Helper: render 5-star rating into a container by id
@@ -453,10 +482,11 @@
 
   // Helper: dynamic calculation of Cloudflare AIM style Quality Scores.
   // Works on both index and results pages by looking up elements by id.
-  updateQualityScores = function (dl, ping, jitter) {
+  updateQualityScores = function (dl, ping, jitter, ul) {
     lastDlVal = dl;
     lastPingVal = ping;
     lastJitterVal = jitter;
+    lastUlVal = ul;
 
     if (dl === null || ping === null || jitter === null) {
       renderStarsById('starsStreaming', 5);
@@ -465,21 +495,33 @@
       const r = document.getElementById('reasonStreaming');
       if (r) r.textContent = t('reason_streaming_init');
 
-      renderStarsById('starsGaming', 5);
-      const b2 = document.getElementById('badgeGaming');
+      renderStarsById('starsAnyDesk', 5);
+      const b2 = document.getElementById('badgeAnyDesk');
       if (b2) { b2.textContent = t('ready'); b2.className = 'quality-status-badge badge-green'; }
-      const r2 = document.getElementById('reasonGaming');
-      if (r2) r2.textContent = t('reason_gaming_init');
+      const r2 = document.getElementById('reasonAnyDesk');
+      if (r2) r2.textContent = t('reason_anydesk_init');
 
       renderStarsById('starsVideo', 5);
       const b3 = document.getElementById('badgeVideo');
       if (b3) { b3.textContent = t('ready'); b3.className = 'quality-status-badge badge-green'; }
       const r3 = document.getElementById('reasonVideo');
       if (r3) r3.textContent = t('reason_video_init');
+
+      renderStarsById('starsFileTransfer', 5);
+      const b4 = document.getElementById('badgeFileTransfer');
+      if (b4) { b4.textContent = t('ready'); b4.className = 'quality-status-badge badge-green'; }
+      const r4 = document.getElementById('reasonFileTransfer');
+      if (r4) r4.textContent = t('reason_filetransfer_init');
+
+      renderStarsById('starsCloud', 5);
+      const b5 = document.getElementById('badgeCloud');
+      if (b5) { b5.textContent = t('ready'); b5.className = 'quality-status-badge badge-green'; }
+      const r5 = document.getElementById('reasonCloud');
+      if (r5) r5.textContent = t('reason_cloud_init');
       return;
     }
 
-    // 1. Streaming: Bandwidth-bound
+    // 1. Streaming: DL >= 50 Mbps & Jitter < 30ms -> 5 stars
     let sStars = 2;
     let sBadge = t('badge_poor');
     let sBadgeClass = 'badge-amber';
@@ -507,35 +549,35 @@
     const rs = document.getElementById('reasonStreaming');
     if (rs) rs.textContent = sReason;
 
-    // 2. Gaming: Latency-bound
-    let gStars = 2;
-    let gBadge = t('badge_poor');
-    let gBadgeClass = 'badge-amber';
-    let gReason = t('reason_gaming_2');
+    // 2. Remote Desktop (AnyDesk): Ping < 20ms & Jitter < 15ms -> 5 stars
+    let aStars = 2;
+    let aBadge = t('badge_poor');
+    let aBadgeClass = 'badge-amber';
+    let aReason = t('reason_anydesk_2');
 
-    if (ping < 15 && jitter < 25) {
-      gStars = 5;
-      gBadge = t('badge_great');
-      gBadgeClass = 'badge-green';
-      gReason = t('reason_gaming_5');
-    } else if (ping < 35 && jitter < 35) {
-      gStars = 4;
-      gBadge = t('badge_good');
-      gBadgeClass = 'badge-green';
-      gReason = t('reason_gaming_4');
-    } else if (ping < 60) {
-      gStars = 3;
-      gBadge = t('badge_fair');
-      gBadgeClass = 'badge-amber';
-      gReason = t('reason_gaming_3');
+    if (ping < 20 && jitter < 15) {
+      aStars = 5;
+      aBadge = t('badge_great');
+      aBadgeClass = 'badge-green';
+      aReason = t('reason_anydesk_5');
+    } else if (ping < 40 && jitter < 30) {
+      aStars = 4;
+      aBadge = t('badge_good');
+      aBadgeClass = 'badge-green';
+      aReason = t('reason_anydesk_4');
+    } else if (ping < 80) {
+      aStars = 3;
+      aBadge = t('badge_fair');
+      aBadgeClass = 'badge-amber';
+      aReason = t('reason_anydesk_3');
     }
-    renderStarsById('starsGaming', gStars);
-    const bg = document.getElementById('badgeGaming');
-    if (bg) { bg.textContent = gBadge; bg.className = 'quality-status-badge ' + gBadgeClass; }
-    const rg = document.getElementById('reasonGaming');
-    if (rg) rg.textContent = gReason;
+    renderStarsById('starsAnyDesk', aStars);
+    const ba = document.getElementById('badgeAnyDesk');
+    if (ba) { ba.textContent = aBadge; ba.className = 'quality-status-badge ' + aBadgeClass; }
+    const ra = document.getElementById('reasonAnyDesk');
+    if (ra) ra.textContent = aReason;
 
-    // 3. Video Calls
+    // 3. Video Calls: Ping < 30ms & Jitter < 25ms -> 5 stars
     let vStars = 2;
     let vBadge = t('badge_poor');
     let vBadgeClass = 'badge-amber';
@@ -562,6 +604,62 @@
     if (bv) { bv.textContent = vBadge; bv.className = 'quality-status-badge ' + vBadgeClass; }
     const rv = document.getElementById('reasonVideo');
     if (rv) rv.textContent = vReason;
+
+    // 4. File Transfer: DL >= 100 Mbps & UL >= 80 Mbps -> 5 stars
+    let fStars = 2;
+    let fBadge = t('badge_poor');
+    let fBadgeClass = 'badge-amber';
+    let fReason = t('reason_filetransfer_2');
+
+    if (dl >= 100 && ul >= 80) {
+      fStars = 5;
+      fBadge = t('badge_great');
+      fBadgeClass = 'badge-green';
+      fReason = t('reason_filetransfer_5');
+    } else if (dl >= 50 && ul >= 40) {
+      fStars = 4;
+      fBadge = t('badge_good');
+      fBadgeClass = 'badge-green';
+      fReason = t('reason_filetransfer_4');
+    } else if (dl >= 20) {
+      fStars = 3;
+      fBadge = t('badge_fair');
+      fBadgeClass = 'badge-amber';
+      fReason = t('reason_filetransfer_3');
+    }
+    renderStarsById('starsFileTransfer', fStars);
+    const bf = document.getElementById('badgeFileTransfer');
+    if (bf) { bf.textContent = fBadge; bf.className = 'quality-status-badge ' + fBadgeClass; }
+    const rf = document.getElementById('reasonFileTransfer');
+    if (rf) rf.textContent = fReason;
+
+    // 5. Cloud & Office: Ping < 40ms & DL >= 25 Mbps -> 5 stars
+    let cStars = 2;
+    let cBadge = t('badge_poor');
+    let cBadgeClass = 'badge-amber';
+    let cReason = t('reason_cloud_2');
+
+    if (ping < 40 && dl >= 25) {
+      cStars = 5;
+      cBadge = t('badge_great');
+      cBadgeClass = 'badge-green';
+      cReason = t('reason_cloud_5');
+    } else if (ping < 80 && dl >= 10) {
+      cStars = 4;
+      cBadge = t('badge_good');
+      cBadgeClass = 'badge-green';
+      cReason = t('reason_cloud_4');
+    } else if (dl >= 5) {
+      cStars = 3;
+      cBadge = t('badge_fair');
+      cBadgeClass = 'badge-amber';
+      cReason = t('reason_cloud_3');
+    }
+    renderStarsById('starsCloud', cStars);
+    const bc = document.getElementById('badgeCloud');
+    if (bc) { bc.textContent = cBadge; bc.className = 'quality-status-badge ' + cBadgeClass; }
+    const rc = document.getElementById('reasonCloud');
+    if (rc) rc.textContent = cReason;
   };
 
   function t(key) {
@@ -664,7 +762,7 @@
     const copyResultBtnText = document.getElementById('copyResultBtnText');
     if (copyResultBtnText) copyResultBtnText.textContent = t('btn_copy_link');
 
-    updateQualityScores(lastDlVal, lastPingVal, lastJitterVal);
+    updateQualityScores(lastDlVal, lastPingVal, lastJitterVal, lastUlVal);
   }
 
   // ---------------------------------------------------------------------------
@@ -691,12 +789,18 @@
     const starsStreaming = document.getElementById('starsStreaming');
     const badgeStreaming = document.getElementById('badgeStreaming');
     const reasonStreaming = document.getElementById('reasonStreaming');
-    const starsGaming = document.getElementById('starsGaming');
-    const badgeGaming = document.getElementById('badgeGaming');
-    const reasonGaming = document.getElementById('reasonGaming');
+    const starsAnyDesk = document.getElementById('starsAnyDesk');
+    const badgeAnyDesk = document.getElementById('badgeAnyDesk');
+    const reasonAnyDesk = document.getElementById('reasonAnyDesk');
     const starsVideo = document.getElementById('starsVideo');
     const badgeVideo = document.getElementById('badgeVideo');
     const reasonVideo = document.getElementById('reasonVideo');
+    const starsFileTransfer = document.getElementById('starsFileTransfer');
+    const badgeFileTransfer = document.getElementById('badgeFileTransfer');
+    const reasonFileTransfer = document.getElementById('reasonFileTransfer');
+    const starsCloud = document.getElementById('starsCloud');
+    const badgeCloud = document.getElementById('badgeCloud');
+    const reasonCloud = document.getElementById('reasonCloud');
 
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
@@ -753,7 +857,7 @@
       if (resTestedAt) resTestedAt.textContent = data.timestamp || '--';
 
       // Render quality stars in current language
-      updateQualityScores(dl, ping, jitter);
+      updateQualityScores(dl, ping, jitter, ul);
 
       if (statusEl) statusEl.hidden = true;
       if (headlineSection) headlineSection.hidden = false;
@@ -900,12 +1004,14 @@
     ctx.fillText(t('section_quality_subtitle'), cardX, qStartY + 18);
 
     const quality = [
-      { key: 'quality_streaming', stars: qualityStars(dl, ping, jitter, 'streaming') },
-      { key: 'quality_gaming', stars: qualityStars(dl, ping, jitter, 'gaming') },
-      { key: 'quality_video', stars: qualityStars(dl, ping, jitter, 'video') }
+      { key: 'quality_streaming', stars: qualityStars(dl, ping, jitter, ul, 'streaming') },
+      { key: 'quality_anydesk', stars: qualityStars(dl, ping, jitter, ul, 'anydesk') },
+      { key: 'quality_video', stars: qualityStars(dl, ping, jitter, ul, 'video') },
+      { key: 'quality_filetransfer', stars: qualityStars(dl, ping, jitter, ul, 'filetransfer') },
+      { key: 'quality_cloud', stars: qualityStars(dl, ping, jitter, ul, 'cloud') }
     ];
     const qy = qStartY + 42;
-    const qColW = (cardW - 24) / 3;
+    const qColW = (cardW - 24) / 5;
     for (let i = 0; i < quality.length; i++) {
       const q = quality[i];
       const x = cardX + 12 + i * qColW;
@@ -976,23 +1082,35 @@
     return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
   }
 
-  function qualityStars(dl, ping, jitter, type) {
+  function qualityStars(dl, ping, jitter, ul, type) {
     if (type === 'streaming') {
       if (dl >= 50 && jitter < 30) return 5;
       if (dl >= 25) return 4;
       if (dl >= 10) return 3;
       return 2;
     }
-    if (type === 'gaming') {
-      if (ping < 15 && jitter < 25) return 5;
-      if (ping < 35 && jitter < 35) return 4;
-      if (ping < 60) return 3;
+    if (type === 'anydesk') {
+      if (ping < 20 && jitter < 15) return 5;
+      if (ping < 40 && jitter < 30) return 4;
+      if (ping < 80) return 3;
       return 2;
     }
     if (type === 'video') {
       if (ping < 30 && jitter < 25) return 5;
       if (ping < 60 && jitter < 40) return 4;
       if (ping < 100) return 3;
+      return 2;
+    }
+    if (type === 'filetransfer') {
+      if (dl >= 100 && ul >= 80) return 5;
+      if (dl >= 50 && ul >= 40) return 4;
+      if (dl >= 20) return 3;
+      return 2;
+    }
+    if (type === 'cloud') {
+      if (ping < 40 && dl >= 25) return 5;
+      if (ping < 80 && dl >= 10) return 4;
+      if (dl >= 5) return 3;
       return 2;
     }
     return 2;
@@ -1094,13 +1212,21 @@
     const badgeStreaming = document.getElementById('badgeStreaming');
     const reasonStreaming = document.getElementById('reasonStreaming');
 
-    const starsGaming = document.getElementById('starsGaming');
-    const badgeGaming = document.getElementById('badgeGaming');
-    const reasonGaming = document.getElementById('reasonGaming');
+    const starsAnyDesk = document.getElementById('starsAnyDesk');
+    const badgeAnyDesk = document.getElementById('badgeAnyDesk');
+    const reasonAnyDesk = document.getElementById('reasonAnyDesk');
 
     const starsVideo = document.getElementById('starsVideo');
     const badgeVideo = document.getElementById('badgeVideo');
     const reasonVideo = document.getElementById('reasonVideo');
+
+    const starsFileTransfer = document.getElementById('starsFileTransfer');
+    const badgeFileTransfer = document.getElementById('badgeFileTransfer');
+    const reasonFileTransfer = document.getElementById('reasonFileTransfer');
+
+    const starsCloud = document.getElementById('starsCloud');
+    const badgeCloud = document.getElementById('badgeCloud');
+    const reasonCloud = document.getElementById('reasonCloud');
 
     // Measurement Breakdown Elements
     const bValDlPeak = document.getElementById('bValDlPeak');
@@ -1172,10 +1298,11 @@
     }
 
     // Helper: dynamic calculation of Cloudflare AIM style Quality Scores
-    updateQualityScores = function (dl, ping, jitter) {
+    updateQualityScores = function (dl, ping, jitter, ul) {
       lastDlVal = dl;
       lastPingVal = ping;
       lastJitterVal = jitter;
+      lastUlVal = ul;
 
       if (dl === null || ping === null || jitter === null) {
         renderStars(starsStreaming, 5);
@@ -1185,12 +1312,12 @@
         }
         if (reasonStreaming) reasonStreaming.textContent = t('reason_streaming_init');
 
-        renderStars(starsGaming, 5);
-        if (badgeGaming) {
-          badgeGaming.textContent = t('ready');
-          badgeGaming.className = 'quality-status-badge badge-green';
+        renderStars(starsAnyDesk, 5);
+        if (badgeAnyDesk) {
+          badgeAnyDesk.textContent = t('ready');
+          badgeAnyDesk.className = 'quality-status-badge badge-green';
         }
-        if (reasonGaming) reasonGaming.textContent = t('reason_gaming_init');
+        if (reasonAnyDesk) reasonAnyDesk.textContent = t('reason_anydesk_init');
 
         renderStars(starsVideo, 5);
         if (badgeVideo) {
@@ -1198,10 +1325,24 @@
           badgeVideo.className = 'quality-status-badge badge-green';
         }
         if (reasonVideo) reasonVideo.textContent = t('reason_video_init');
+
+        renderStars(starsFileTransfer, 5);
+        if (badgeFileTransfer) {
+          badgeFileTransfer.textContent = t('ready');
+          badgeFileTransfer.className = 'quality-status-badge badge-green';
+        }
+        if (reasonFileTransfer) reasonFileTransfer.textContent = t('reason_filetransfer_init');
+
+        renderStars(starsCloud, 5);
+        if (badgeCloud) {
+          badgeCloud.textContent = t('ready');
+          badgeCloud.className = 'quality-status-badge badge-green';
+        }
+        if (reasonCloud) reasonCloud.textContent = t('reason_cloud_init');
         return;
       }
 
-      // 1. Streaming: Bandwidth-bound
+      // 1. Streaming: DL >= 50 Mbps & Jitter < 30ms -> 5 stars
       let sStars = 2;
       let sBadge = t('badge_poor');
       let sBadgeClass = 'badge-amber';
@@ -1230,36 +1371,36 @@
       }
       if (reasonStreaming) reasonStreaming.textContent = sReason;
 
-      // 2. Gaming: Latency-bound
-      let gStars = 2;
-      let gBadge = t('badge_poor');
-      let gBadgeClass = 'badge-amber';
-      let gReason = t('reason_gaming_2');
+      // 2. Remote Desktop (AnyDesk): Ping < 20ms & Jitter < 15ms -> 5 stars
+      let aStars = 2;
+      let aBadge = t('badge_poor');
+      let aBadgeClass = 'badge-amber';
+      let aReason = t('reason_anydesk_2');
 
-      if (ping < 15 && jitter < 25) {
-        gStars = 5;
-        gBadge = t('badge_great');
-        gBadgeClass = 'badge-green';
-        gReason = t('reason_gaming_5');
-      } else if (ping < 35 && jitter < 35) {
-        gStars = 4;
-        gBadge = t('badge_good');
-        gBadgeClass = 'badge-green';
-        gReason = t('reason_gaming_4');
-      } else if (ping < 60) {
-        gStars = 3;
-        gBadge = t('badge_fair');
-        gBadgeClass = 'badge-amber';
-        gReason = t('reason_gaming_3');
+      if (ping < 20 && jitter < 15) {
+        aStars = 5;
+        aBadge = t('badge_great');
+        aBadgeClass = 'badge-green';
+        aReason = t('reason_anydesk_5');
+      } else if (ping < 40 && jitter < 30) {
+        aStars = 4;
+        aBadge = t('badge_good');
+        aBadgeClass = 'badge-green';
+        aReason = t('reason_anydesk_4');
+      } else if (ping < 80) {
+        aStars = 3;
+        aBadge = t('badge_fair');
+        aBadgeClass = 'badge-amber';
+        aReason = t('reason_anydesk_3');
       }
-      renderStars(starsGaming, gStars);
-      if (badgeGaming) {
-        badgeGaming.textContent = gBadge;
-        badgeGaming.className = 'quality-status-badge ' + gBadgeClass;
+      renderStars(starsAnyDesk, aStars);
+      if (badgeAnyDesk) {
+        badgeAnyDesk.textContent = aBadge;
+        badgeAnyDesk.className = 'quality-status-badge ' + aBadgeClass;
       }
-      if (reasonGaming) reasonGaming.textContent = gReason;
+      if (reasonAnyDesk) reasonAnyDesk.textContent = aReason;
 
-      // 3. Video Calls
+      // 3. Video Calls: Ping < 30ms & Jitter < 25ms -> 5 stars
       let vStars = 2;
       let vBadge = t('badge_poor');
       let vBadgeClass = 'badge-amber';
@@ -1287,6 +1428,64 @@
         badgeVideo.className = 'quality-status-badge ' + vBadgeClass;
       }
       if (reasonVideo) reasonVideo.textContent = vReason;
+
+      // 4. File Transfer: DL >= 100 Mbps & UL >= 80 Mbps -> 5 stars
+      let fStars = 2;
+      let fBadge = t('badge_poor');
+      let fBadgeClass = 'badge-amber';
+      let fReason = t('reason_filetransfer_2');
+
+      if (dl >= 100 && ul >= 80) {
+        fStars = 5;
+        fBadge = t('badge_great');
+        fBadgeClass = 'badge-green';
+        fReason = t('reason_filetransfer_5');
+      } else if (dl >= 50 && ul >= 40) {
+        fStars = 4;
+        fBadge = t('badge_good');
+        fBadgeClass = 'badge-green';
+        fReason = t('reason_filetransfer_4');
+      } else if (dl >= 20) {
+        fStars = 3;
+        fBadge = t('badge_fair');
+        fBadgeClass = 'badge-amber';
+        fReason = t('reason_filetransfer_3');
+      }
+      renderStars(starsFileTransfer, fStars);
+      if (badgeFileTransfer) {
+        badgeFileTransfer.textContent = fBadge;
+        badgeFileTransfer.className = 'quality-status-badge ' + fBadgeClass;
+      }
+      if (reasonFileTransfer) reasonFileTransfer.textContent = fReason;
+
+      // 5. Cloud & Office: Ping < 40ms & DL >= 25 Mbps -> 5 stars
+      let cStars = 2;
+      let cBadge = t('badge_poor');
+      let cBadgeClass = 'badge-amber';
+      let cReason = t('reason_cloud_2');
+
+      if (ping < 40 && dl >= 25) {
+        cStars = 5;
+        cBadge = t('badge_great');
+        cBadgeClass = 'badge-green';
+        cReason = t('reason_cloud_5');
+      } else if (ping < 80 && dl >= 10) {
+        cStars = 4;
+        cBadge = t('badge_good');
+        cBadgeClass = 'badge-green';
+        cReason = t('reason_cloud_4');
+      } else if (dl >= 5) {
+        cStars = 3;
+        cBadge = t('badge_fair');
+        cBadgeClass = 'badge-amber';
+        cReason = t('reason_cloud_3');
+      }
+      renderStars(starsCloud, cStars);
+      if (badgeCloud) {
+        badgeCloud.textContent = cBadge;
+        badgeCloud.className = 'quality-status-badge ' + cBadgeClass;
+      }
+      if (reasonCloud) reasonCloud.textContent = cReason;
     }
 
     function resetUI() {
@@ -1332,7 +1531,7 @@
       currentTestId = null;
       lastMeasuredTime = null;
 
-      updateQualityScores(null, null, null);
+      updateQualityScores(null, null, null, null);
 
       if (dualChart) dualChart.clear();
     }
@@ -1378,7 +1577,7 @@
             if (!isNaN(dbJitter) && dbJitter >= 0) {
               heroValJitter.textContent = dbJitter.toFixed(1);
             }
-            updateQualityScores(dbDl, dbPing, dbJitter);
+            updateQualityScores(dbDl, dbPing, dbJitter, dbUl);
           }
         })
         .catch(() => {});
@@ -1523,9 +1722,10 @@
         }
 
         const finalDl = dlSamples.length ? Math.max(...dlSamples) : 0;
+        const finalUl = ulSamples.length ? Math.max(...ulSamples) : 0;
         const finalPing = lastValidPing !== null ? lastValidPing : 1.0;
         const finalJitter = lastValidJitter !== null ? lastValidJitter : 0.2;
-        updateQualityScores(finalDl, finalPing, finalJitter);
+        updateQualityScores(finalDl, finalPing, finalJitter, finalUl);
 
         const resolvedId = currentTestId || (s.worker && s.worker.testId) || null;
         if (resolvedId) {
