@@ -35,7 +35,6 @@
         </svg>
         <div class="brand-text">
           <div class="brand-title" data-i18n="result_certificate">Speedtest Result</div>
-          <div class="brand-domain" data-i18n="brand_desc">LAN speedtest &bull; speedtest.mriazh.my.id</div>
         </div>
       </div>
 
@@ -217,15 +216,11 @@
         </div>
         <div class="details-grid">
           <div class="detail-item">
-            <span class="detail-label" data-i18n="badge_client_ip">Client IP</span>
-            <span class="detail-value" id="resClientIp">--</span>
-          </div>
-          <div class="detail-item">
             <span class="detail-label" data-i18n="server_ip">Server IP</span>
             <span class="detail-value" id="resServerIp">Local Server</span>
           </div>
-          <div class="detail-item detail-gigabit">
-            <span class="lan-badge">Gigabit LAN</span>
+          <div class="detail-item">
+            <span class="detail-label" data-i18n="meta_network">Network</span>
             <span class="detail-value" data-i18n="val_network">Local (Zero Internet Quota)</span>
           </div>
         </div>
@@ -244,14 +239,6 @@
       <!-- Action Buttons -->
       <section class="cf-actions-section" id="actionsSection" hidden>
         <div class="actions-grid">
-          <button type="button" class="btn-action btn-whatsapp" id="btnShareWhatsapp" aria-label="Share to WhatsApp">
-            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 12c0-4.714-3.822-8.536-8.536-8.536S5 7.286 5 12c0 3.78 2.4 6.986 5.754 8.218a2.28 2.28 0 001.724 0C19.6 18.986 22 15.78 22 12z"/>
-              <path d="M16 12A4 4 0 1112 8a4 4 0 014 4z"/>
-              <line x1="17.5" y1="9.5" x2="17.5" y2="9.01"/>
-            </svg>
-            <span data-i18n="btn_share_whatsapp">Share to WhatsApp</span>
-          </button>
           <button type="button" class="btn-action btn-copy-link" id="btnCopyResultLink" aria-label="Copy Link">
             <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -269,11 +256,9 @@
       </section>
     </main>
 
-    <footer class="cf-footer cf-results-footer">
-      <div class="footer-meta">
-        <span data-i18n="footer_powered">Local Speedtest • Powered by LibreSpeed Go backend</span>
-        <span>•</span>
-        <span data-i18n="footer_lan">Zero Internet Quota • 100% Offline LAN Benchmark</span>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-copy" data-i18n="footer_copy">&copy; 2026 All Right Reserved</p>
       </div>
     </footer>
   </div>
