@@ -871,7 +871,7 @@
         } catch (_) {}
       }
       if (resClientIp) resClientIp.textContent = clientIp || '--';
-      if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname;
+      if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname || 'speedtest.mriazh.my.id';
 
       if (resTestId) resTestId.textContent = id;
       if (resTestedAt) {
@@ -1299,6 +1299,12 @@
         });
     }
     fetchClientIp();
+
+    const serverHost = location.hostname || 'speedtest.mriazh.my.id';
+    const topoServerSub = document.getElementById('topoServerSub');
+    const metaServerIp = document.getElementById('metaServerIp');
+    if (topoServerSub) topoServerSub.textContent = serverHost;
+    if (metaServerIp) metaServerIp.textContent = serverHost;
 
     // -------------------------------------------------------------------------
     // Test Tracking State
