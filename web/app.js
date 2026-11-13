@@ -123,7 +123,7 @@
       network_details: 'Network Details',
       server_ip: 'Server IP',
       result_certificate: 'Speedtest Result',
-      footer_copy: '© 2026 M Riyadh Azhar • Local Speedtest • 100% Offline LAN'
+      footer_copy: '© 2026 All Right Reserved'
     },
     id: {
       brand_desc: '',
@@ -237,7 +237,7 @@
       network_details: 'Detail Jaringan',
       server_ip: 'IP Server',
       result_certificate: 'Hasil Speedtest',
-      footer_copy: '© 2026 M Riyadh Azhar • Speedtest Lokal • 100% LAN Offline'
+      footer_copy: '© 2026 All Right Reserved'
     }
   };
 
@@ -874,7 +874,30 @@
       if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname;
 
       if (resTestId) resTestId.textContent = id;
-      if (resTestedAt) resTestedAt.textContent = data.timestamp || '--';
+      if (resTestedAt) {
+        if (data.timestamp) {
+          try {
+            // data.timestamp is stored in SQLite as UTC: "YYYY-MM-DD HH:mm:ss"
+            const utcStr = data.timestamp.replace(' ', 'T') + 'Z';
+            const d = new Date(utcStr);
+            if (!isNaN(d.getTime())) {
+              const y = d.getFullYear();
+              const mo = String(d.getMonth() + 1).padStart(2, '0');
+              const day = String(d.getDate()).padStart(2, '0');
+              const hh = String(d.getHours()).padStart(2, '0');
+              const mm = String(d.getMinutes()).padStart(2, '0');
+              const ss = String(d.getSeconds()).padStart(2, '0');
+              resTestedAt.textContent = `${y}-${mo}-${day} ${hh}:${mm}:${ss}`;
+            } else {
+              resTestedAt.textContent = data.timestamp;
+            }
+          } catch (_) {
+            resTestedAt.textContent = data.timestamp;
+          }
+        } else {
+          resTestedAt.textContent = '--';
+        }
+      }
 
       // Render quality stars in current language
       updateQualityScores(dl, ping, jitter, ul);
@@ -901,27 +924,6 @@
         });
       }
 
-      if (btnShareWhatsapp) {
-        const dlS = dl.toFixed(1);
-        const ulS = ul.toFixed(1);
-        const pingS = ping.toFixed(1);
-        const jitterS = jitter.toFixed(1);
-        const msgKey = t('whatsapp_msg');
-        let msg = msgKey
-          .replace('{dl}', dlS)
-          .replace('{ul}', ulS)
-          .replace('{ping}', pingS)
-          .replace('{jitter}', jitterS)
-          .replace('{id}', id);
-        btnShareWhatsapp.addEventListener('click', function () {
-          const waUrl = 'https://wa.me/?text=' + encodeURIComponent(msg);
-          try {
-            window.open(waUrl, '_blank');
-          } catch (_) {
-            location.href = waUrl;
-          }
-        });
-      }
     } catch (err) {
       if (statusEl) statusEl.hidden = false;
       if (statusText) statusText.textContent = 'Could not load result: ' + err.message;
