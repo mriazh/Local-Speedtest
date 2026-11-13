@@ -12,7 +12,7 @@
   // ---------------------------------------------------------------------------
   const I18N = {
     en: {
-      brand_desc: 'LAN speedtest &bull; speedtest.mriazh.my.id',
+      brand_desc: 'LAN speedtest',
       server_pill: 'Local Server • 100% Local LAN',
       badge_client_ip: 'CLIENT IP',
       your_network_speed: 'Your Network Speed',
@@ -118,11 +118,10 @@
       network_details: 'Network Details',
       server_ip: 'Server IP',
       result_certificate: 'Speedtest Result',
-      footer_powered: 'Local Speedtest • Powered by LibreSpeed Go backend',
-      footer_lan: 'Zero Internet Quota • 100% Offline LAN Benchmark'
+      footer_copy: '© 2026 M Riyadh Azhar • Local Speedtest • 100% Offline LAN'
     },
     id: {
-      brand_desc: 'Uji Kecepatan LAN &bull; speedtest.mriazh.my.id',
+      brand_desc: 'Uji Kecepatan LAN',
       server_pill: 'Server Lokal • 100% LAN Lokal',
       badge_client_ip: 'IP KLIEN',
       your_network_speed: 'Kecepatan Jaringan Anda',
@@ -228,8 +227,7 @@
       network_details: 'Detail Jaringan',
       server_ip: 'IP Server',
       result_certificate: 'Hasil Speedtest',
-      footer_powered: 'Local Speedtest • Ditenagai oleh backend LibreSpeed Go',
-      footer_lan: 'Tanpa Kuota Internet • Tolok Ukur LAN Offline 100%'
+      footer_copy: '© 2026 M Riyadh Azhar • Speedtest Lokal • 100% LAN Offline'
     }
   };
 
@@ -1066,7 +1064,7 @@
     // Footer
     ctx.fillStyle = textMuted;
     ctx.font = '11px ' + getFontStack();
-    ctx.fillText(t('footer_powered'), cardX, h - 26);
+    ctx.fillText(t('footer_copy'), cardX, h - 26);
 
     // Download
     const dataUrl = canvas.toDataURL('image/png');
@@ -1694,7 +1692,7 @@
 
         if (primaryHeroBtn) {
           primaryHeroBtn.disabled = false;
-          primaryHeroBtnLabel.textContent = t('btn_start_test');
+          primaryHeroBtnLabel.textContent = t('btn_restart_test');
         }
 
         if (aborted) {
@@ -1758,7 +1756,10 @@
     // Event Handlers
     // -------------------------------------------------------------------------
     if (primaryHeroBtn) {
-      primaryHeroBtn.addEventListener('click', startSpeedtest);
+      primaryHeroBtn.addEventListener('click', function () {
+        if (currentTest && currentTest.getState() === 3) return;
+        startSpeedtest();
+      });
     }
     if (restartTestBtn) {
       restartTestBtn.addEventListener('click', startSpeedtest);
