@@ -123,8 +123,29 @@
             </div>
           </div>
 
-          <!-- Remote Desktop (AnyDesk) Quality Card -->
-          <div class="cf-card quality-card" id="cardQualityAnyDesk">
+          <!-- Video Calls Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityVideo">
+            <div class="quality-card-head">
+              <div class="quality-icon-box icon-video">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="quality-title" data-i18n="quality_video">Video Calls</h3>
+                <p class="quality-desc" data-i18n="desc_video">Real-time WebRTC & Audio</p>
+              </div>
+            </div>
+            <div class="stars-rating-row" id="starsVideo" aria-label="5 of 5 stars"></div>
+            <div class="quality-badge-row">
+              <span class="quality-status-badge badge-green" id="badgeVideo" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonVideo" data-i18n="reason_video_init">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
+            </div>
+          </div>
+
+          <!-- Remote Desktop Quality Card -->
+          <div class="cf-card quality-card" id="cardQualityRemote">
             <div class="quality-card-head">
               <div class="quality-icon-box icon-anydesk">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -134,14 +155,14 @@
                 </svg>
               </div>
               <div>
-                <h3 class="quality-title" data-i18n="quality_anydesk">AnyDesk</h3>
-                <p class="quality-desc" data-i18n="desc_anydesk">Remote Desktop & Control</p>
+                <h3 class="quality-title" data-i18n="quality_remote">Remote Desktop</h3>
+                <p class="quality-desc" data-i18n="desc_remote">RDP, VDI & Screen Sharing</p>
               </div>
             </div>
-            <div class="stars-rating-row" id="starsAnyDesk" aria-label="5 of 5 stars"></div>
+            <div class="stars-rating-row" id="starsRemote" aria-label="5 of 5 stars"></div>
             <div class="quality-badge-row">
-              <span class="quality-status-badge badge-green" id="badgeAnyDesk" data-i18n="ready">Ready</span>
-              <span class="quality-reason-text" id="reasonAnyDesk" data-i18n="reason_anydesk_init">Requires Ping &lt; 20ms, Jitter &lt; 15ms</span>
+              <span class="quality-status-badge badge-green" id="badgeRemote" data-i18n="ready">Ready</span>
+              <span class="quality-reason-text" id="reasonRemote" data-i18n="reason_remote_init">Requires Ping &lt; 20ms, Jitter &lt; 15ms</span>
             </div>
           </div>
 
@@ -184,27 +205,6 @@
             <div class="quality-badge-row">
               <span class="quality-status-badge badge-green" id="badgeCloud" data-i18n="ready">Ready</span>
               <span class="quality-reason-text" id="reasonCloud" data-i18n="reason_cloud_init">Requires Ping &lt; 40ms, DL &gt;= 25 Mbps</span>
-            </div>
-          </div>
-
-          <!-- Video Calls Quality Card -->
-          <div class="cf-card quality-card" id="cardQualityVideo">
-            <div class="quality-card-head">
-              <div class="quality-icon-box icon-video">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="23 7 16 12 23 17 23 7"/>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-              </div>
-              <div>
-                <h3 class="quality-title" data-i18n="quality_video">Video Calls</h3>
-                <p class="quality-desc" data-i18n="desc_video">Real-time WebRTC & Audio</p>
-              </div>
-            </div>
-            <div class="stars-rating-row" id="starsVideo" aria-label="5 of 5 stars"></div>
-            <div class="quality-badge-row">
-              <span class="quality-status-badge badge-green" id="badgeVideo" data-i18n="ready">Ready</span>
-              <span class="quality-reason-text" id="reasonVideo" data-i18n="reason_video_init">Requires Ping &lt; 20ms, Jitter &lt; 5ms</span>
             </div>
           </div>
         </div>

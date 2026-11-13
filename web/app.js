@@ -54,8 +54,8 @@
       section_quality_subtitle: 'Real-time Cloudflare AIM quality assessment for LAN workloads',
       quality_streaming: 'Streaming',
       desc_streaming: '4K/8K Media & Live Buffers',
-      quality_anydesk: 'AnyDesk',
-      desc_anydesk: 'Remote Desktop & Control',
+      quality_remote: 'Remote Desktop',
+      desc_remote: 'RDP, VDI & Screen Sharing',
       quality_video: 'Video Calls',
       desc_video: 'Real-time WebRTC & Audio',
       quality_filetransfer: 'File Transfer',
@@ -77,11 +77,11 @@
       reason_streaming_4: 'Smooth 1080p Full HD streaming',
       reason_streaming_3: 'Standard 720p streaming',
       reason_streaming_2: 'Low throughput or high jitter',
-      reason_anydesk_init: 'Requires Ping < 20ms, Jitter < 15ms',
-      reason_anydesk_5: 'Ultra-responsive remote control (< 20ms)',
-      reason_anydesk_4: 'Smooth remote desktop session',
-      reason_anydesk_3: 'Occasional input lag',
-      reason_anydesk_2: 'High latency or jitter',
+      reason_remote_init: 'Requires Ping < 20ms, Jitter < 15ms',
+      reason_remote_5: 'Ultra-responsive remote desktop (< 20ms)',
+      reason_remote_4: 'Smooth remote desktop control',
+      reason_remote_3: 'Acceptable remote session with minor lag',
+      reason_remote_2: 'Noticeable remote lag or input delay',
       reason_video_init: 'Requires Ping < 20ms, Jitter < 5ms',
       reason_video_5: 'Crystal clear HD video & audio',
       reason_video_4: 'Smooth video calls with minor delay',
@@ -164,8 +164,8 @@
       section_quality_subtitle: 'Penilaian kualitas Cloudflare AIM waktu nyata untuk beban kerja LAN',
       quality_streaming: 'Streaming Video',
       desc_streaming: 'Media 4K/8K & Buffer Siaran Langsung',
-      quality_anydesk: 'AnyDesk',
-      desc_anydesk: 'Remote Desktop & Kontrol',
+      quality_remote: 'Desktop Jarak Jauh',
+      desc_remote: 'Akses RDP, VDI & Layar Virtual',
       quality_video: 'Panggilan Video',
       desc_video: 'WebRTC & Audio Waktu Nyata',
       quality_filetransfer: 'Transfer File',
@@ -187,11 +187,11 @@
       reason_streaming_4: 'Streaming lancar 1080p Full HD',
       reason_streaming_3: 'Streaming standar 720p',
       reason_streaming_2: 'Throughput rendah atau jitter tinggi',
-      reason_anydesk_init: 'Membutuhkan Ping < 20ms, Jitter < 15ms',
-      reason_anydesk_5: 'Kontrol remote ultra-responsif (< 20ms)',
-      reason_anydesk_4: 'Sesi remote desktop lancar',
-      reason_anydesk_3: 'Terkadang terjadi lag masukan',
-      reason_anydesk_2: 'Latensi atau jitter tinggi',
+      reason_remote_init: 'Membutuhkan Ping < 20ms, Jitter < 15ms',
+      reason_remote_5: 'Respons desktop jarak jauh sangat cepat (< 20ms)',
+      reason_remote_4: 'Kontrol desktop jarak jauh lancar',
+      reason_remote_3: 'Sesi remote dapat diterima dengan sedikit jeda',
+      reason_remote_2: 'Jeda terasa atau input tertunda',
       reason_video_init: 'Membutuhkan Ping < 20ms, Jitter < 5ms',
       reason_video_5: 'Video & audio HD sangat jernih',
       reason_video_4: 'Panggilan video lancar dengan jeda minim',
@@ -495,11 +495,11 @@
       const r = document.getElementById('reasonStreaming');
       if (r) r.textContent = t('reason_streaming_init');
 
-      renderStarsById('starsAnyDesk', 5);
-      const b2 = document.getElementById('badgeAnyDesk');
+      renderStarsById('starsRemote', 5);
+      const b2 = document.getElementById('badgeRemote');
       if (b2) { b2.textContent = t('ready'); b2.className = 'quality-status-badge badge-green'; }
-      const r2 = document.getElementById('reasonAnyDesk');
-      if (r2) r2.textContent = t('reason_anydesk_init');
+      const r2 = document.getElementById('reasonRemote');
+      if (r2) r2.textContent = t('reason_remote_init');
 
       renderStarsById('starsVideo', 5);
       const b3 = document.getElementById('badgeVideo');
@@ -549,32 +549,32 @@
     const rs = document.getElementById('reasonStreaming');
     if (rs) rs.textContent = sReason;
 
-    // 2. Remote Desktop (AnyDesk): Ping < 20ms & Jitter < 15ms -> 5 stars
+    // 2. Remote Desktop: Ping < 20ms & Jitter < 15ms -> 5 stars
     let aStars = 2;
     let aBadge = t('badge_poor');
     let aBadgeClass = 'badge-amber';
-    let aReason = t('reason_anydesk_2');
+    let aReason = t('reason_remote_2');
 
     if (ping < 20 && jitter < 15) {
       aStars = 5;
       aBadge = t('badge_great');
       aBadgeClass = 'badge-green';
-      aReason = t('reason_anydesk_5');
+      aReason = t('reason_remote_5');
     } else if (ping < 40 && jitter < 30) {
       aStars = 4;
       aBadge = t('badge_good');
       aBadgeClass = 'badge-green';
-      aReason = t('reason_anydesk_4');
+      aReason = t('reason_remote_4');
     } else if (ping < 80) {
       aStars = 3;
       aBadge = t('badge_fair');
       aBadgeClass = 'badge-amber';
-      aReason = t('reason_anydesk_3');
+      aReason = t('reason_remote_3');
     }
-    renderStarsById('starsAnyDesk', aStars);
-    const ba = document.getElementById('badgeAnyDesk');
+    renderStarsById('starsRemote', aStars);
+    const ba = document.getElementById('badgeRemote');
     if (ba) { ba.textContent = aBadge; ba.className = 'quality-status-badge ' + aBadgeClass; }
-    const ra = document.getElementById('reasonAnyDesk');
+    const ra = document.getElementById('reasonRemote');
     if (ra) ra.textContent = aReason;
 
     // 3. Video Calls: Ping < 30ms & Jitter < 25ms -> 5 stars
@@ -789,9 +789,9 @@
     const starsStreaming = document.getElementById('starsStreaming');
     const badgeStreaming = document.getElementById('badgeStreaming');
     const reasonStreaming = document.getElementById('reasonStreaming');
-    const starsAnyDesk = document.getElementById('starsAnyDesk');
-    const badgeAnyDesk = document.getElementById('badgeAnyDesk');
-    const reasonAnyDesk = document.getElementById('reasonAnyDesk');
+    const starsRemote = document.getElementById('starsRemote');
+    const badgeRemote = document.getElementById('badgeRemote');
+    const reasonRemote = document.getElementById('reasonRemote');
     const starsVideo = document.getElementById('starsVideo');
     const badgeVideo = document.getElementById('badgeVideo');
     const reasonVideo = document.getElementById('reasonVideo');
@@ -1005,7 +1005,7 @@
 
     const quality = [
       { key: 'quality_streaming', stars: qualityStars(dl, ping, jitter, ul, 'streaming') },
-      { key: 'quality_anydesk', stars: qualityStars(dl, ping, jitter, ul, 'anydesk') },
+      { key: 'quality_remote', stars: qualityStars(dl, ping, jitter, ul, 'remote') },
       { key: 'quality_video', stars: qualityStars(dl, ping, jitter, ul, 'video') },
       { key: 'quality_filetransfer', stars: qualityStars(dl, ping, jitter, ul, 'filetransfer') },
       { key: 'quality_cloud', stars: qualityStars(dl, ping, jitter, ul, 'cloud') }
@@ -1089,7 +1089,7 @@
       if (dl >= 10) return 3;
       return 2;
     }
-    if (type === 'anydesk') {
+    if (type === 'remote') {
       if (ping < 20 && jitter < 15) return 5;
       if (ping < 40 && jitter < 30) return 4;
       if (ping < 80) return 3;
@@ -1212,9 +1212,9 @@
     const badgeStreaming = document.getElementById('badgeStreaming');
     const reasonStreaming = document.getElementById('reasonStreaming');
 
-    const starsAnyDesk = document.getElementById('starsAnyDesk');
-    const badgeAnyDesk = document.getElementById('badgeAnyDesk');
-    const reasonAnyDesk = document.getElementById('reasonAnyDesk');
+    const starsRemote = document.getElementById('starsRemote');
+    const badgeRemote = document.getElementById('badgeRemote');
+    const reasonRemote = document.getElementById('reasonRemote');
 
     const starsVideo = document.getElementById('starsVideo');
     const badgeVideo = document.getElementById('badgeVideo');
@@ -1312,12 +1312,12 @@
         }
         if (reasonStreaming) reasonStreaming.textContent = t('reason_streaming_init');
 
-        renderStars(starsAnyDesk, 5);
-        if (badgeAnyDesk) {
-          badgeAnyDesk.textContent = t('ready');
-          badgeAnyDesk.className = 'quality-status-badge badge-green';
+        renderStars(starsRemote, 5);
+        if (badgeRemote) {
+          badgeRemote.textContent = t('ready');
+          badgeRemote.className = 'quality-status-badge badge-green';
         }
-        if (reasonAnyDesk) reasonAnyDesk.textContent = t('reason_anydesk_init');
+        if (reasonRemote) reasonRemote.textContent = t('reason_remote_init');
 
         renderStars(starsVideo, 5);
         if (badgeVideo) {
@@ -1371,34 +1371,34 @@
       }
       if (reasonStreaming) reasonStreaming.textContent = sReason;
 
-      // 2. Remote Desktop (AnyDesk): Ping < 20ms & Jitter < 15ms -> 5 stars
+      // 2. Remote Desktop: Ping < 20ms & Jitter < 15ms -> 5 stars
       let aStars = 2;
       let aBadge = t('badge_poor');
       let aBadgeClass = 'badge-amber';
-      let aReason = t('reason_anydesk_2');
+      let aReason = t('reason_remote_2');
 
       if (ping < 20 && jitter < 15) {
         aStars = 5;
         aBadge = t('badge_great');
         aBadgeClass = 'badge-green';
-        aReason = t('reason_anydesk_5');
+        aReason = t('reason_remote_5');
       } else if (ping < 40 && jitter < 30) {
         aStars = 4;
         aBadge = t('badge_good');
         aBadgeClass = 'badge-green';
-        aReason = t('reason_anydesk_4');
+        aReason = t('reason_remote_4');
       } else if (ping < 80) {
         aStars = 3;
         aBadge = t('badge_fair');
         aBadgeClass = 'badge-amber';
-        aReason = t('reason_anydesk_3');
+        aReason = t('reason_remote_3');
       }
-      renderStars(starsAnyDesk, aStars);
-      if (badgeAnyDesk) {
-        badgeAnyDesk.textContent = aBadge;
-        badgeAnyDesk.className = 'quality-status-badge ' + aBadgeClass;
+      renderStars(starsRemote, aStars);
+      if (badgeRemote) {
+        badgeRemote.textContent = aBadge;
+        badgeRemote.className = 'quality-status-badge ' + aBadgeClass;
       }
-      if (reasonAnyDesk) reasonAnyDesk.textContent = aReason;
+      if (reasonRemote) reasonRemote.textContent = aReason;
 
       // 3. Video Calls: Ping < 30ms & Jitter < 25ms -> 5 stars
       let vStars = 2;
