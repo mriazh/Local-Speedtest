@@ -13,7 +13,7 @@
   const I18N = {
     en: {
       brand_desc: 'LAN speedtest &bull; speedtest.mriazh.my.id',
-      server_pill: 'Debian PC • 172.16.171.23 • 100% Local LAN',
+      server_pill: 'Local Server • 100% Local LAN',
       badge_client_ip: 'CLIENT IP',
       your_network_speed: 'Your Network Speed',
       btn_start_test: 'Start Test',
@@ -45,7 +45,7 @@
       node_server: 'Debian Host',
       meta_connected_ipv4: 'Connected via IPv4',
       meta_server_location: 'Server location',
-      val_server_location: 'Local Debian Host (172.16.171.23)',
+      val_server_location: 'Local Server',
       meta_network: 'Network',
       val_network: 'Local LAN Gigabit (Zero Internet Quota)',
       meta_latency_quality: 'Latency Quality',
@@ -123,7 +123,7 @@
     },
     id: {
       brand_desc: 'Uji Kecepatan LAN &bull; speedtest.mriazh.my.id',
-      server_pill: 'PC Debian • 172.16.171.23 • 100% LAN Lokal',
+      server_pill: 'Server Lokal • 100% LAN Lokal',
       badge_client_ip: 'IP KLIEN',
       your_network_speed: 'Kecepatan Jaringan Anda',
       btn_start_test: 'MULAI UJI KECEPATAN',
@@ -155,7 +155,7 @@
       node_server: 'Host Debian',
       meta_connected_ipv4: 'Terhubung melalui IPv4',
       meta_server_location: 'Lokasi Server',
-      val_server_location: 'Host Debian Lokal (172.16.171.23)',
+      val_server_location: 'Server Lokal',
       meta_network: 'Jaringan',
       val_network: 'LAN Gigabit Lokal (Tanpa Kuota Internet)',
       meta_latency_quality: 'Kualitas Latensi',
@@ -851,7 +851,7 @@
         } catch (_) {}
       }
       if (resClientIp) resClientIp.textContent = clientIp || '--';
-      if (resServerIp) resServerIp.textContent = data.serverIp || '172.16.171.23';
+      if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname;
 
       if (resTestId) resTestId.textContent = id;
       if (resTestedAt) resTestedAt.textContent = data.timestamp || '--';
@@ -1034,7 +1034,7 @@
     ctx.fillText(t('network_details'), cardX, dStartY);
     const details = [
       { label: t('badge_client_ip'), value: opts.clientIp || '--' },
-      { label: t('server_ip'), value: '172.16.171.23' },
+      { label: t('server_ip'), value: location.hostname },
       { label: 'Gigabit LAN', value: t('val_network') }
     ];
     let dy = dStartY + 24;
