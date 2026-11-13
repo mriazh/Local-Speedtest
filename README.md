@@ -13,13 +13,13 @@ your local network — no public internet bandwidth is consumed.
 ## Architecture
 
 ```text
-[ Client Device: Phone / Laptop ]
+[ You: Phone / Laptop ]
        │  (WLAN / WiFi 5/6)
 [ Access Point / Switch ]
        │  (Gigabit Ethernet)
-[ Switch Core ]
+[ Core Switch ]
        │  (1 Gbps / 2.5 Gbps LAN)
-[ Debian / Linux Server ]
+[ Local Server ]
    ├── Port 8989:  LibreSpeed Go server
    ├── SQLite:     data/telemetry.db  (result logs + unique hashes)
    └── Web:        web/               (HTML5 frontend)
