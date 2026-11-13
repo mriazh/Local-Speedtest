@@ -35,21 +35,11 @@
         </svg>
         <div class="brand-text">
           <div class="brand-title">Local Speedtest</div>
-          <div class="brand-domain" id="brandDomain" data-i18n="brand_desc">LAN speedtest &bull; speedtest.mriazh.my.id</div>
+          <div class="brand-domain" id="brandDomain" data-i18n="brand_desc">LAN speedtest</div>
         </div>
-      </div>
-
-      <div class="server-pill" title="Local LAN Target Server">
-        <span class="pulse-dot"></span>
-        <span class="pill-text" data-i18n="server_pill">Local Server • 100% Local LAN</span>
       </div>
 
       <div class="header-controls">
-        <div class="client-badge" id="clientIpBadge">
-          <span class="badge-tag" data-i18n="badge_client_ip">CLIENT IP</span>
-          <span class="badge-ip" id="clientIpVal">Loading...</span>
-        </div>
-
         <button type="button" class="ctrl-btn lang-btn" id="langToggleBtn" aria-label="Toggle language" title="Ganti Bahasa / Switch Language">
           <span class="lang-opt" id="langOptId">ID</span>
           <span class="lang-divider">|</span>
@@ -172,13 +162,6 @@
         <!-- Toolbar below graph -->
         <div class="hero-toolbar">
           <div class="toolbar-actions">
-            <button type="button" class="btn-toolbar" id="restartTestBtn" title="Restart Speed Test">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tb-icon">
-                <path d="M1 4v6h6M23 20v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span data-i18n="btn_restart_test">Restart Test</span>
-            </button>
             <button type="button" class="btn-toolbar" id="copyShareLinkBtn" title="Copy Share Link">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tb-icon">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -533,11 +516,9 @@
     </section>
 
     <!-- Footer -->
-    <footer class="cf-footer">
-      <div class="footer-meta">
-        <span data-i18n="footer_powered">Local Speedtest • Powered by LibreSpeed Go backend</span>
-        <span>•</span>
-        <span data-i18n="footer_lan">Zero Internet Quota • 100% Offline LAN Benchmark</span>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-copy" data-i18n="footer_copy">&copy; 2026 M Riyadh Azhar &bull; Local Speedtest &bull; 100% Offline LAN</p>
       </div>
     </footer>
   </div>
