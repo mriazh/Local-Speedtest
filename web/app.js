@@ -28,6 +28,7 @@
       label_latency: 'LATENCY',
       label_jitter: 'JITTER',
       label_packet_loss: 'PACKET LOSS',
+      grade_label: 'Bufferbloat Grade',
       peak_colon: 'Peak:',
       min_colon: 'Min:',
       lan_buffer_colon: 'LAN Buffer:',
@@ -141,6 +142,7 @@
       label_latency: 'LATENSI',
       label_jitter: 'JITTER',
       label_packet_loss: 'PAKET HILANG',
+      grade_label: 'Bufferbloat Grade',
       peak_colon: 'Puncak:',
       min_colon: 'Min:',
       lan_buffer_colon: 'Buffer LAN:',
@@ -672,6 +674,17 @@
   function t(key) {
     const dict = I18N[currentLang] || I18N.en;
     return dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  }
+
+  // Bufferbloat grade system (Cloudflare-style rating A+ to F based on loaded bufferbloat delta).
+  function getBufferbloatGrade(deltaMs) {
+    const d = deltaMs !== null && !isNaN(deltaMs) ? deltaMs : 0;
+    if (d <= 5) return { grade: 'A+', label: 'A+', colorClass: 'grade-aplus' };
+    if (d <= 15) return { grade: 'A', label: 'A', colorClass: 'grade-a' };
+    if (d <= 30) return { grade: 'B', label: 'B', colorClass: 'grade-b' };
+    if (d <= 60) return { grade: 'C', label: 'C', colorClass: 'grade-c' };
+    if (d <= 100) return { grade: 'D', label: 'D', colorClass: 'grade-d' };
+    return { grade: 'F', label: 'F', colorClass: 'grade-f' };
   }
 
   function getInitialTheme() {
@@ -1684,6 +1697,12 @@
           if (bValLoadedBuffer) {
             const bufferDiff = (rawPing - minPing).toFixed(1);
             bValLoadedBuffer.textContent = `${rawPing.toFixed(1)} (+${bufferDiff}ms)`;
+            const gradeInfo = getBufferbloatGrade(parseFloat(bufferDiff));
+            const badgeEl = document.getElementById('bufferGradeBadge');
+            if (badgeEl) {
+              badgeEl.textContent = gradeInfo.grade;
+              badgeEl.className = 'buffer-grade-badge ' + gradeInfo.colorClass;
+            }
           }
         } else if (lastValidPing !== null) {
           heroValPing.textContent = lastValidPing.toFixed(1);
@@ -1791,6 +1810,16 @@
         const finalPing = lastValidPing !== null ? lastValidPing : 1.0;
         const finalJitter = lastValidJitter !== null ? lastValidJitter : 0.2;
         updateQualityScores(finalDl, finalPing, finalJitter, finalUl);
+
+        // Lock in the final Bufferbloat grade based on loaded vs unloaded ping delta.
+        const finalMinPing = pingSamples.length ? Math.min(...pingSamples) : (lastValidPing || 0);
+        const finalBufferDiff = lastValidPing !== null ? (lastValidPing - finalMinPing) : 0;
+        const finalGradeInfo = getBufferbloatGrade(finalBufferDiff);
+        const finalBadgeEl = document.getElementById('bufferGradeBadge');
+        if (finalBadgeEl) {
+          finalBadgeEl.textContent = finalGradeInfo.grade;
+          finalBadgeEl.className = 'buffer-grade-badge ' + finalGradeInfo.colorClass;
+        }
 
         const resolvedId = currentTestId || (s.worker && s.worker.testId) || null;
         if (resolvedId) {

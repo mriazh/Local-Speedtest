@@ -7,6 +7,11 @@
   <meta name="description" content="Local network performance benchmark inspired by speed.cloudflare.com. 100% offline LAN speedtest.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0c0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Local Speedtest">
   <script>
     (function() {
       try {
@@ -16,6 +21,11 @@
         }
       } catch (_) {}
     })();
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
+      });
+    }
   </script>
 </head>
 <body>
@@ -144,7 +154,7 @@
               <span class="metric-num num-jitter" id="heroValJitter">--</span>
               <span class="metric-unit">ms</span>
             </div>
-            <div class="metric-sub-stat" id="heroJitterSubStat"><span data-i18n="lan_buffer_colon">LAN Buffer:</span> <span id="heroValBuffer" data-i18n="optimal">Optimal</span></div>
+            <div class="metric-sub-stat" id="heroJitterSubStat"><span data-i18n="lan_buffer_colon">LAN Buffer:</span> <span id="heroValBuffer" data-i18n="optimal">Optimal</span> <span class="buffer-grade-badge" id="bufferGradeBadge">A+</span></div>
           </div>
 
           <!-- Packet Loss Metric -->

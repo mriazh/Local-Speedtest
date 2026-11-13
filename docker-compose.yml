@@ -1,0 +1,12 @@
+services:
+  speedtest:
+    image: ghcr.io/mriazh/local-speedtest:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: local-speedtest
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+    volumes:
+      - ./data:/app/data

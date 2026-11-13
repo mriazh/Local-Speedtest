@@ -474,6 +474,33 @@ body {
   font-family: var(--font-mono);
 }
 
+/* Bufferbloat grade badge */
+.buffer-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #0b0c0e;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  margin-left: 6px;
+  user-select: none;
+}
+
+.grade-aplus { background: var(--cf-green); border-color: var(--cf-green); color: #0b0c0e; }
+.grade-a { background: var(--cf-green); border-color: var(--cf-green); color: #0b0c0e; }
+.grade-b { background: var(--cf-cyan); border-color: var(--cf-cyan); color: #0b0c0e; }
+.grade-c { background: var(--cf-amber); border-color: var(--cf-amber); color: #0b0c0e; }
+.grade-d { background: var(--cf-orange); border-color: var(--cf-orange); color: #0b0c0e; }
+.grade-f { background: #ef4444; border-color: #ef4444; color: #ffffff; }
+
 /* Main Graph Canvas Container */
 .hero-graph-container {
   width: 100%;

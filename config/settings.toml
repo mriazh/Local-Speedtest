@@ -17,7 +17,11 @@ database_type = "sqlite"
 database_file = "data/telemetry.db"
 
 # Statistics page access password.
-statistics_password = "admin"
+# Default is a secured placeholder — override via environment or config before deploying to production.
+# Recommendation: serve behind a reverse proxy (Apache/Nginx/Cloudflare Tunnel) and set security headers:
+#   Strict-Transport-Security, X-Frame-Options: DENY, X-Content-Type-Options: nosniff,
+#   Referrer-Policy: same-origin, Content-Security-Policy.
+statistics_password = "SpeedtestAdmin_SecuredLAN2026!"
 # Do not redact client IP addresses (results are local LAN only).
 redact_ip_addresses = false
 
