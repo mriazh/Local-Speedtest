@@ -35,7 +35,6 @@
         </svg>
         <div class="brand-text">
           <div class="brand-title">Local Speedtest</div>
-          <div class="brand-domain" id="brandDomain" data-i18n="brand_desc">LAN speedtest</div>
         </div>
       </div>
 
@@ -80,6 +79,18 @@
             </svg>
             <span id="primaryHeroBtnLabel" data-i18n="btn_start_test">Start Test</span>
           </button>
+        </div>
+
+        <div class="test-error-banner" id="testErrorBanner" style="display: none;" role="alert">
+          <div class="error-msg-wrap">
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span id="testErrorMsg" data-i18n="err_unreachable">Server unreachable. Check your Wi-Fi or local network connection.</span>
+          </div>
+          <button type="button" class="btn-error-retry" id="errorRetryBtn" data-i18n="btn_retry">Try Again</button>
         </div>
 
         <!-- Metric Row -->
@@ -241,11 +252,11 @@
           </div>
           <div class="meta-row">
             <span class="meta-key" data-i18n="meta_network">Network</span>
-            <span class="meta-val" data-i18n="val_network">Local LAN Gigabit (Zero Internet Quota)</span>
+            <span class="meta-val" data-i18n="val_network">Local (Zero Internet Quota)</span>
           </div>
           <div class="meta-row">
             <span class="meta-key" data-i18n="meta_latency_quality">Latency Quality</span>
-            <span class="meta-val meta-quality" id="metaLatencyQuality" data-i18n="val_latency_quality">LAN Sub-millisecond</span>
+            <span class="meta-val meta-quality" id="metaLatencyQuality" data-i18n="val_latency_quality">Sub-millisecond</span>
           </div>
         </div>
       </div>

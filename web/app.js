@@ -12,7 +12,7 @@
   // ---------------------------------------------------------------------------
   const I18N = {
     en: {
-      brand_desc: 'LAN speedtest',
+      brand_desc: '',
       server_pill: 'Local Server • 100% Local LAN',
       badge_client_ip: 'CLIENT IP',
       your_network_speed: 'Your Network Speed',
@@ -47,9 +47,9 @@
       meta_server_location: 'Server location',
       val_server_location: 'Local Server',
       meta_network: 'Network',
-      val_network: 'Local LAN Gigabit (Zero Internet Quota)',
+      val_network: 'Local (Zero Internet Quota)',
       meta_latency_quality: 'Latency Quality',
-      val_latency_quality: 'LAN Sub-millisecond',
+      val_latency_quality: 'Sub-millisecond',
       section_quality_score: 'Network Quality Score',
       section_quality_subtitle: 'Real-time Cloudflare AIM quality assessment for LAN workloads',
       quality_streaming: 'Streaming',
@@ -68,6 +68,10 @@
       status_completed: 'COMPLETED',
       status_download: 'DOWNLOAD',
       status_upload: 'UPLOAD',
+      status_failed: 'FAILED',
+      btn_retry: 'Retry Test',
+      err_unreachable: 'Server unreachable. Check your Wi-Fi or local network connection.',
+      err_offline: 'No connection. Please connect to your Wi-Fi or local network.',
       badge_great: 'Great',
       badge_good: 'Good',
       badge_fair: 'Fair',
@@ -121,7 +125,7 @@
       footer_copy: '© 2026 M Riyadh Azhar • Local Speedtest • 100% Offline LAN'
     },
     id: {
-      brand_desc: 'Uji Kecepatan LAN',
+      brand_desc: '',
       server_pill: 'Server Lokal • 100% LAN Lokal',
       badge_client_ip: 'IP KLIEN',
       your_network_speed: 'Kecepatan Jaringan Anda',
@@ -156,9 +160,9 @@
       meta_server_location: 'Lokasi Server',
       val_server_location: 'Server Lokal',
       meta_network: 'Jaringan',
-      val_network: 'LAN Gigabit Lokal (Tanpa Kuota Internet)',
+      val_network: 'Lokal (Tanpa Kuota Internet)',
       meta_latency_quality: 'Kualitas Latensi',
-      val_latency_quality: 'LAN Sub-milidetik',
+      val_latency_quality: 'Sub-milidetik',
       section_quality_score: 'Skor Kualitas Jaringan',
       section_quality_subtitle: 'Penilaian kualitas Cloudflare AIM waktu nyata untuk beban kerja LAN',
       quality_streaming: 'Streaming Video',
@@ -177,6 +181,10 @@
       status_completed: 'SELESAI',
       status_download: 'UNDUH',
       status_upload: 'UNGGAH',
+      status_failed: 'GAGAL',
+      btn_retry: 'Coba Lagi',
+      err_unreachable: 'Server tidak dapat dijangkau. Periksa koneksi Wi-Fi atau jaringan lokal Anda.',
+      err_offline: 'Tidak ada koneksi. Silakan sambungkan ke Wi-Fi atau jaringan lokal Anda.',
       badge_great: 'Bagus Sekali',
       badge_good: 'Baik',
       badge_fair: 'Cukup',
@@ -461,6 +469,7 @@
   let lastJitterVal = null;
   let lastUlVal = null;
   let updateQualityScores;
+  let watchdogTimer = null;
 
   // Helper: render 5-star rating into a container by id
   function renderStarsById(containerId, rating) {
@@ -1033,7 +1042,7 @@
     const details = [
       { label: t('badge_client_ip'), value: opts.clientIp || '--' },
       { label: t('server_ip'), value: location.hostname },
-      { label: 'Gigabit LAN', value: t('val_network') }
+      { label: 'Network', value: t('val_network') }
     ];
     let dy = dStartY + 24;
     for (const d of details) {
@@ -1584,8 +1593,36 @@
     // -------------------------------------------------------------------------
     // Speedtest Execution
     // -------------------------------------------------------------------------
+    function handleTestError(errKey) {
+      isRunning = false;
+      if (currentTest) {
+        try { currentTest.abort(); } catch (_) {}
+        currentTest = null;
+      }
+      if (watchdogTimer !== null) {
+        clearTimeout(watchdogTimer);
+        watchdogTimer = null;
+      }
+      if (testStateBadge) {
+        testStateBadge.textContent = t('status_failed');
+        testStateBadge.className = 'status-indicator-badge status-failed';
+      }
+      if (primaryHeroBtn) {
+        primaryHeroBtn.disabled = false;
+        primaryHeroBtnLabel.textContent = t('btn_retry');
+      }
+      const banner = document.getElementById('testErrorBanner');
+      const msg = document.getElementById('testErrorMsg');
+      if (banner) {
+        banner.style.display = 'flex';
+        if (msg) msg.textContent = t(errKey || 'err_unreachable');
+      }
+    }
+
     function startSpeedtest() {
       if (isRunning) return;
+      const banner = document.getElementById('testErrorBanner');
+      if (banner) banner.style.display = 'none';
       isRunning = true;
       resetUI();
 
@@ -1598,9 +1635,20 @@
         primaryHeroBtnLabel.textContent = t('btn_testing');
       }
 
+      if (navigator.onLine === false) {
+        handleTestError('err_offline');
+        return;
+      }
+
       const s = new Speedtest();
       Object.entries(SPEEDTEST_PARAMS).forEach(([k, v]) => s.setParameter(k, v));
       currentTest = s;
+
+      watchdogTimer = setTimeout(() => {
+        if (dlSamples.length === 0 && ulSamples.length === 0 && lastValidPing === null) {
+          handleTestError('err_unreachable');
+        }
+      }, 10000);
 
       s.onupdate = function (data) {
         const st = data.testState;
@@ -1611,6 +1659,16 @@
 
         if (data.testId) {
           currentTestId = data.testId;
+        }
+
+        if (data.pingStatus === 'Fail' || data.dlStatus === 'Fail' || data.testState === 5) {
+          handleTestError('err_unreachable');
+          return;
+        }
+
+        if (watchdogTimer !== null && (!isNaN(parseFloat(data.pingStatus)) || !isNaN(parseFloat(data.dlStatus)) || !isNaN(parseFloat(data.ulStatus)))) {
+          clearTimeout(watchdogTimer);
+          watchdogTimer = null;
         }
 
         const rawPing = parseFloat(data.pingStatus);
@@ -1687,6 +1745,10 @@
       };
 
       s.onend = function (aborted) {
+        if (watchdogTimer !== null) {
+          clearTimeout(watchdogTimer);
+          watchdogTimer = null;
+        }
         isRunning = false;
         currentTest = null;
 
@@ -1697,6 +1759,11 @@
 
         if (aborted) {
           resetUI();
+          return;
+        }
+
+        if (dlSamples.length === 0 && ulSamples.length === 0 && lastValidPing === null) {
+          handleTestError('err_unreachable');
           return;
         }
 
@@ -1747,8 +1814,7 @@
         s.start();
       } catch (err) {
         console.error('Speedtest start failed:', err);
-        isRunning = false;
-        resetUI();
+        handleTestError('err_unreachable');
       }
     }
 
@@ -1760,6 +1826,10 @@
         if (currentTest && currentTest.getState() === 3) return;
         startSpeedtest();
       });
+    }
+    const errorRetryBtn = document.getElementById('errorRetryBtn');
+    if (errorRetryBtn) {
+      errorRetryBtn.addEventListener('click', startSpeedtest);
     }
     if (restartTestBtn) {
       restartTestBtn.addEventListener('click', startSpeedtest);
