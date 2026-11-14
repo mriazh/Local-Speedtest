@@ -902,7 +902,7 @@
       // Render quality stars in current language
       updateQualityScores(dl, ping, jitter, ul);
 
-      if (statusEl) statusEl.hidden = true;
+      if (statusEl) { statusEl.hidden = true; statusEl.style.display = 'none'; }
       if (headlineSection) headlineSection.hidden = false;
       if (qualitySection) qualitySection.hidden = false;
       if (detailsSection) detailsSection.hidden = false;
