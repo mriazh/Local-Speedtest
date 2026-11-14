@@ -1,14 +1,13 @@
 # Local Speedtest
 
-Self-hosted, lightweight LAN speedtest server for Debian Linux. Built on the
-[LibreSpeed Go](https://github.com/librespeed/speedtest-go) backend with
-embedded SQLite telemetry and an HTML5 frontend. All test traffic stays inside
-your local network — no public internet bandwidth is consumed.
+Self-hosted, lightweight LAN speedtest web application inspired by [speed.cloudflare.com](https://speed.cloudflare.com/). Built with pure vanilla **JavaScript (ES6+)**, **HTML5 Canvas**, and modern CSS, powered by the lightweight [LibreSpeed Go](https://github.com/librespeed/speedtest-go) engine with embedded SQLite telemetry. All test traffic stays inside your local network — zero internet quota consumed.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Backend: Go](https://img.shields.io/badge/backend-Go-00ADD8.svg)](https://go.dev/)
-[![Storage: SQLite](https://img.shields.io/badge/storage-SQLite-07405E.svg)](https://www.sqlite.org/)
-[![Frontend: Cloudflare Speed UI](https://img.shields.io/badge/frontend-Cloudflare%20Speed%20UI-F6821F.svg)](https://speed.cloudflare.com/)
+[![Frontend: JavaScript ES6+](https://img.shields.io/badge/Frontend-JavaScript%20ES6+-F7DF1E.svg?logo=javascript&logoColor=black)](web/app.js)
+[![UI: Cloudflare Speed](https://img.shields.io/badge/UI-Cloudflare%20Speed%20Style-F6821F.svg)](https://speed.cloudflare.com/)
+[![PWA: Installable](https://img.shields.io/badge/PWA-Installable-5A0FC8.svg?logo=pwa)](web/manifest.json)
+[![Storage: SQLite](https://img.shields.io/badge/Storage-SQLite-07405E.svg)](https://www.sqlite.org/)
+[![Engine: LibreSpeed Go](https://img.shields.io/badge/Engine-LibreSpeed%20Go-00ADD8.svg)](https://github.com/librespeed/speedtest-go)
 
 ## Architecture
 
@@ -45,16 +44,18 @@ README.md      — this file
 
 ## Technology stack
 
-- **Backend:** LibreSpeed Go (`speedtest-backend`), single static Go binary
-- **Storage:** embedded SQLite (`data/telemetry.db`), one row per test
-- **Frontend:** pure HTML5/CSS/JS (vanilla, no frameworks), served by the backend
-- **Supervision:** systemd (`local-speedtest.service`), restart-on-failure
-- **Port:** `8989` (configurable in `config/settings.toml`)
+- **Frontend Application:** Pure Vanilla JavaScript (ES6+), HTML5 Canvas & Web Workers, CSS Custom Properties (zero frameworks, zero npm/CDN dependencies, 100% offline).
+- **Core Engine:** LibreSpeed Go (`speedtest-backend`), lightweight single static Go binary.
+- **Storage:** Embedded SQLite (`data/telemetry.db`), zero-maintenance local database.
+- **Supervision:** systemd (`local-speedtest.service`), restart-on-failure.
+- **Port:** `8989` (configurable in `config/settings.toml`).
 
 ## Key Features
 
 - **Authentic Cloudflare Speed Test UI** — dark/light theme support, inspired by
   `speed.cloudflare.com`, with smooth transitions and responsive layout.
+- **Bufferbloat Rating Badge (A+ to F)** — live loaded vs unloaded bufferbloat scoring based on Cloudflare / Waveform standard.
+- **Progressive Web App (PWA)** — installable on Android, iOS, Windows, and Mac as a standalone fullscreen app.
 - **Dual-area spline chart** — download (orange) and upload (purple) areas with a
   90th-percentile guide line, rendered entirely in-browser on a HTML5 canvas.
 - **5 Network Quality Workloads** — Streaming, Video Calls, Remote Desktop, File
