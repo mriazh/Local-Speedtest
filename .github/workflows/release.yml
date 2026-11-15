@@ -12,12 +12,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-          - platform: linux/arm64
 
     steps:
       - name: Checkout repository
@@ -50,7 +44,7 @@ jobs:
           tar -czf local-speedtest-${{ github.ref_name }}.tar.gz \
             --exclude=.git \
             --exclude='.github' \
-            config settings.toml scripts install.sh deploy.sh systemd web Dockerfile docker-compose.yml README.md LICENSE
+            config scripts deploy.sh systemd web Dockerfile docker-compose.yml README.md LICENSE
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
