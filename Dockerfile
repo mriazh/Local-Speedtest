@@ -30,4 +30,6 @@ COPY web /app/web
 
 WORKDIR /app
 EXPOSE 8989
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8989/getIP || exit 1
 ENTRYPOINT ["/app/speedtest-backend", "-c", "/app/config/settings.toml"]

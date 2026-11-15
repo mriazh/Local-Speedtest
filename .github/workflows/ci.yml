@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check web/app.js
+          node --check web/sw.js
+          node --check web/speedtest.js
+          node --check web/speedtest_worker.js
+
+      - name: Run SW bypass test
+        run: |
+          node tests/test_sw_bypass.js
+
+      - name: Validate manifest JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('web/manifest.json', 'utf8')); console.log('manifest.json valid')"
+
+      - name: Validate settings TOML syntax
+        run: |
+          python3 -c "import tomllib; tomllib.loads(open('config/settings.toml').read()); print('settings.toml valid')"
+
+      - name: Validate Dockerfile syntax
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
