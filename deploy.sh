@@ -14,7 +14,7 @@
 #   sudo ./deploy.sh --app-user <user> --app-dir <dir>
 #
 # Example:
-#   sudo ./deploy.sh --app-user mriazh --app-dir /home/mriazh/Github-PC/Local-Speedtest
+#   sudo ./deploy.sh --app-user $USER --app-dir /opt/local-speedtest
 #
 set -euo pipefail
 
@@ -26,7 +26,7 @@ usage() {
     echo
     echo "Options:"
     echo "  --app-user <user>  System user that runs the speedtest service"
-    echo "  --app-dir <dir>    Installation directory (e.g. ~/Github-PC/Local-Speedtest)"
+    echo "  --app-dir <dir>    Installation directory (e.g. /opt/local-speedtest or ~/local-speedtest)"
     exit 1
 }
 

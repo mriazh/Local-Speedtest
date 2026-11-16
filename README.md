@@ -77,10 +77,8 @@ Deploy on a Debian/Linux host inside your LAN.
 
 ```bash
 # On the Debian server
-mkdir -p ~/Github-PC
-cd ~/Github-PC
-git clone <this-repo> Local-Speedtest
-cd Local-Speedtest
+git clone https://github.com/mriazh/Local-Speedtest.git ~/local-speedtest
+cd ~/local-speedtest
 ```
 
 ### Step 2: Run `deploy.sh`
@@ -89,7 +87,7 @@ Run as root (sudo):
 
 ```bash
 chmod +x deploy.sh
-sudo ./deploy.sh --app-user $USER --app-dir ~/Github-PC/Local-Speedtest
+sudo ./deploy.sh --app-user $USER --app-dir ~/local-speedtest
 ```
 
 `deploy.sh` performs:
@@ -210,7 +208,7 @@ database_type = "sqlite"
 database_file = "data/telemetry.db"
 
 # Statistics page access password.
-statistics_password = "admin"
+statistics_password = "SpeedtestAdmin_SecuredLAN2026!"
 
 # Do not redact client IP addresses (results are local LAN only).
 redact_ip_addresses = false
@@ -251,7 +249,7 @@ When a test completes, the backend persists it to SQLite under a unique ULID and
 returns an `id`. The frontend builds a shareable link:
 
 ```
-https://speedtest.yourdomain.com/results/?id=<ulid>
+https://speedtest.yourdomain.com/results.html?id=<ulid>
 ```
 
 Opening that link renders the result as a PNG card (download/upload/ping/jitter

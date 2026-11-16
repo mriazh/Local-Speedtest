@@ -871,7 +871,7 @@
         } catch (_) {}
       }
       if (resClientIp) resClientIp.textContent = clientIp || '--';
-      if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname || 'speedtest.mriazh.my.id';
+      if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname || 'speedtest.local';
 
       if (resTestId) resTestId.textContent = id;
       if (resTestedAt) {
@@ -914,7 +914,7 @@
       const btnCopyResultLink = document.getElementById('btnCopyResultLink');
       const copyResultBtnText = document.getElementById('copyResultBtnText');
 
-      const host = location.host || 'speedtest.mriazh.my.id';
+      const host = location.host || 'speedtest.local';
       const proto = location.protocol || 'http:';
       const resultUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(id)}`;
 
@@ -1300,7 +1300,7 @@
     }
     fetchClientIp();
 
-    const serverHost = location.hostname || 'speedtest.mriazh.my.id';
+    const serverHost = location.hostname || 'speedtest.local';
     const topoServerSub = document.getElementById('topoServerSub');
     const metaServerIp = document.getElementById('metaServerIp');
     if (topoServerSub) topoServerSub.textContent = serverHost;
@@ -1573,7 +1573,7 @@
       currentTestId = resolvedId;
       if (telemetryIdDisplay) telemetryIdDisplay.textContent = resolvedId;
 
-      const host = location.host || 'speedtest.mriazh.my.id';
+      const host = location.host || 'speedtest.local';
       const proto = location.protocol || 'https:';
       const cleanIp = (clientIpVal && clientIpVal.textContent && clientIpVal.textContent !== 'Loading...') ? clientIpVal.textContent : '';
       const shareUrl = `${proto}//${host}/results.html?id=${encodeURIComponent(resolvedId)}${cleanIp ? '&ip=' + encodeURIComponent(cleanIp) : ''}`;
