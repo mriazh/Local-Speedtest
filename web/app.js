@@ -46,6 +46,23 @@
       node_server: 'Server',
       meta_connected_ipv4: 'Connected via IPv4',
       meta_server_location: 'Server location',
+      meta_device: 'Device',
+      device_windows: 'Windows PC',
+      device_mac: 'Mac',
+      device_linux: 'Linux PC',
+      device_android: 'Android Phone',
+      device_android_tab: 'Android Tablet',
+      device_iphone: 'iPhone',
+      device_ipad: 'iPad',
+      device_chromebook: 'Chromebook',
+      device_generic: 'Client Device',
+      net_tailscale: 'Tailscale (Encrypted Mesh)',
+      net_wifi: 'Local Wi-Fi (Zero Internet Quota)',
+      net_lan: 'Local (Zero Internet Quota)',
+      node_tailscale: 'Tailscale Mesh',
+      node_wifi: 'Wi-Fi AP',
+      sub_tailscale: 'Encrypted P2P',
+      sub_wifi: 'Wireless',
       val_server_location: 'Local Server',
       meta_network: 'Network',
       val_network: 'Local (Zero Internet Quota)',
@@ -160,6 +177,23 @@
       node_server: 'Server',
       meta_connected_ipv4: 'Terhubung melalui IPv4',
       meta_server_location: 'Lokasi Server',
+      meta_device: 'Perangkat',
+      device_windows: 'PC Windows',
+      device_mac: 'Mac',
+      device_linux: 'PC Linux',
+      device_android: 'Ponsel Android',
+      device_android_tab: 'Tablet Android',
+      device_iphone: 'iPhone',
+      device_ipad: 'iPad',
+      device_chromebook: 'Chromebook',
+      device_generic: 'Perangkat Klien',
+      net_tailscale: 'Tailscale (Mesh Terenkripsi)',
+      net_wifi: 'Wi-Fi Lokal (Tanpa Kuota Internet)',
+      net_lan: 'Lokal (Tanpa Kuota Internet)',
+      node_tailscale: 'Jaringan Tailscale',
+      node_wifi: 'AP Wi-Fi',
+      sub_tailscale: 'P2P Terenkripsi',
+      sub_wifi: 'Nirkabel',
       val_server_location: 'Server Lokal',
       meta_network: 'Jaringan',
       val_network: 'Lokal (Tanpa Kuota Internet)',
@@ -676,6 +710,136 @@
     return dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
   }
 
+  // ---------------------------------------------------------------------------
+  // Wave 13: Client Device & Connection Path Detection
+  // ---------------------------------------------------------------------------
+  let detectedDevice = null;
+  let detectedConn = null;
+
+  function detectClientDevice() {
+    const ua = (navigator.userAgent || '');
+    const platform = (navigator.platform || '');
+    const maxTouch = navigator.maxTouchPoints || 0;
+    if (/iPhone/i.test(ua)) {
+      return { name: 'iPhone', type: 'Mobile', icon: 'smartphone', key: 'device_iphone' };
+    }
+    if (/iPad/i.test(ua)) {
+      return { name: 'iPad', type: 'Tablet', icon: 'tablet', key: 'device_ipad' };
+    }
+    if (/Macintosh|MacIntel|MacPPC|Mac68K/i.test(platform) && maxTouch > 1 && !/Mobile/i.test(ua)) {
+      return { name: 'iPad', type: 'Tablet', icon: 'tablet', key: 'device_ipad' };
+    }
+    if (/Android/i.test(ua)) {
+      if (/Mobile/i.test(ua)) {
+        return { name: 'Android Phone', type: 'Mobile', icon: 'smartphone', key: 'device_android' };
+      }
+      return { name: 'Android Tablet', type: 'Tablet', icon: 'tablet', key: 'device_android_tab' };
+    }
+    if (/CrOS/i.test(ua)) {
+      return { name: 'Chromebook', type: 'Desktop', icon: 'laptop', key: 'device_chromebook' };
+    }
+    if (/Windows|Win32|Win64|WOW64/i.test(ua) || /Windows/i.test(platform)) {
+      return { name: 'Windows PC', type: 'Desktop', icon: 'desktop', key: 'device_windows' };
+    }
+    if (/Macintosh|MacIntel|MacPPC|Mac68K|macOS/i.test(ua) || /Mac/i.test(platform)) {
+      return { name: 'Mac', type: 'Desktop', icon: 'desktop', key: 'device_mac' };
+    }
+    if (/Linux|X11/i.test(ua) || /Linux/i.test(platform)) {
+      return { name: 'Linux PC', type: 'Desktop', icon: 'desktop', key: 'device_linux' };
+    }
+    return { name: 'Client Device', type: 'Desktop', icon: 'desktop', key: 'device_generic' };
+  }
+
+  function detectConnectionType(clientIp) {
+    const ip = (clientIp || '').trim();
+    const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    const o1 = m ? parseInt(m[1], 10) : -1;
+    const o2 = m ? parseInt(m[2], 10) : -1;
+    if (m && o1 === 100 && o2 >= 64 && o2 <= 127) {
+      return { type: 'tailscale', badge: 'Tailscale', nodeKey: 'node_tailscale', subKey: 'sub_tailscale', netKey: 'net_tailscale' };
+    }
+    if (/\.ts\.net$/i.test(ip)) {
+      return { type: 'tailscale', badge: 'Tailscale', nodeKey: 'node_tailscale', subKey: 'sub_tailscale', netKey: 'net_tailscale' };
+    }
+    const isPrivate = m ? (
+      (o1 === 192 && o2 === 168) ||
+      (o1 === 172 && o2 >= 16 && o2 <= 31) ||
+      (o1 === 10)
+    ) : false;
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const isWifi = (conn && conn.type === 'wifi') ||
+      (detectedDevice && (detectedDevice.type === 'Mobile' || detectedDevice.type === 'Tablet') && isPrivate);
+    if (isWifi) {
+      return { type: 'wifi', badge: 'Wi-Fi', nodeKey: 'node_wifi', subKey: 'sub_wifi', netKey: 'net_wifi' };
+    }
+    return { type: 'lan', badge: 'LAN', nodeKey: 'node_switch', subKey: null, netKey: 'net_lan' };
+  }
+
+  const DEVICE_ICONS = {
+    desktop: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    laptop: '<rect x="4" y="4" width="16" height="10" rx="2"/><path d="M2 20h20l-2-4H4l-2 4z"/>',
+    tablet: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/>',
+    smartphone: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>'
+  };
+  const CONN_ICONS = {
+    tailscale: '<path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/>',
+    wifi: '<path d="M2 8.5a16 16 0 0120 0"/><path d="M5 12a11 11 0 0114 0"/><path d="M8.5 15.5a6 6 0 017 0"/><path d="M12 19h.01"/>',
+    lan: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="6" cy="12" r="1.5"/><circle cx="10" cy="12" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>'
+  };
+
+  function updateTopologyIcons() {
+    const clientBox = document.querySelector('.node-client');
+    if (clientBox && detectedDevice && DEVICE_ICONS[detectedDevice.icon]) {
+      clientBox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + DEVICE_ICONS[detectedDevice.icon] + '</svg>';
+    }
+    if (!detectedConn) return;
+    const midBox = document.querySelector('.node-switch');
+    if (midBox && CONN_ICONS[detectedConn.type]) {
+      midBox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + CONN_ICONS[detectedConn.type] + '</svg>';
+    }
+  }
+
+  function refreshDynamicLabels() {
+    const devName = detectedDevice ? t(detectedDevice.key) : t('device_generic');
+    const devEl = document.getElementById('topoClientDevice');
+    const metaDevEl = document.getElementById('metaDevice');
+    if (devEl) devEl.textContent = devName;
+    if (metaDevEl) metaDevEl.textContent = devName;
+    if (!detectedConn) return;
+    const connBadge = document.getElementById('connectorBadgeNet');
+    if (connBadge) connBadge.textContent = detectedConn.badge;
+    const midTitle = document.getElementById('topoMiddleTitle');
+    if (midTitle) midTitle.textContent = detectedConn.nodeKey ? t(detectedConn.nodeKey) : t('node_switch');
+    const midSub = document.getElementById('topoMiddleSub');
+    if (midSub) {
+      if (detectedConn.type === 'lan') midSub.textContent = '1.0 Gbps Full';
+      else if (detectedConn.subKey) midSub.textContent = t(detectedConn.subKey);
+    }
+    const netEl = document.getElementById('metaNetworkVal');
+    if (netEl && detectedConn.netKey) netEl.textContent = t(detectedConn.netKey);
+  }
+
+  function updateConnectionUI(clientIp) {
+    detectedConn = detectConnectionType(clientIp);
+    updateTopologyIcons();
+    refreshDynamicLabels();
+  }
+
+  function initClientDevice() {
+    detectedDevice = detectClientDevice();
+    const devName = t(detectedDevice.key);
+    const devEl = document.getElementById('topoClientDevice');
+    const metaDevEl = document.getElementById('metaDevice');
+    if (devEl) devEl.textContent = devName;
+    if (metaDevEl) metaDevEl.textContent = devName;
+    updateConnectionUI('');
+  }
+
+  if (typeof window !== 'undefined') {
+    window.detectClientDevice = detectClientDevice;
+    window.detectConnectionType = detectConnectionType;
+  }
+
   // Bufferbloat grade system (Cloudflare-style rating A+ to F based on loaded bufferbloat delta).
   function getBufferbloatGrade(deltaMs) {
     const d = deltaMs !== null && !isNaN(deltaMs) ? deltaMs : 0;
@@ -782,6 +946,8 @@
     const copyResultBtnText = document.getElementById('copyResultBtnText');
     if (copyResultBtnText) copyResultBtnText.textContent = t('btn_copy_link');
 
+    refreshDynamicLabels();
+
     updateQualityScores(lastDlVal, lastPingVal, lastJitterVal, lastUlVal);
   }
 
@@ -871,6 +1037,8 @@
         } catch (_) {}
       }
       if (resClientIp) resClientIp.textContent = clientIp || '--';
+      const resDevice = document.getElementById('resDevice');
+      if (resDevice) resDevice.textContent = t(detectedDevice ? detectedDevice.key : 'device_generic');
       if (resServerIp) resServerIp.textContent = data.serverIp || location.hostname || 'speedtest.local';
 
       if (resTestId) resTestId.textContent = id;
@@ -1189,6 +1357,7 @@
         applyLanguage(currentLang === 'id' ? 'en' : 'id');
       });
     }
+    initClientDevice();
 
     // Results page branch
     if (isResultsPage) {
@@ -1284,6 +1453,7 @@
       if (clientIpVal) clientIpVal.textContent = cleanIp;
       if (metaClientIp) metaClientIp.textContent = cleanIp;
       if (topoClientIp) topoClientIp.textContent = cleanIp;
+      updateConnectionUI(cleanIp);
     }
 
     function fetchClientIp() {
