@@ -633,7 +633,7 @@ body {
   align-items: center;
   text-align: center;
   gap: 6px;
-  flex: 1;
+  flex: 0 0 auto;
 }
 
 .node-icon-box {
@@ -673,20 +673,14 @@ body {
   letter-spacing: -0.01em;
 }
 
-.node-sub {
-  font-size: 0.68rem;
-  font-family: var(--font-mono);
-  color: var(--cf-text-muted);
-}
-
 .topology-connector {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  flex: 1.2;
-  padding: 0 12px;
+  flex: 1;
+  margin: 0 20px;
   min-width: 0;
 }
 
@@ -697,6 +691,10 @@ body {
 }
 
 .connector-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;
@@ -705,6 +703,7 @@ body {
   padding: 1px 6px;
   border-radius: 9999px;
   border: 1px solid rgba(0, 164, 228, 0.25);
+  white-space: nowrap;
 }
 
 /* Metadata List */

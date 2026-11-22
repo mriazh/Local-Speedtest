@@ -44,7 +44,7 @@
       node_client: 'You',
       node_switch: 'Core Switch',
       node_server: 'Server',
-      meta_connected_ipv4: 'Connected via IPv4',
+      meta_connected: 'Connected via',
       meta_server_location: 'Server location',
       meta_device: 'Device',
       device_windows: 'Windows PC',
@@ -179,7 +179,7 @@
       node_client: 'Anda',
       node_switch: 'Switch Inti',
       node_server: 'Server',
-      meta_connected_ipv4: 'Terhubung melalui IPv4',
+      meta_connected: 'Terhubung melalui',
       meta_server_location: 'Lokasi Server',
       meta_device: 'Perangkat',
       device_windows: 'PC Windows',
@@ -812,15 +812,8 @@
   }
 
   function refreshDynamicLabels() {
-    const devName = detectedDevice ? t(detectedDevice.key) : t('device_generic');
-    const devEl = document.getElementById('topoClientSub');
     const metaDevEl = document.getElementById('metaDevice');
-    if (devEl) {
-      const ipEl = document.getElementById('metaClientIp');
-      const ipText = (ipEl && ipEl.textContent && ipEl.textContent !== '--') ? ipEl.textContent : '';
-      devEl.textContent = ipText ? devName + ' · ' + ipText : devName;
-    }
-    if (metaDevEl) metaDevEl.textContent = devName;
+    if (metaDevEl) metaDevEl.textContent = detectedDevice ? t(detectedDevice.key) : t('device_generic');
     if (!detectedConn) return;
     const connBadge = document.getElementById('connectorBadgeNet');
     if (connBadge) connBadge.textContent = detectedConn.badge;
@@ -837,11 +830,8 @@
 
   function initClientDevice() {
     detectedDevice = detectClientDevice();
-    const devName = t(detectedDevice.key);
-    const devEl = document.getElementById('topoClientSub');
     const metaDevEl = document.getElementById('metaDevice');
-    if (devEl) devEl.textContent = devName;
-    if (metaDevEl) metaDevEl.textContent = devName;
+    if (metaDevEl) metaDevEl.textContent = t(detectedDevice.key);
     updateConnectionUI('');
   }
 
@@ -1381,7 +1371,6 @@
     // Header & Control Elements
     const clientIpVal = document.getElementById('clientIpVal');
     const metaClientIp = document.getElementById('metaClientIp');
-    const topoClientSub = document.getElementById('topoClientSub');
     const langOptId = document.getElementById('langOptId');
     const langOptEn = document.getElementById('langOptEn');
 
@@ -1458,19 +1447,13 @@
     // Initial Client IP Pre-fetch
     // -------------------------------------------------------------------------
     function updateIpUI(ip) {
-      const fallback = 'Offline';
       if (!ip) {
-        if (topoClientSub) topoClientSub.textContent = fallback;
         if (metaClientIp) metaClientIp.textContent = '--';
         return;
       }
       const cleanIp = ip.split(' ')[0] || ip;
       if (clientIpVal) clientIpVal.textContent = cleanIp;
       if (metaClientIp) metaClientIp.textContent = cleanIp;
-      if (topoClientSub) {
-        const devName = detectedDevice ? t(detectedDevice.key) : t('device_generic');
-        topoClientSub.textContent = devName + ' · ' + cleanIp;
-      }
       updateConnectionUI(cleanIp);
     }
 
@@ -1491,9 +1474,7 @@
     fetchClientIp();
 
     const serverHost = location.hostname || 'speedtest.local';
-    const topoServerSub = document.getElementById('topoServerSub');
     const metaServerIp = document.getElementById('metaServerIp');
-    if (topoServerSub) topoServerSub.textContent = serverHost;
     if (metaServerIp) metaServerIp.textContent = serverHost;
 
     // -------------------------------------------------------------------------
