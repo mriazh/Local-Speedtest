@@ -811,9 +811,13 @@
 
   function refreshDynamicLabels() {
     const devName = detectedDevice ? t(detectedDevice.key) : t('device_generic');
-    const devEl = document.getElementById('topoClientDevice');
+    const devEl = document.getElementById('topoClientSub');
     const metaDevEl = document.getElementById('metaDevice');
-    if (devEl) devEl.textContent = devName;
+    if (devEl) {
+      const ipEl = document.getElementById('metaClientIp');
+      const ipText = (ipEl && ipEl.textContent && ipEl.textContent !== '--') ? ipEl.textContent : '';
+      devEl.textContent = ipText ? devName + ' · ' + ipText : devName;
+    }
     if (metaDevEl) metaDevEl.textContent = devName;
     if (!detectedConn) return;
     const connBadge = document.getElementById('connectorBadgeNet');
@@ -838,7 +842,7 @@
   function initClientDevice() {
     detectedDevice = detectClientDevice();
     const devName = t(detectedDevice.key);
-    const devEl = document.getElementById('topoClientDevice');
+    const devEl = document.getElementById('topoClientSub');
     const metaDevEl = document.getElementById('metaDevice');
     if (devEl) devEl.textContent = devName;
     if (metaDevEl) metaDevEl.textContent = devName;
@@ -1381,7 +1385,7 @@
     // Header & Control Elements
     const clientIpVal = document.getElementById('clientIpVal');
     const metaClientIp = document.getElementById('metaClientIp');
-    const topoClientIp = document.getElementById('topoClientIp');
+    const topoClientSub = document.getElementById('topoClientSub');
     const langOptId = document.getElementById('langOptId');
     const langOptEn = document.getElementById('langOptEn');
 
@@ -1458,11 +1462,19 @@
     // Initial Client IP Pre-fetch
     // -------------------------------------------------------------------------
     function updateIpUI(ip) {
-      if (!ip) return;
+      const fallback = 'Offline';
+      if (!ip) {
+        if (topoClientSub) topoClientSub.textContent = fallback;
+        if (metaClientIp) metaClientIp.textContent = '--';
+        return;
+      }
       const cleanIp = ip.split(' ')[0] || ip;
       if (clientIpVal) clientIpVal.textContent = cleanIp;
       if (metaClientIp) metaClientIp.textContent = cleanIp;
-      if (topoClientIp) topoClientIp.textContent = cleanIp;
+      if (topoClientSub) {
+        const devName = detectedDevice ? t(detectedDevice.key) : t('device_generic');
+        topoClientSub.textContent = devName + ' · ' + cleanIp;
+      }
       updateConnectionUI(cleanIp);
     }
 
@@ -1472,10 +1484,12 @@
         .then((data) => {
           if (data && data.processedString) {
             updateIpUI(data.processedString);
+          } else {
+            updateIpUI(null);
           }
         })
         .catch(() => {
-          updateIpUI('172.16.x.x');
+          updateIpUI(null);
         });
     }
     fetchClientIp();
