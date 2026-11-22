@@ -59,6 +59,7 @@
       net_tailscale: 'Tailscale (Encrypted Mesh)',
       net_netbird: 'NetBird (Encrypted Mesh)',
       net_wifi: 'Local Wi-Fi (Zero Internet Quota)',
+      net_socks5: 'SOCKS5 Proxy (NetBird)',
       net_lan: 'Local (Zero Internet Quota)',
       node_tailscale: 'Tailscale Mesh',
       node_netbird: 'NetBird Mesh',
@@ -193,6 +194,7 @@
       net_tailscale: 'Tailscale (Mesh Terenkripsi)',
       net_netbird: 'NetBird (Mesh Terenkripsi)',
       net_wifi: 'Wi-Fi Lokal (Tanpa Kuota Internet)',
+      net_socks5: 'Proxy SOCKS5 (NetBird)',
       net_lan: 'Lokal (Tanpa Kuota Internet)',
       node_tailscale: 'Jaringan Tailscale',
       node_netbird: 'Jaringan NetBird',
@@ -761,6 +763,10 @@
     const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     const o1 = m ? parseInt(m[1], 10) : -1;
     const o2 = m ? parseInt(m[2], 10) : -1;
+    // localhost/loopback → SOCKS5 proxy (NetBird local forwarder)
+    if (ip === '127.0.0.1' || /localhost/i.test(ip) || /^::1$/.test(ip)) {
+      return { type: 'socks5', badge: 'SOCKS5', nodeKey: null, subKey: null, netKey: 'net_socks5' };
+    }
     if ((m && o1 === 100 && o2 === 71) || /^fd00:375:74e3:/i.test(ip) || /^fd00:/i.test(ip) || /netbird\.cloud$/i.test(ip) || /netbird\.cloud$/i.test(location.hostname)) {
       return { type: 'netbird', badge: 'NetBird', nodeKey: 'node_netbird', subKey: 'sub_netbird', netKey: 'net_netbird' };
     }
@@ -802,11 +808,7 @@
     if (clientBox && detectedDevice && DEVICE_ICONS[detectedDevice.icon]) {
       clientBox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + DEVICE_ICONS[detectedDevice.icon] + '</svg>';
     }
-    if (!detectedConn) return;
-    const midBox = document.querySelector('.node-switch');
-    if (midBox && CONN_ICONS[detectedConn.type]) {
-      midBox.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + CONN_ICONS[detectedConn.type] + '</svg>';
-    }
+    // middle node removed — no switch icon to update
   }
 
   function refreshDynamicLabels() {
@@ -822,13 +824,7 @@
     if (!detectedConn) return;
     const connBadge = document.getElementById('connectorBadgeNet');
     if (connBadge) connBadge.textContent = detectedConn.badge;
-    const midTitle = document.getElementById('topoMiddleTitle');
-    if (midTitle) midTitle.textContent = detectedConn.nodeKey ? t(detectedConn.nodeKey) : t('node_switch');
-    const midSub = document.getElementById('topoMiddleSub');
-    if (midSub) {
-      if (detectedConn.type === 'lan') midSub.textContent = '1.0 Gbps Full';
-      else if (detectedConn.subKey) midSub.textContent = t(detectedConn.subKey);
-    }
+    // middle node removed — topology has only client → server
     const netEl = document.getElementById('metaNetworkVal');
     if (netEl && detectedConn.netKey) netEl.textContent = t(detectedConn.netKey);
   }

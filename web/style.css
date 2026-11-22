@@ -660,12 +660,6 @@ body {
   background: rgba(0, 164, 228, 0.08);
 }
 
-.node-switch {
-  color: var(--cf-orange);
-  border-color: rgba(246, 130, 31, 0.35);
-  background: rgba(246, 130, 31, 0.08);
-}
-
 .node-server {
   color: var(--cf-green);
   border-color: rgba(16, 185, 129, 0.35);
@@ -689,9 +683,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  flex: 0.8;
-  padding: 0 4px;
+  justify-content: center;
+  gap: 6px;
+  flex: 1.2;
+  padding: 0 12px;
+  min-width: 0;
 }
 
 .connector-line {
