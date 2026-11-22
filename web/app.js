@@ -57,11 +57,14 @@
       device_chromebook: 'Chromebook',
       device_generic: 'Client Device',
       net_tailscale: 'Tailscale (Encrypted Mesh)',
+      net_netbird: 'NetBird (Encrypted Mesh)',
       net_wifi: 'Local Wi-Fi (Zero Internet Quota)',
       net_lan: 'Local (Zero Internet Quota)',
       node_tailscale: 'Tailscale Mesh',
+      node_netbird: 'NetBird Mesh',
       node_wifi: 'Wi-Fi AP',
       sub_tailscale: 'Encrypted P2P',
+      sub_netbird: 'Encrypted P2P',
       sub_wifi: 'Wireless',
       val_server_location: 'Local Server',
       meta_network: 'Network',
@@ -188,11 +191,14 @@
       device_chromebook: 'Chromebook',
       device_generic: 'Perangkat Klien',
       net_tailscale: 'Tailscale (Mesh Terenkripsi)',
+      net_netbird: 'NetBird (Mesh Terenkripsi)',
       net_wifi: 'Wi-Fi Lokal (Tanpa Kuota Internet)',
       net_lan: 'Lokal (Tanpa Kuota Internet)',
       node_tailscale: 'Jaringan Tailscale',
+      node_netbird: 'Jaringan NetBird',
       node_wifi: 'AP Wi-Fi',
       sub_tailscale: 'P2P Terenkripsi',
+      sub_netbird: 'P2P Terenkripsi',
       sub_wifi: 'Nirkabel',
       val_server_location: 'Server Lokal',
       meta_network: 'Jaringan',
@@ -755,6 +761,9 @@
     const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     const o1 = m ? parseInt(m[1], 10) : -1;
     const o2 = m ? parseInt(m[2], 10) : -1;
+    if ((m && o1 === 100 && o2 === 71) || /netbird\.cloud$/i.test(ip) || /netbird\.cloud$/i.test(location.hostname)) {
+      return { type: 'netbird', badge: 'NetBird', nodeKey: 'node_netbird', subKey: 'sub_netbird', netKey: 'net_netbird' };
+    }
     if (m && o1 === 100 && o2 >= 64 && o2 <= 127) {
       return { type: 'tailscale', badge: 'Tailscale', nodeKey: 'node_tailscale', subKey: 'sub_tailscale', netKey: 'net_tailscale' };
     }
@@ -783,6 +792,7 @@
   };
   const CONN_ICONS = {
     tailscale: '<path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/>',
+    netbird: '<path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/>',
     wifi: '<path d="M2 8.5a16 16 0 0120 0"/><path d="M5 12a11 11 0 0114 0"/><path d="M8.5 15.5a6 6 0 017 0"/><path d="M12 19h.01"/>',
     lan: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="6" cy="12" r="1.5"/><circle cx="10" cy="12" r="1.5"/><circle cx="14" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>'
   };
