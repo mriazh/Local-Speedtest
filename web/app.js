@@ -761,7 +761,7 @@
     const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     const o1 = m ? parseInt(m[1], 10) : -1;
     const o2 = m ? parseInt(m[2], 10) : -1;
-    if ((m && o1 === 100 && o2 === 71) || /netbird\.cloud$/i.test(ip) || /netbird\.cloud$/i.test(location.hostname)) {
+    if ((m && o1 === 100 && o2 === 71) || /^fd00:375:74e3:/i.test(ip) || /^fd00:/i.test(ip) || /netbird\.cloud$/i.test(ip) || /netbird\.cloud$/i.test(location.hostname)) {
       return { type: 'netbird', badge: 'NetBird', nodeKey: 'node_netbird', subKey: 'sub_netbird', netKey: 'net_netbird' };
     }
     if (m && o1 === 100 && o2 >= 64 && o2 <= 127) {
