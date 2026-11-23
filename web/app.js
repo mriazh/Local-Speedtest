@@ -60,7 +60,7 @@
       net_netbird: 'NetBird (Encrypted Mesh)',
       net_wifi: 'Local Wi-Fi (Zero Internet Quota)',
       net_socks5: 'SOCKS5 Proxy (NetBird)',
-      net_lan: 'Local Wi-Fi / Ethernet (Zero Internet Quota)',
+      net_lan: 'Local',
       node_tailscale: 'Tailscale Mesh',
       node_netbird: 'NetBird Mesh',
       node_wifi: 'Wi-Fi AP',
@@ -69,7 +69,7 @@
       sub_wifi: 'Wireless',
       val_server_location: 'Local Server',
       meta_network: 'Network',
-      val_network: 'Local Wi-Fi / Ethernet (Zero Internet Quota)',
+      val_network: 'Local',
       meta_latency_quality: 'Latency Quality',
       val_latency_quality: 'Sub-millisecond',
       section_quality_score: 'Network Quality Score',
@@ -195,7 +195,7 @@
       net_netbird: 'NetBird (Mesh Terenkripsi)',
       net_wifi: 'Wi-Fi Lokal (Tanpa Kuota Internet)',
       net_socks5: 'Proxy SOCKS5 (NetBird)',
-      net_lan: 'Wi-Fi / Ethernet Lokal (Tanpa Kuota Internet)',
+      net_lan: 'Lokal',
       node_tailscale: 'Jaringan Tailscale',
       node_netbird: 'Jaringan NetBird',
       node_wifi: 'AP Wi-Fi',
@@ -204,7 +204,7 @@
       sub_wifi: 'Nirkabel',
       val_server_location: 'Server Lokal',
       meta_network: 'Jaringan',
-      val_network: 'Wi-Fi / Ethernet Lokal (Tanpa Kuota Internet)',
+      val_network: 'Lokal',
       meta_latency_quality: 'Kualitas Latensi',
       val_latency_quality: 'Sub-milidetik',
       section_quality_score: 'Skor Kualitas Jaringan',
@@ -794,7 +794,7 @@
     if (isWifi) {
       return { type: 'wifi', badge: 'Wi-Fi', nodeKey: 'node_wifi', subKey: 'sub_wifi', netKey: 'net_wifi' };
     }
-    return { type: 'lan', badge: 'Wi-Fi / Ethernet', nodeKey: 'node_switch', subKey: null, netKey: 'net_lan' };
+    return { type: 'lan', badge: 'Local', nodeKey: 'node_switch', subKey: null, netKey: 'net_lan' };
   }
 
   const DEVICE_ICONS = {
