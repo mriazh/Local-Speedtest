@@ -752,6 +752,13 @@
     if (/Macintosh|MacIntel|MacPPC|Mac68K|macOS/i.test(ua) || /Mac/i.test(platform)) {
       return { name: 'Mac', type: 'Desktop', icon: 'desktop', key: 'device_mac' };
     }
+    // Android in "Desktop site" mode masks UA as X11; Linux x86_64. Detect via touch + coarse pointer.
+    if (/Linux|X11/i.test(ua) && maxTouch > 1 && matchMedia('(pointer: coarse)').matches) {
+      if (Math.min(screen.width, screen.height) < 600) {
+        return { name: 'Android Phone', type: 'Mobile', icon: 'smartphone', key: 'device_android' };
+      }
+      return { name: 'Android Tablet', type: 'Tablet', icon: 'tablet', key: 'device_android_tab' };
+    }
     if (/Linux|X11/i.test(ua) || /Linux/i.test(platform)) {
       return { name: 'Linux PC', type: 'Desktop', icon: 'desktop', key: 'device_linux' };
     }
