@@ -1,7 +1,7 @@
 // Local Speedtest — Minimal Service Worker for PWA installability.
 // Cache essential shell assets; never proxy speedtest traffic.
 
-const CACHE_NAME = 'local-speedtest-v2';
+const CACHE_NAME = 'local-speedtest-v3';
 const SHELL_ASSETS = [
   '/',
   '/index.html',

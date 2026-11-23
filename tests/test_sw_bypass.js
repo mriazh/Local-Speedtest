@@ -12,7 +12,7 @@ const required = [
   "'/getIP'",
   'skipWaiting',
   'clients.claim',
-  'local-speedtest-v2'
+  'local-speedtest-v3'
 ];
 
 let failed = 0;

@@ -794,7 +794,7 @@
     if (isWifi) {
       return { type: 'wifi', badge: 'Wi-Fi', nodeKey: 'node_wifi', subKey: 'sub_wifi', netKey: 'net_wifi' };
     }
-    return { type: 'lan', badge: 'Local', nodeKey: 'node_switch', subKey: null, netKey: 'net_lan' };
+    return { type: 'lan', badge: 'Wi-Fi / Ethernet', nodeKey: 'node_switch', subKey: null, netKey: 'net_lan' };
   }
 
   const DEVICE_ICONS = {
